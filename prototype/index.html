@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>央企公务用车管理系统 - 原型</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f0f2f5;color:#333}
+
+/* 登录页 */
+.login-page{display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#1a3a6b 0%,#2b5aa0 50%,#3d7fd9 100%)}
+.login-box{width:420px;background:#fff;border-radius:8px;padding:40px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-box h1{text-align:center;font-size:22px;color:#1a3a6b;margin-bottom:8px}
+.login-box .subtitle{text-align:center;font-size:13px;color:#999;margin-bottom:30px}
+.login-box .form-item{margin-bottom:20px}
+.login-box label{display:block;font-size:14px;color:#555;margin-bottom:6px}
+.login-box input{width:100%;height:42px;border:1px solid #d9d9d9;border-radius:4px;padding:0 12px;font-size:14px;outline:none;transition:border .3s}
+.login-box input:focus{border-color:#2b5aa0}
+.login-box .captcha-row{display:flex;gap:12px}
+.login-box .captcha-row input{flex:1}
+.login-box .captcha-img{width:110px;height:42px;background:#eee;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999;cursor:pointer}
+.login-box .role-select{width:100%;height:42px;border:1px solid #d9d9d9;border-radius:4px;padding:0 12px;font-size:14px;outline:none;background:#fff}
+.login-btn{width:100%;height:44px;background:#2b5aa0;color:#fff;border:none;border-radius:4px;font-size:16px;cursor:pointer;margin-top:10px}
+.login-btn:hover{background:#1a3a6b}
+
+/* 主框架 */
+.app{display:none;height:100vh}
+.sidebar{width:220px;background:#001529;color:#fff;height:100vh;position:fixed;left:0;top:0;overflow-y:auto}
+.sidebar .logo{text-align:center;padding:20px 16px;font-size:16px;font-weight:bold;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;white-space:nowrap}
+.sidebar .menu-item{padding:13px 24px;cursor:pointer;font-size:14px;transition:all .3s;border-left:3px solid transparent;display:flex;align-items:center;gap:8px}
+.sidebar .menu-item:hover{background:rgba(255,255,255,.08)}
+.sidebar .menu-item.active{background:#1890ff;border-left-color:#1890ff}
+.sidebar .menu-divider{padding:8px 24px;font-size:12px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px}
+
+.header{height:56px;background:#fff;margin-left:220px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:10}
+.header .user-info{display:flex;align-items:center;gap:12px}
+.header .badge{position:relative;cursor:pointer}
+.header .badge .dot{position:absolute;top:-2px;right:-4px;width:8px;height:8px;background:#f5222d;border-radius:50%}
+.main{margin-left:220px;padding:20px 24px;min-height:calc(100vh - 56px)}
+
+/* 通用组件 */
+.card{background:#fff;border-radius:6px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-title{font-size:16px;font-weight:bold;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;color:#1a3a6b}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:6px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px}
+.stat-card .icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.stat-card .icon.blue{background:#e6f7ff;color:#1890ff}
+.stat-card .icon.green{background:#f6ffed;color:#52c41a}
+.stat-card .icon.orange{background:#fff7e6;color:#fa8c16}
+.stat-card .icon.red{background:#fff1f0;color:#f5222d}
+.stat-card .value{font-size:28px;font-weight:bold}
+.stat-card .label{font-size:13px;color:#999}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+table th{background:#fafafa;padding:10px 12px;text-align:left;border-bottom:2px solid #f0f0f0;font-weight:600;color:#555}
+table td{padding:10px 12px;border-bottom:1px solid #f0f0f0}
+table tr:hover td{background:#e6f7ff}
+
+.tag{padding:2px 10px;border-radius:3px;font-size:12px;display:inline-block}
+.tag-success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.tag-warning{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
+.tag-error{background:#fff1f0;color:#f5222d;border:1px solid #ffa39e}
+.tag-info{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
+.tag-processing{background:#f0f5ff;color:#2f54eb;border:1px solid #adc6ff}
+
+.flex-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:13px;color:#555;margin-bottom:4px}
+.form-group label .required{color:#f5222d;margin-left:2px}
+input[type="text"],input[type="date"],input[type="datetime-local"],input[type="number"],select,textarea{width:100%;height:36px;border:1px solid #d9d9d9;border-radius:4px;padding:0 10px;font-size:13px;outline:none}
+textarea{height:72px;padding:8px 10px;resize:vertical}
+select{background:#fff}
+input:focus,select:focus,textarea:focus{border-color:#1890ff}
+
+.btn{padding:7px 18px;border:none;border-radius:4px;font-size:13px;cursor:pointer;transition:all .3s}
+.btn-primary{background:#1890ff;color:#fff}.btn-primary:hover{background:#40a9ff}
+.btn-success{background:#52c41a;color:#fff}.btn-success:hover{background:#73d13d}
+.btn-warning{background:#fa8c16;color:#fff}.btn-warning:hover{background:#ffa940}
+.btn-danger{background:#f5222d;color:#fff}.btn-danger:hover{background:#ff4d4f}
+.btn-default{background:#fff;color:#333;border:1px solid #d9d9d9}.btn-default:hover{border-color:#1890ff;color:#1890ff}
+.btn-sm{padding:4px 12px;font-size:12px}
+.btn-link{background:none;border:none;color:#1890ff;cursor:pointer;padding:0;font-size:13px}
+
+.pagination{display:flex;gap:6px;justify-content:center;margin-top:16px}
+.pagination span{padding:6px 12px;border:1px solid #d9d9d9;border-radius:3px;cursor:pointer;font-size:13px}
+.pagination span.active{background:#1890ff;color:#fff;border-color:#1890ff}
+
+.alert-box{background:#fff7e6;border:1px solid #ffd591;border-radius:4px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#ad6800}
+.alert-error{background:#fff1f0;border-color:#ffa39e;color:#cf1322}
+.alert-info{background:#e6f7ff;border-color:#91d5ff;color:#096dd9}
+
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+.tabs{display:flex;border-bottom:1px solid #f0f0f0;margin-bottom:16px}
+.tab{padding:10px 16px;cursor:pointer;font-size:13px;color:#666;border-bottom:2px solid transparent}
+.tab.active{color:#1890ff;border-bottom-color:#1890ff;font-weight:600}
+
+.remind-list{font-size:13px}
+.remind-list li{padding:8px 0;border-bottom:1px dashed #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+.remind-list li:last-child{border:none}
+
+.page{display:none}.page.active{display:block}
+
+.model-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:100;justify-content:center;align-items:center}
+.model-overlay.show{display:flex}
+.model-box{background:#fff;border-radius:8px;padding:24px;width:560px;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.model-box h3{font-size:16px;margin-bottom:16px;color:#1a3a6b}
+.model-box .model-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0}
+
+.map-placeholder{background:#e8e8e8;border-radius:6px;height:400px;display:flex;align-items:center;justify-content:center;color:#999;font-size:14px}
+.chart-placeholder{background:#fafafa;border-radius:6px;height:300px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:16px}
+
+.timeline{padding:0;font-size:13px}
+.timeline-item{padding:8px 0 8px 24px;border-left:2px solid #e8e8e8;position:relative}
+.timeline-item::before{content:'';position:absolute;left:-5px;top:14px;width:8px;height:8px;border-radius:50%;background:#1890ff}
+.timeline-item .time{color:#999;font-size:12px}
+
+textarea{width:100%;height:60px;border:1px solid #d9d9d9;border-radius:4px;padding:8px 10px;font-size:13px;outline:none;resize:vertical}
+textarea:focus{border-color:#1890ff}
+
+.step-indicator{display:flex;align-items:center;margin-bottom:20px;font-size:12px}
+.step{display:flex;align-items:center;gap:6px}
+.step .num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold}
+.step .num.done{background:#52c41a;color:#fff}
+.step .num.current{background:#1890ff;color:#fff}
+.step .num.pending{background:#f0f0f0;color:#999}
+.step-line{width:40px;height:2px;background:#f0f0f0;margin:0 8px}
+.step-line.done{background:#52c41a}
+
+progress{width:100%;height:16px;border-radius:8px;overflow:hidden}
+progress::-webkit-progress-bar{background:#f0f0f0;border-radius:8px}
+progress::-webkit-progress-value{background:#1890ff;border-radius:8px}
+</style>
+</head>
+<body>
+
+<!-- ===== 登录页 ===== -->
+<div id="loginPage" class="login-page">
+<div class="login-box">
+<h1>央企公务用车管理系统</h1>
+<p class="subtitle">Official Vehicle Management System</p>
+<div class="form-item"><label>用户名</label><input type="text" placeholder="请输入用户名" value="admin"></div>
+<div class="form-item"><label>密码</label><input type="password" placeholder="请输入密码" value="******"></div>
+<div class="form-item captcha-row"><input type="text" placeholder="验证码"><div class="captcha-img" onclick="alert('验证码: ABCD')">A B C D</div></div>
+<div class="form-item"><label>登录角色</label><select class="role-select"><option>系统管理员</option><option>普通员工</option><option>部门负责人</option><option>车队调度员</option><option>司机</option><option>纪检监察人员</option><option>财务人员</option></select></div>
+<button class="login-btn" onclick="login()">登 录</button>
+</div>
+</div>
+
+<!-- ===== 主框架 ===== -->
+<div id="app" class="app">
+
+<!-- 侧边栏 -->
+<aside class="sidebar">
+<div class="logo">公务用车管理系统</div>
+<div class="menu-divider">主菜单</div>
+<div class="menu-item active" data-page="dashboard" onclick="switchPage('dashboard',this)">仪表盘</div>
+<div class="menu-divider">基础数据</div>
+<div class="menu-item" data-page="vehicle" onclick="switchPage('vehicle',this)">车辆档案管理</div>
+<div class="menu-item" data-page="driver" onclick="switchPage('driver',this)">驾驶员信息管理</div>
+<div class="menu-divider">用车流程</div>
+<div class="menu-item" data-page="apply" onclick="switchPage('apply',this)">用车申请</div>
+<div class="menu-item" data-page="approve" onclick="switchPage('approve',this)">用车审批</div>
+<div class="menu-item" data-page="dispatch" onclick="switchPage('dispatch',this)">车辆调度</div>
+<div class="menu-item" data-page="trip" onclick="switchPage('trip',this)">行程管理</div>
+<div class="menu-divider">监管与财务</div>
+<div class="menu-item" data-page="track" onclick="switchPage('track',this)">GPS轨迹监控</div>
+<div class="menu-item" data-page="expense" onclick="switchPage('expense',this)">费用管理</div>
+<div class="menu-item" data-page="report" onclick="switchPage('report',this)">统计报表</div>
+<div class="menu-divider">系统设置</div>
+<div class="menu-item" data-page="users" onclick="switchPage('users',this)">用户与组织管理</div>
+</aside>
+
+<!-- 头部 -->
+<header class="header">
+<div class="flex-row">
+<span style="font-size:14px;color:#999">当前位置：</span>
+<span id="breadcrumb" style="font-size:14px">仪表盘</span>
+</div>
+<div class="user-info">
+<span class="badge" onclick="showNotifications()">&#128276;<span class="dot"></span></span>
+<span style="font-size:13px;color:#666">管理员, 您好</span>
+<span style="width:32px;height:32px;background:#1890ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px">管</span>
+</div>
+</header>
+
+<!-- 主内容 -->
+<main class="main">
+
+<!-- ========== 仪表盘 ========== -->
+<div id="page-dashboard" class="page active">
+<div class="stat-grid">
+<div class="stat-card"><div class="icon blue">&#128663;</div><div><div class="value">128</div><div class="label">本月用车(次)</div></div></div>
+<div class="stat-card"><div class="icon green">&#128207;</div><div><div class="value">15,680</div><div class="label">本月总里程(km)</div></div></div>
+<div class="stat-card"><div class="icon orange">&#128176;</div><div><div class="value">86,540</div><div class="label">本月总费用(元)</div></div></div>
+<div class="stat-card"><div class="icon red">&#9888;</div><div><div class="value">5</div><div class="label">待处理告警</div></div></div>
+</div>
+
+<div class="row-2">
+<div class="card">
+<div class="card-title">近期到期提醒</div>
+<ul class="remind-list">
+<li><span>&#128993; 京A·88601 年检到期</span><span class="tag tag-warning">2026-07-15（剩23天）</span></li>
+<li><span>&#128993; 京A·88602 保险到期</span><span class="tag tag-warning">2026-07-20（剩28天）</span></li>
+<li><span>&#128308; 京A·88603 驾驶证到期（司机张强）</span><span class="tag tag-error">2026-06-30（剩8天）</span></li>
+<li><span>&#128993; 京A·88601 保养到期</span><span class="tag tag-warning">2026-07-05（剩13天）</span></li>
+<li><span>&#128994; 司机李明 安全培训逾期</span><span class="tag tag-info">已逾期32天</span></li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">预算执行进度（2026年度）</div>
+<div style="font-size:13px">
+<div style="margin-bottom:12px"><div class="flex-between" style="margin-bottom:4px"><span>京A·88601 奥迪A6L</span><span>68%</span></div><progress value="68" max="100"></progress></div>
+<div style="margin-bottom:12px"><div class="flex-between" style="margin-bottom:4px"><span>京A·88602 别克GL8</span><span>52%</span></div><progress value="52" max="100"></progress></div>
+<div style="margin-bottom:12px"><div class="flex-between" style="margin-bottom:4px"><span>京A·88603 丰田考斯特</span><span>41%</span></div><progress value="41" max="100"></progress></div>
+<div style="margin-bottom:12px"><div class="flex-between" style="margin-bottom:4px"><span>京A·88605 红旗H9</span><span>73%</span></div><progress value="73" max="100"></progress></div>
+</div>
+</div>
+</div>
+<div class="card"><div class="card-title">近期用车趋势</div><div class="chart-placeholder">月度用车次数折线图（ECharts 渲染区域）</div></div>
+<div class="row-2">
+<div class="card"><div class="card-title">部门用车排名（本月）</div><div class="chart-placeholder">部门排名柱状图</div></div>
+<div class="card"><div class="card-title">费用类型分布</div><div class="chart-placeholder">费用类型饼图</div></div>
+</div>
+</div>
+
+<!-- ========== 车辆档案管理 ========== -->
+<div id="page-vehicle" class="page">
+<div class="card">
+<div class="flex-between" style="margin-bottom:12px">
+<div class="card-title" style="margin:0;padding:0;border:none">车辆档案列表</div>
+<div class="flex-row">
+<input type="text" placeholder="搜索车牌号" style="width:160px">
+<select style="width:120px"><option>全部类型</option><option>轿车</option><option>SUV</option><option>商务车</option><option>中巴</option></select>
+<select style="width:120px"><option>全部状态</option><option>可用</option><option>维修中</option><option>已出车</option><option>已处置</option></select>
+<button class="btn btn-primary" onclick="openModel('vehicleModel')">+ 新增车辆</button>
+</div>
+</div>
+<table>
+<thead><tr><th>车牌号</th><th>品牌型号</th><th>类型</th><th>核定载客</th><th>排量(L)</th><th>燃油类型</th><th>归属部门</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>京A·88601</td><td>奥迪A6L 2023款</td><td>轿车</td><td>5</td><td>2.0T</td><td>汽油</td><td>总经理办公室</td><td><span class="tag tag-info">可用</span></td><td><button class="btn btn-link" onclick="switchPage('vehicleDetail',null)">查看</button> <button class="btn btn-link">编辑</button></td></tr>
+<tr><td>京A·88602</td><td>别克GL8 2023款</td><td>商务车</td><td>7</td><td>2.0T</td><td>汽油</td><td>综合管理部</td><td><span class="tag tag-processing">已出车</span></td><td><button class="btn btn-link">查看</button> <button class="btn btn-link">编辑</button></td></tr>
+<tr><td>京A·88603</td><td>丰田考斯特</td><td>中巴</td><td>20</td><td>4.0L</td><td>汽油</td><td>后勤保障部</td><td><span class="tag tag-success">可用</span></td><td><button class="btn btn-link">查看</button> <button class="btn btn-link">编辑</button></td></tr>
+<tr><td>京A·88605</td><td>红旗H9 2024款</td><td>轿车</td><td>5</td><td>3.0T</td><td>汽油</td><td>党委办公室</td><td><span class="tag tag-warning">维修中</span></td><td><button class="btn btn-link">查看</button> <button class="btn btn-link">编辑</button></td></tr>
+<tr><td>京A·88606</td><td>比亚迪汉EV</td><td>轿车</td><td>5</td><td>-</td><td>纯电</td><td>科技发展部</td><td><span class="tag tag-info">可用</span></td><td><button class="btn btn-link">查看</button> <button class="btn btn-link">编辑</button></td></tr>
+</tbody>
+</table>
+<div class="pagination"><span class="active">1</span><span>2</span><span>3</span><span>&gt;</span></div>
+</div>
+</div>
+
+<!-- ========== 驾驶员信息管理 ========== -->
+<div id="page-driver" class="page">
+<div class="card">
+<div class="flex-between" style="margin-bottom:12px">
+<div class="card-title" style="margin:0;padding:0;border:none">驾驶员档案列表</div>
+<div class="flex-row">
+<input type="text" placeholder="搜索姓名/工号" style="width:160px">
+<select style="width:120px"><option>全部状态</option><option>空闲</option><option>已派车</option><option>出车中</option><option>暂停出车</option></select>
+<select style="width:120px"><option>全部准驾</option><option>C1</option><option>C2</option><option>B1</option><option>B2</option><option>A1</option></select>
+<button class="btn btn-primary" onclick="openModel('driverModel')">+ 新增驾驶员</button>
+</div>
+</div>
+<table>
+<thead><tr><th>工号</th><th>姓名</th><th>性别</th><th>年龄</th><th>驾龄</th><th>准驾车型</th><th>编制类型</th><th>政治面貌</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr>
+<td>DRV202401001</td><td>张强</td><td>男</td><td>42</td><td><span class="tag tag-info">18年</span></td><td>A1</td><td>在编</td><td>中共党员</td><td><span class="tag tag-success">空闲</span></td>
+<td><button class="btn btn-link" onclick="switchPage('driverDetail',null)">详情</button></td>
+</tr>
+<tr>
+<td>DRV202401002</td><td>李明</td><td>男</td><td>35</td><td><span class="tag tag-info">12年</span></td><td>C1</td><td>合同制</td><td>群众</td><td><span class="tag tag-processing">出车中</span></td>
+<td><button class="btn btn-link">详情</button></td>
+</tr>
+<tr>
+<td>DRV202401003</td><td>王芳</td><td>女</td><td>38</td><td><span class="tag tag-info">15年</span></td><td>B1</td><td>在编</td><td>中共党员</td><td><span class="tag tag-success">空闲</span></td>
+<td><button class="btn btn-link">详情</button></td>
+</tr>
+<tr style="background:#fff7e6">
+<td>DRV202401004</td><td>赵刚</td><td>男</td><td>45</td><td><span class="tag tag-info">20年</span></td><td>C1</td><td>在编</td><td>中共党员</td><td><span class="tag tag-warning">重点关注</span></td>
+<td><button class="btn btn-link">详情</button> <button class="btn btn-sm btn-danger">解除</button></td>
+</tr>
+<tr>
+<td>DRV202401005</td><td>陈伟</td><td>男</td><td>29</td><td><span class="tag tag-info">6年</span></td><td>C1</td><td>劳务派遣</td><td>群众</td><td><span class="tag tag-error">暂停出车</span></td>
+<td><button class="btn btn-link">详情</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== 用车申请 ========== -->
+<div id="page-apply" class="page">
+<div class="row-2">
+<div class="card">
+<div class="card-title">提交用车申请</div>
+<div class="flex-row" style="margin-bottom:12px"><div style="width:50%"><div class="form-group"><label>用车事由<span class="required">*</span></label><input type="text" placeholder="如：赴XX项目现场调研"></div></div><div style="width:50%"><div class="form-group"><label>乘车人数<span class="required">*</span></label><input type="number" value="3" min="1" max="20"></div></div></div>
+<div class="flex-row" style="margin-bottom:12px"><div style="width:50%"><div class="form-group"><label>出发地点<span class="required">*</span></label><input type="text" value="集团公司总部"></div></div><div style="width:50%"><div class="form-group"><label>目的地点<span class="required">*</span></label><input type="text" placeholder="请输入目的地"></div></div></div>
+<div class="flex-row" style="margin-bottom:12px"><div style="width:50%"><div class="form-group"><label>预计出发时间<span class="required">*</span></label><input type="datetime-local" value="2026-06-23T08:30"></div></div><div style="width:50%"><div class="form-group"><label>预计返回时间<span class="required">*</span></label><input type="datetime-local" value="2026-06-23T17:00"></div></div></div>
+<div class="form-group"><label>是否需要司机</label><div style="display:flex;gap:16px"><label><input type="radio" name="needDriver" checked> 需要</label><label><input type="radio" name="needDriver"> 不需要</label></div></div>
+<div class="form-group"><label>备注</label><textarea placeholder="如有特殊需求请在此说明"></textarea></div>
+<div class="alert-info">根据您所在部门（综合管理部）和岗位级别，本次申请将依次经过：部门负责人 → 分管领导 审批。</div>
+<button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="alert('用车申请已提交！系统已自动推送待办通知给审批人。')">提交申请</button>
+</div>
+<div class="card">
+<div class="card-title">我的申请记录</div>
+<table>
+<thead><tr><th>申请编号</th><th>事由</th><th>出发时间</th><th>人数</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>SQ-20260622-001</td><td>赴密云项目现场检查</td><td>06-23 08:30</td><td>3</td><td><span class="tag tag-processing">审批中</span></td><td><button class="btn btn-link">查看</button></td></tr>
+<tr><td>SQ-20260620-003</td><td>赴市发改委汇报工作</td><td>06-21 09:00</td><td>2</td><td><span class="tag tag-success">已完成</span></td><td><button class="btn btn-link">查看</button></td></tr>
+<tr><td>SQ-20260618-002</td><td>接送来访客户</td><td>06-19 14:00</td><td>5</td><td><span class="tag tag-error">已驳回</span></td><td><button class="btn btn-link">查看</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- ========== 审批待办 ========== -->
+<div id="page-approve" class="page">
+<div class="card">
+<div class="card-title">待审批列表</div>
+<table>
+<thead><tr><th>申请编号</th><th>申请人</th><th>申请部门</th><th>事由</th><th>出发时间</th><th>人数</th><th>当前环节</th><th>提交时间</th><th>操作</th></tr></thead>
+<tbody>
+<tr>
+<td>SQ-20260622-001</td><td>张伟</td><td>综合管理部</td><td>赴密云项目现场检查</td><td>06-23 08:30</td><td>3</td><td><span class="tag tag-info">部门审批</span></td><td>06-22 14:30</td>
+<td><button class="btn btn-sm btn-success" onclick="openModel('approveModel')">通过</button> <button class="btn btn-sm btn-danger" onclick="openModel('rejectModel')">驳回</button> <button class="btn btn-sm btn-default">详情</button></td>
+</tr>
+<tr>
+<td>SQ-20260622-003</td><td>刘洋</td><td>市场经营部</td><td>赴天津客户拜访</td><td>06-24 07:00</td><td>2</td><td><span class="tag tag-info">部门审批</span></td><td>06-22 16:10</td>
+<td><button class="btn btn-sm btn-success" onclick="openModel('approveModel')">通过</button> <button class="btn btn-sm btn-danger" onclick="openModel('rejectModel')">驳回</button> <button class="btn btn-sm btn-default">详情</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="card">
+<div class="card-title">已审批记录</div>
+<table>
+<thead><tr><th>申请编号</th><th>申请人</th><th>事由</th><th>审批结果</th><th>审批时间</th><th>审批意见</th></tr></thead>
+<tbody>
+<tr><td>SQ-20260621-002</td><td>王磊</td><td>赴昌平基地接洽</td><td><span class="tag tag-success">通过</span></td><td>2026-06-21 10:15</td><td>同意，注意安全驾驶</td></tr>
+<tr><td>SQ-20260618-002</td><td>周明</td><td>接送来访客户</td><td><span class="tag tag-error">驳回</span></td><td>2026-06-18 15:30</td><td>该时段车辆已全部预约，请调整出行时间</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== 车辆调度 ========== -->
+<div id="page-dispatch" class="page">
+<div class="card">
+<div class="card-title">待调度申请</div>
+<table>
+<thead><tr><th>申请编号</th><th>申请人</th><th>事由</th><th>出发时间</th><th>返回时间</th><th>人数</th><th>需司机</th><th>操作</th></tr></thead>
+<tbody>
+<tr>
+<td>SQ-20260621-001</td><td>陈晓</td><td>赴怀柔科学城调研</td><td>06-23 08:30</td><td>06-23 18:00</td><td>4</td><td>是</td>
+<td><button class="btn btn-sm btn-primary" onclick="openModel('dispatchModel')">派车</button></td>
+</tr>
+<tr>
+<td>SQ-20260621-005</td><td>赵琳</td><td>赴通州行政副中心开会</td><td>06-23 09:00</td><td>06-23 12:00</td><td>2</td><td>是</td>
+<td><button class="btn btn-sm btn-primary" onclick="openModel('dispatchModel')">派车</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== 行程管理 ========== -->
+<div id="page-trip" class="page">
+<div class="card">
+<div class="card-title">我的出车任务</div>
+<table>
+<thead><tr><th>派车单号</th><th>车辆</th><th>用车人</th><th>出发时间</th><th>返回时间</th><th>目的地</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>PC-20260622-001</td><td>京A·88602 别克GL8</td><td>陈晓</td><td>06-23 08:30</td><td>06-23 18:00</td><td>怀柔科学城</td><td><span class="tag tag-info">待出车</span></td><td><button class="btn btn-sm btn-success" onclick="alert('已确认出车！开始里程：52,380km')">开始出车</button></td></tr>
+<tr><td>PC-20260622-002</td><td>京A·88601 奥迪A6L</td><td>刘洋</td><td>06-22 09:00</td><td>06-22 17:00</td><td>天津</td><td><span class="tag tag-processing">出车中</span></td><td><button class="btn btn-sm btn-warning" onclick="openModel('tripEndModel')">结束行程</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== GPS轨迹监控 ========== -->
+<div id="page-track" class="page">
+<div class="card">
+<div class="card-title">实时车辆监控</div>
+<div class="flex-row" style="margin-bottom:12px">
+<select style="width:180px"><option>全部车辆</option><option>京A·88601 奥迪A6L</option><option>京A·88602 别克GL8</option></select>
+<button class="btn btn-primary">开始追踪</button>
+<button class="btn btn-default">轨迹回放</button>
+<span style="font-size:13px;color:#999;margin-left:16px">当前在线车辆: 2 辆</span>
+</div>
+<div class="map-placeholder">
+<div style="text-align:center">
+<div style="font-size:48px;margin-bottom:12px">&#128506;</div>
+<div style="font-size:16px;color:#666;margin-bottom:4px">实时地图监控区域</div>
+<div style="font-size:12px;color:#999">Leaflet / 高德地图集成区域</div>
+<div style="font-size:12px;color:#999">显示所有出车车辆实时位置标记</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-title">异常告警列表</div>
+<table>
+<thead><tr><th>告警时间</th><th>车辆</th><th>告警类型</th><th>严重度</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>06-22 11:30</td><td>京A·88602</td><td>偏离申报路线（偏差2.3km）</td><td><span class="tag tag-warning">中</span></td><td><span class="tag tag-error">待处理</span></td><td><button class="btn btn-link">核实</button></td></tr>
+<tr><td>06-21 15:20</td><td>京A·88601</td><td>超速行驶（132km/h）</td><td><span class="tag tag-error">高</span></td><td><span class="tag tag-success">已处理</span></td><td><button class="btn btn-link">查看</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== 费用管理 ========== -->
+<div id="page-expense" class="page">
+
+<div class="tabs">
+<div class="tab active" onclick="switchExpenseTab(0,this)">费用列表</div>
+<div class="tab" onclick="switchExpenseTab(1,this)">预算执行</div>
+<div class="tab" onclick="switchExpenseTab(2,this)">维修审批</div>
+<div class="tab" onclick="switchExpenseTab(3,this)">报销审核</div>
+<div class="tab" onclick="switchExpenseTab(4,this)">异常告警</div>
+</div>
+
+<div id="expense-tab-0">
+<div class="flex-row" style="margin-bottom:12px">
+<select style="width:130px"><option>全部车辆</option><option>京A·88601</option></select>
+<select style="width:130px"><option>全部类型</option><option>油费</option><option>过路费</option><option>停车费</option><option>维修保养费</option><option>保险费</option><option>年检费</option></select>
+<input type="date" style="width:140px"> <span>至</span> <input type="date" style="width:140px">
+<button class="btn btn-primary">查询</button>
+<button class="btn btn-default" onclick="openModel('expenseAddModel')">+ 录入费用</button>
+</div>
+<div class="card" style="padding:0">
+<table>
+<thead><tr><th>日期</th><th>车辆</th><th>费用类型</th><th>金额(元)</th><th>关联行程</th><th>录入人</th><th>凭证</th><th>入账状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>06-22</td><td>京A·88601</td><td><span class="tag tag-info">油费</span></td><td>480.00</td><td>PC-0622-002</td><td>司机-李明</td><td>&#9989;</td><td><span class="tag tag-success">已入账</span></td><td><button class="btn btn-link">查看</button></td></tr>
+<tr><td>06-21</td><td>京A·88602</td><td><span class="tag tag-info">过路费</span></td><td>85.00</td><td>PC-0621-003</td><td>司机-张强</td><td>&#9989;</td><td><span class="tag tag-success">已入账</span></td><td><button class="btn btn-link">查看</button></td></tr>
+<tr><td>06-20</td><td>京A·88605</td><td><span class="tag tag-warning">维修保养费</span></td><td>3,200.00</td><td>-</td><td>车队管理员</td><td>&#9989;</td><td><span class="tag tag-processing">审核中</span></td><td><button class="btn btn-link">查看</button></td></tr>
+<tr style="background:#fff1f0"><td>06-19</td><td>京A·88603</td><td><span class="tag tag-info">油费</span></td><td>350.00</td><td>-</td><td>司机-王芳</td><td>&#10060;</td><td><span class="tag tag-error">凭证缺失</span></td><td><button class="btn btn-link">查看</button></td></tr>
+<tr style="background:#fff7e6"><td>06-18</td><td>京A·88601</td><td><span class="tag tag-info">油费</span></td><td>420.00</td><td>PC-0618-001</td><td>司机-李明</td><td>&#9989;</td><td><span class="tag tag-warning">异常标记</span></td><td><button class="btn btn-link">查看</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="expense-tab-1" style="display:none">
+<div class="card"><div class="card-title">年度预算执行看板（2026年）</div>
+<table>
+<thead><tr><th>车辆</th><th>年度预算(元)</th><th>已支出(元)</th><th>执行率</th><th>进度条</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>京A·88601 奥迪A6L</td><td>80,000</td><td>54,400</td><td>68%</td><td><progress value="68" max="100" style="width:120px;height:14px"></progress></td><td><span class="tag tag-info">正常</span></td></tr>
+<tr><td>京A·88602 别克GL8</td><td>60,000</td><td>31,200</td><td>52%</td><td><progress value="52" max="100" style="width:120px;height:14px"></progress></td><td><span class="tag tag-info">正常</span></td></tr>
+<tr><td>京A·88605 红旗H9</td><td>90,000</td><td>65,700</td><td>73%</td><td><progress value="73" max="100" style="width:120px;height:14px"></progress></td><td><span class="tag tag-warning">关注</span></td></tr>
+<tr style="background:#fff7e6"><td>京A·88603 考斯特</td><td>120,000</td><td>49,200</td><td>41%</td><td><progress value="41" max="100" style="width:120px;height:14px"></progress></td><td><span class="tag tag-info">正常</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="expense-tab-2" style="display:none">
+<div class="card"><div class="card-title">维修审批待办</div>
+<table>
+<thead><tr><th>申请编号</th><th>车辆</th><th>故障描述</th><th>预估费用(元)</th><th>定点维修厂</th><th>审批层级</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>WX-20260622-001</td><td>京A·88605 红旗H9</td><td>空调制冷效果差，需检修压缩机</td><td>3,500.00</td><td>京通汽修厂</td><td><span class="tag tag-info">车队→分管领导</span></td><td><span class="tag tag-processing">审批中</span></td><td><button class="btn btn-sm btn-success">通过</button> <button class="btn btn-sm btn-danger">驳回</button></td></tr>
+</tbody>
+</table>
+</div>
+<div class="card"><div class="card-title">保养到期提醒</div>
+<table>
+<thead><tr><th>车辆</th><th>上次保养日期</th><th>上次保养里程</th><th>保养周期</th><th>距下次保养</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>京A·88601</td><td>2026-04-15</td><td>48,000km</td><td>5000km/6个月</td><td>剩余480km / 剩余23天</td><td><span class="tag tag-warning">即将到期</span></td></tr>
+<tr><td>京A·88602</td><td>2026-05-20</td><td>35,200km</td><td>5000km/6个月</td><td>剩余3,200km / 剩余88天</td><td><span class="tag tag-success">正常</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="expense-tab-3" style="display:none">
+<div class="card">
+<div class="card-title">待审核报销单</div>
+<table>
+<thead><tr><th>报销单号</th><th>车辆</th><th>费用期间</th><th>费用笔数</th><th>总金额(元)</th><th>风险项</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr>
+<td>BX-202606-003</td><td>京A·88601</td><td>2026年6月</td><td>12笔</td><td>8,560.00</td><td><span class="tag tag-success">无异常</span></td><td><span class="tag tag-processing">财务审核中</span></td>
+<td><button class="btn btn-sm btn-success">审核通过</button> <button class="btn btn-sm btn-danger">退回</button> <button class="btn btn-sm btn-default">详情</button></td>
+</tr>
+<tr style="background:#fff7e6">
+<td>BX-202606-004</td><td>京A·88603</td><td>2026年6月</td><td>8笔</td><td>6,320.00</td><td><span class="tag tag-warning">1笔凭证缺失</span></td><td><span class="tag tag-processing">财务审核中</span></td>
+<td><button class="btn btn-sm btn-success">审核通过</button> <button class="btn btn-sm btn-danger">退回</button> <button class="btn btn-sm btn-default">详情</button></td>
+</tr>
+</tbody>
+</table>
+<div class="step-indicator" style="margin-top:16px">
+<div class="step"><span class="num done">&#10003;</span>制单</div><div class="step-line done"></div>
+<div class="step"><span class="num done">&#10003;</span>车队审核</div><div class="step-line done"></div>
+<div class="step"><span class="num current">3</span>财务审核</div><div class="step-line"></div>
+<div class="step"><span class="num pending">4</span>入账</div>
+</div>
+</div>
+</div>
+
+<div id="expense-tab-4" style="display:none">
+<div class="card">
+<div class="card-title">费用异常告警</div>
+<table>
+<thead><tr><th>告警时间</th><th>车辆</th><th>费用类型</th><th>金额</th><th>异常类型</th><th>严重度</th><th>处理状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr style="background:#fff1f0"><td>06-22 21:30</td><td>京A·88601</td><td>油费</td><td>480</td><td>深夜加油（22:00后）</td><td><span class="tag tag-error">高</span></td><td><span class="tag tag-error">待处理</span></td><td><button class="btn btn-link">核实</button></td></tr>
+<tr style="background:#fff7e6"><td>06-20 14:00</td><td>京A·88603</td><td>油费</td><td>350</td><td>无对应行程记录</td><td><span class="tag tag-error">高</span></td><td><span class="tag tag-error">待处理</span></td><td><button class="btn btn-link">核实</button></td></tr>
+<tr><td>06-18 10:00</td><td>京A·88605</td><td>油费</td><td>620</td><td>单日两次加油</td><td><span class="tag tag-warning">中</span></td><td><span class="tag tag-success">已处理</span></td><td><button class="btn btn-link">查看</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<!-- ========== 统计报表 ========== -->
+<div id="page-report" class="page">
+<div class="flex-row" style="margin-bottom:16px">
+<select style="width:120px"><option>2026年</option><option>2025年</option></select>
+<select style="width:100px"><option>6月</option><option>5月</option><option>4月</option></select>
+<button class="btn btn-primary">查询</button>
+<button class="btn btn-success">导出Excel</button>
+</div>
+<div class="stat-grid">
+<div class="stat-card"><div class="icon blue">&#128663;</div><div><div class="value">128</div><div class="label">本月用车(次)</div></div></div>
+<div class="stat-card"><div class="icon green">&#128207;</div><div><div class="value">15,680</div><div class="label">总里程(km)</div></div></div>
+<div class="stat-card"><div class="icon orange">&#128176;</div><div><div class="value">86,540</div><div class="label">总费用(元)</div></div></div>
+<div class="stat-card"><div class="icon blue">&#128101;</div><div><div class="value">91.3%</div><div class="label">车辆使用率</div></div></div>
+</div>
+<div class="row-2">
+<div class="card"><div class="card-title">部门用车排名（次数）</div><div class="chart-placeholder">部门排名柱状图（ECharts）</div></div>
+<div class="card"><div class="card-title">费用类型结构分析</div><div class="chart-placeholder">费用类型饼图（ECharts）</div></div>
+</div>
+<div class="row-2">
+<div class="card"><div class="card-title">月度用车趋势</div><div class="chart-placeholder">月度趋势折线图（ECharts）</div></div>
+<div class="card"><div class="card-title">车辆使用率分布</div><div class="chart-placeholder">车辆使用率排行榜（ECharts）</div></div>
+</div>
+</div>
+
+<!-- ========== 用户管理 ========== -->
+<div id="page-users" class="page">
+<div class="row-2">
+<div class="card">
+<div class="card-title">组织架构</div>
+<div style="font-size:13px;padding-left:8px">
+<div style="padding:6px 0;cursor:pointer;font-weight:bold">&#127970; 集团公司总部</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer">&#128193; 总经理办公室</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer;font-weight:bold;color:#1890ff">&#128193; 综合管理部</div>
+<div style="padding:6px 0 6px 40px;cursor:pointer">&#128100; 车队管理科</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer">&#128193; 党委办公室</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer">&#128193; 市场经营部</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer">&#128193; 科技发展部</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer">&#128193; 财务审计部</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer">&#128193; 纪检监察部</div>
+<div style="padding:6px 0 6px 20px;cursor:pointer">&#128193; 后勤保障部</div>
+</div>
+</div>
+<div class="card">
+<div class="flex-between" style="margin-bottom:12px">
+<div class="card-title" style="margin:0;padding:0;border:none">用户列表（综合管理部）</div>
+<button class="btn btn-primary btn-sm">+ 新增用户</button>
+</div>
+<table>
+<thead><tr><th>用户名</th><th>姓名</th><th>部门</th><th>角色</th><th>手机号</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>admin</td><td>系统管理员</td><td>综合管理部</td><td><span class="tag tag-info">系统管理员</span></td><td>138****0001</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-link">编辑</button></td></tr>
+<tr><td>zhangwei</td><td>张伟</td><td>综合管理部</td><td><span class="tag tag-info">普通员工</span></td><td>138****0010</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-link">编辑</button></td></tr>
+<tr><td>liqiang</td><td>李强</td><td>综合管理部</td><td><span class="tag tag-info">部门负责人</span></td><td>138****0011</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-link">编辑</button></td></tr>
+<tr><td>liming</td><td>李明</td><td>综合管理部</td><td><span class="tag tag-info">司机</span></td><td>138****0012</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-link">编辑</button></td></tr>
+<tr><td>caikuai</td><td>蔡会计</td><td>综合管理部</td><td><span class="tag tag-info">财务人员</span></td><td>138****0013</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-link">编辑</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+</main>
+</div>
+
+<!-- ===== 弹窗: 新增车辆 ===== -->
+<div id="vehicleModel" class="model-overlay">
+<div class="model-box">
+<h3>新增车辆</h3>
+<div class="flex-row"><div style="width:50%"><div class="form-group"><label>车牌号<span class="required">*</span></label><input type="text" placeholder="如 京A·88608"></div></div><div style="width:50%"><div class="form-group"><label>品牌型号<span class="required">*</span></label><input type="text" placeholder="如 奥迪A6L"></div></div></div>
+<div class="flex-row"><div style="width:33%"><div class="form-group"><label>车辆类型<span class="required">*</span></label><select><option>轿车</option><option>SUV</option><option>商务车</option><option>中巴</option></select></div></div><div style="width:33%"><div class="form-group"><label>核定载客数</label><input type="number" value="5"></div></div><div style="width:33%"><div class="form-group"><label>排量(L)</label><input type="text" placeholder="如 2.0T"></div></div></div>
+<div class="flex-row"><div style="width:33%"><div class="form-group"><label>燃油类型</label><select><option>汽油</option><option>柴油</option><option>纯电</option><option>混动</option></select></div></div><div style="width:33%"><div class="form-group"><label>购置日期</label><input type="date"></div></div><div style="width:33%"><div class="form-group"><label>归属部门</label><select><option>总经理办公室</option><option>综合管理部</option><option>党委办公室</option></select></div></div></div>
+<div class="model-footer"><button class="btn btn-default" onclick="closeModel('vehicleModel')">取消</button><button class="btn btn-primary" onclick="closeModel('vehicleModel');alert('车辆新增成功')">确认</button></div>
+</div>
+</div>
+
+<!-- ===== 弹窗: 新增驾驶员 ===== -->
+<div id="driverModel" class="model-overlay">
+<div class="model-box">
+<h3>新增驾驶员</h3>
+<div class="tabs" style="margin-bottom:12px">
+<div class="tab active" style="cursor:default">基础信息</div>
+<div class="tab" style="cursor:default">证照信息</div>
+<div class="tab" style="cursor:default">体检信息</div>
+</div>
+<div class="flex-row"><div style="width:50%"><div class="form-group"><label>姓名<span class="required">*</span></label><input type="text"></div></div><div style="width:50%"><div class="form-group"><label>性别<span class="required">*</span></label><select><option>男</option><option>女</option></select></div></div></div>
+<div class="flex-row"><div style="width:33%"><div class="form-group"><label>出生日期</label><input type="date"></div></div><div style="width:33%"><div class="form-group"><label>入职日期</label><input type="date"></div></div><div style="width:33%"><div class="form-group"><label>所属部门</label><select><option>综合管理部</option></select></div></div></div>
+<div class="flex-row"><div style="width:33%"><div class="form-group"><label>政治面貌</label><select><option>中共党员</option><option>民主党派</option><option>无党派</option><option>群众</option></select></div></div><div style="width:33%"><div class="form-group"><label>编制类型</label><select><option>在编</option><option>合同制</option><option>劳务派遣</option></select></div></div><div style="width:33%"><div class="form-group"><label>联系电话</label><input type="text"></div></div></div>
+<div class="form-group"><label>保密岗位</label><div style="display:flex;gap:16px"><label><input type="checkbox"> 涉密岗位</label> <select style="width:140px"><option>普通</option><option>机密</option><option>秘密</option><option>绝密</option></select></div></div>
+<div class="alert-info">工号将自动生成为 DRV20260600X 格式</div>
+<div class="model-footer"><button class="btn btn-default" onclick="closeModel('driverModel')">取消</button><button class="btn btn-primary" onclick="closeModel('driverModel');alert('驾驶员新增成功')">确认</button></div>
+</div>
+</div>
+
+<!-- ===== 弹窗: 审批通过 ===== -->
+<div id="approveModel" class="model-overlay">
+<div class="model-box">
+<h3>审批意见</h3>
+<div class="form-group"><label>审批结果</label><div style="color:#52c41a;font-weight:bold;font-size:15px">同意</div></div>
+<div class="form-group"><label>审批意见</label><textarea placeholder="选填：可输入审批意见"></textarea></div>
+<div class="alert-info">审批通过后，将自动流转至下一级审批节点或调度员。</div>
+<div class="model-footer"><button class="btn btn-default" onclick="closeModel('approveModel')">取消</button><button class="btn btn-primary" onclick="closeModel('approveModel');alert('审批通过！已流转至下一环节。')">确认通过</button></div>
+</div>
+</div>
+
+<!-- ===== 弹窗: 驳回 ===== -->
+<div id="rejectModel" class="model-overlay">
+<div class="model-box">
+<h3>驳回申请</h3>
+<div class="form-group"><label>审批结果</label><div style="color:#f5222d;font-weight:bold;font-size:15px">驳回</div></div>
+<div class="form-group"><label>驳回理由<span class="required">*</span></label><textarea placeholder="驳回理由为必填项，将推送至申请人"></textarea></div>
+<div class="model-footer"><button class="btn btn-default" onclick="closeModel('rejectModel')">取消</button><button class="btn btn-danger" onclick="closeModel('rejectModel');alert('已驳回，驳回理由已推送至申请人。')">确认驳回</button></div>
+</div>
+</div>
+
+<!-- ===== 弹窗: 派车 ===== -->
+<div id="dispatchModel" class="model-overlay">
+<div class="model-box">
+<h3>派车确认</h3>
+<div class="alert-info" style="margin-bottom:16px">申请编号: SQ-20260621-001 | 用车人: 陈晓 | 时段: 06-23 08:30~18:00</div>
+<div class="row-2">
+<div><div class="form-group"><label>选择车辆<span class="required">*</span></label>
+<select><option>京A·88602 别克GL8（可用）</option><option>京A·88603 考斯特（可用）</option><option>京A·88606 比亚迪汉EV（可用）</option></select></div></div>
+<div><div class="form-group"><label>选择司机<span class="required">*</span></label>
+<select><option>张强 (空闲 · A1 · 中共党员)</option><option>李明 (出车中 · 不可选)</option><option>王芳 (空闲 · B1 · 中共党员)</option></select></div></div>
+</div>
+<div class="alert-box">提示：李明当前正在执行出车任务，不可调度。</div>
+<div class="model-footer"><button class="btn btn-default" onclick="closeModel('dispatchModel')">取消</button><button class="btn btn-primary" onclick="closeModel('dispatchModel');alert('派车成功！已推送出车通知给司机张强。')">确认派车</button></div>
+</div>
+</div>
+
+<!-- ===== 弹窗: 结束行程 ===== -->
+<div id="tripEndModel" class="model-overlay">
+<div class="model-box">
+<h3>结束行程 · 归库登记</h3>
+<div class="alert-info" style="margin-bottom:16px">车辆: 京A·88601 | 开始里程: 52,380km | 开始时间: 06-22 09:00</div>
+<div class="flex-row"><div style="width:50%"><div class="form-group"><label>归库时间<span class="required">*</span></label><input type="datetime-local" value="2026-06-22T17:00"></div></div><div style="width:50%"><div class="form-group"><label>结束里程(km)<span class="required">*</span></label><input type="number" value="52720" placeholder="请输入结束里程"></div></div></div>
+<div style="background:#f6ffed;padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:13px">本次行程总里程: 340km（自动计算）</div>
+<div class="card-title" style="font-size:14px;margin-bottom:8px">行程费用录入</div>
+<div class="flex-row"><div style="width:33%"><div class="form-group"><label>油费(元)</label><input type="number" value="480"></div></div><div style="width:33%"><div class="form-group"><label>过路费(元)</label><input type="number" value="85"></div></div><div style="width:33%"><div class="form-group"><label>停车费(元)</label><input type="number" value="30"></div></div></div>
+<div class="form-group"><label>上传费用凭证</label><input type="file" style="font-size:12px"></div>
+<div class="model-footer"><button class="btn btn-default" onclick="closeModel('tripEndModel')">取消</button><button class="btn btn-primary" onclick="closeModel('tripEndModel');alert('行程已结束。总里程340km，费用已记录。车辆状态已更新为可用。')">确认归库</button></div>
+</div>
+</div>
+
+<!-- ===== 弹窗: 录入费用 ===== -->
+<div id="expenseAddModel" class="model-overlay">
+<div class="model-box">
+<h3>录入费用</h3>
+<div class="flex-row"><div style="width:50%"><div class="form-group"><label>车辆<span class="required">*</span></label><select><option>京A·88601</option><option>京A·88602</option></select></div></div><div style="width:50%"><div class="form-group"><label>费用类型<span class="required">*</span></label><select><option>油费</option><option>过路费</option><option>停车费</option><option>维修保养费</option><option>保险费</option><option>年检费</option><option>车船税</option><option>其他</option></select></div></div></div>
+<div class="flex-row"><div style="width:50%"><div class="form-group"><label>金额(元)<span class="required">*</span></label><input type="number"></div></div><div style="width:50%"><div class="form-group"><label>发生日期<span class="required">*</span></label><input type="date"></div></div></div>
+<div class="form-group"><label>关联行程（可选）</label><select><option>不关联行程</option><option>PC-0622-002（天津出差）</option></select></div>
+<div class="form-group"><label>费用凭证</label><input type="file" style="font-size:12px"></div>
+<div class="form-group"><label>备注</label><textarea></textarea></div>
+<div class="model-footer"><button class="btn btn-default" onclick="closeModel('expenseAddModel')">取消</button><button class="btn btn-primary" onclick="closeModel('expenseAddModel');alert('费用录入成功')">确认录入</button></div>
+</div>
+</div>
+
+<script>
+function login(){document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='flex'}
+function switchPage(page,el){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+var p=document.getElementById('page-'+page);if(p)p.classList.add('active');
+document.querySelectorAll('.sidebar .menu-item').forEach(m=>m.classList.remove('active'));
+if(el)el.classList.add('active');
+var breadcrumbs={dashboard:'仪表盘',vehicle:'车辆档案管理',driver:'驾驶员信息管理',apply:'用车申请',approve:'用车审批',dispatch:'车辆调度',trip:'行程管理',track:'GPS轨迹监控',expense:'费用管理',report:'统计报表',users:'用户与组织管理',vehicleDetail:'车辆详情',driverDetail:'驾驶员详情'};
+document.getElementById('breadcrumb').textContent=breadcrumbs[page]||page;
+}
+function switchExpenseTab(idx,el){
+for(var i=0;i<5;i++){var t=document.getElementById('expense-tab-'+i);if(t)t.style.display=i===idx?'block':'none'}
+document.querySelectorAll('#page-expense .tab').forEach(t=>t.classList.remove('active'));
+el.classList.add('active')
+}
+function openModel(id){var m=document.getElementById(id);if(m)m.classList.add('show')}
+function closeModel(id){var m=document.getElementById(id);if(m)m.classList.remove('show')}
+function showNotifications(){alert('通知消息（共5条未读）:\n\n1. [审批] 您有2条待审批用车申请\n2. [调度] 已为您分配出车任务\n3. [提醒] 京A·88601 年检即将到期\n4. [异常] 检测到1笔异常加油记录\n5. [驳回] 您的用车申请已被驳回')}
+</script>
+</body>
+</html>

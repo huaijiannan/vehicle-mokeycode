@@ -1,0 +1,1 @@
+<template><div style="text-align:center;padding:60px;color:#999">轨迹监控（待实现）</div></template>

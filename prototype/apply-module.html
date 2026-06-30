@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用车申请模块 - 业务原型</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#f0f2f5;color:#333}
+.app{display:flex;height:100vh}
+.sidebar{width:180px;background:#001529;color:#fff;overflow-y:auto}
+.sidebar .logo{text-align:center;padding:16px 12px;font-size:13px;font-weight:bold;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar .menu-item{padding:10px 16px;cursor:pointer;font-size:13px;border-left:3px solid transparent;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sidebar .menu-item:hover{background:rgba(255,255,255,.08)}
+.sidebar .menu-item.active{background:#1890ff;border-left-color:#1890ff}
+.sidebar .menu-divider{padding:10px 16px 6px;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1px}
+.main{flex:1;overflow-y:auto;padding:16px 20px}
+.header{height:48px;background:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.06);font-size:13px}
+.header .user{display:flex;align-items:center;gap:8px}
+.card{background:#fff;border-radius:6px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card-title{font-size:14px;font-weight:bold;margin-bottom:12px;color:#1a3a6b;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.tip-box{padding:8px 12px;border-radius:4px;margin-bottom:10px;font-size:12px}
+.tip-blue{background:#e6f7ff;border:1px solid #91d5ff;color:#0050b3}
+.tip-yellow{background:#fffbe6;border:1px solid #ffe58f;color:#ad6800}
+.tip-red{background:#fff1f0;border:1px solid #ffa39e;color:#cf1322}
+.tip-green{background:#f6ffed;border:1px solid #b7eb8f;color:#389e0d}
+.flex-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-size:12px;color:#555;margin-bottom:3px;font-weight:500}
+.form-group label .required{color:#f5222d;margin-left:1px}
+input[type="text"],input[type="date"],input[type="time"],input[type="number"],select,textarea{
+  width:100%;height:34px;border:1px solid #d9d9d9;border-radius:4px;padding:0 8px;font-size:12px;outline:none;font-family:inherit
+}
+textarea{height:60px;padding:6px 8px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.1)}
+.btn{padding:5px 14px;border:none;border-radius:4px;font-size:12px;cursor:pointer;transition:all .2s}
+.btn-primary{background:#1890ff;color:#fff}.btn-primary:hover{background:#40a9ff}
+.btn-success{background:#52c41a;color:#fff}.btn-success:hover{background:#73d13d}
+.btn-danger{background:#f5222d;color:#fff}.btn-danger:hover{background:#ff4d4f}
+.btn-warning{background:#fa8c16;color:#fff}.btn-warning:hover{background:#ffa940}
+.btn-default{background:#fff;color:#333;border:1px solid #d9d9d9}.btn-default:hover{border-color:#1890ff;color:#1890ff}
+.btn-sm{padding:3px 10px;font-size:11px}.btn-link{background:none;border:none;color:#1890ff;cursor:pointer;padding:0;font-size:12px}
+.btn-disabled{background:#f5f5f5;color:#ccc;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:12px}
+table th{background:#fafafa;padding:7px 10px;text-align:left;border-bottom:2px solid #f0f0f0;font-weight:600;color:#555;white-space:nowrap}
+table td{padding:7px 10px;border-bottom:1px solid #f0f0f0}
+table tr:hover td{background:#e6f7ff}
+.tag{padding:1px 7px;border-radius:2px;font-size:11px;display:inline-block}
+.tag-blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
+.tag-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.tag-orange{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
+.tag-red{background:#fff1f0;color:#f5222d;border:1px solid #ffa39e}
+.tag-purple{background:#f9f0ff;color:#722ed1;border:1px solid #d3adf7}
+.progress-wrapper{margin-bottom:10px;font-size:12px}
+.progress-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin-top:3px}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.w-60{width:60px}.w-80{width:80px}.w-100{width:100px}.w-120{width:120px}.w-140{width:140px}.w-160{width:160px}.w-200{width:200px}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}
+.page{display:none}.page.active{display:block}
+.panel{background:#fafafa;border:1px solid #f0f0f0;border-radius:4px;padding:10px;margin-top:8px;font-size:12px}
+.steps{display:flex;align-items:center;margin:16px 0;font-size:11px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:4px}
+.step .circle{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold}
+.step .circle.done{background:#52c41a;color:#fff}
+.step .circle.active{background:#1890ff;color:#fff}
+.step .circle.pending{background:#f0f0f0;color:#999}
+.step .circle.rejected{background:#f5222d;color:#fff}
+.step-line{width:24px;height:2px;background:#e8e8e8;margin:0 4px}
+.step-line.done{background:#52c41a}
+
+.tree{padding-left:12px;font-size:12px}
+.tree-node{padding:4px 0;cursor:pointer}
+.tree-node:hover{color:#1890ff}
+.tree-node.expanded>.tree-children{display:block}
+.tree-children{padding-left:16px;display:none}
+.tree-children.open{display:block}
+
+.decision-tree{background:#fff;border:1px solid #e8e8e8;border-radius:6px;padding:14px}
+.decision-node{padding:8px 12px;background:#fafafa;border-radius:4px;margin-bottom:6px;cursor:pointer;font-size:13px;border-left:3px solid transparent;transition:all .2s}
+.decision-node:hover{border-left-color:#1890ff;background:#e6f7ff}
+.decision-node.selected{border-left-color:#1890ff;background:#e6f7ff;font-weight:600}
+.decision-node .q{color:#999;font-size:11px;display:block}
+.decision-result{padding:10px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;font-size:12px;margin-top:8px}
+.decision-result strong{color:#389e0d}
+
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:100;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:8px;padding:20px;width:680px;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.modal-box h3{font-size:15px;margin-bottom:14px;color:#1a3a6b}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:14px;border-top:1px solid #f0f0f0}
+
+.radio-group{display:flex;gap:16px;font-size:12px}
+.radio-group label{display:flex;align-items:center;gap:4px;cursor:pointer}
+
+.tabs{display:flex;border-bottom:1px solid #f0f0f0;margin-bottom:12px}
+.tab{padding:8px 14px;cursor:pointer;font-size:12px;color:#666;border-bottom:2px solid transparent}
+.tab.active{color:#1890ff;border-bottom-color:#1890ff;font-weight:600}
+
+.quality-bar{display:flex;align-items:center;gap:8px;font-size:11px}
+.quality-bar .bar{flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
+.quality-bar .bar-fill{height:100%;border-radius:2px;transition:width .3s}
+.quality-msg{font-size:11px;margin-top:3px}
+
+.grid-12{display:grid;grid-template-columns:repeat(12,1fr);gap:8px}
+
+.notice-badge{background:#f5222d;color:#fff;font-size:10px;padding:1px 5px;border-radius:8px;position:absolute;top:-4px;right:-8px}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- 侧边栏 -->
+<aside class="sidebar">
+<div class="logo">用车申请模块</div>
+<div class="menu-divider">申请操作</div>
+<div class="menu-item active" data-page="create" onclick="switchPage('create',this)">&#9997; 新建申请</div>
+<div class="menu-item" data-page="list" onclick="switchPage('list',this)">&#128203; 我的申请</div>
+<div class="menu-item" data-page="drafts" onclick="switchPage('drafts',this)">&#128221; 草稿箱 <span style="background:#f5222d;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:auto">2</span></div>
+<div class="menu-divider">辅助工具</div>
+<div class="menu-item" data-page="calendar" onclick="switchPage('calendar',this)">&#128197; 用车日历</div>
+<div class="menu-item" data-page="templates" onclick="switchPage('templates',this)">&#128204; 常用路线</div>
+<div class="menu-item" data-page="forecast" onclick="switchPage('forecast',this)">&#128338; 需求预报</div>
+<div class="menu-divider">记录</div>
+<div class="menu-item" data-page="detail" onclick="switchPage('detail',this)">&#128270; 申请详情示例</div>
+</aside>
+
+<!-- 主内容 -->
+<div class="main">
+
+<!-- 头部 -->
+<div class="header">
+<div class="flex-row">
+<span style="color:#999">当前位置：</span>
+<span id="breadcrumb">新建申请</span>
+</div>
+<div class="user"><span style="font-size:11px;color:#666">张伟 / 综合管理部</span><span style="width:28px;height:28px;background:#1890ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px">张</span></div>
+</div>
+
+<!-- ========== 页面1: 新建申请 ========== -->
+<div id="page-create" class="page active">
+
+<!-- 场景选择区 -->
+<div class="card">
+<div class="card-title">第一步：选择用车场景</div>
+<div class="row-2">
+<div>
+<div class="form-group"><label>一级场景</label>
+<select id="sceneCategory" onchange="updateSubtypes()" style="height:34px">
+<option value="">请选择...</option>
+<option value="daily">市内公务出行</option>
+<option value="long">长途公务出行</option>
+<option value="reception">接待用车</option>
+<option value="meeting">会议保障</option>
+<option value="inspection">调研检查</option>
+<option value="emergency">紧急公务</option>
+<option value="secret">机要通信</option>
+<option value="group">集体活动</option>
+</select></div>
+<div class="form-group"><label>二级场景</label>
+<select id="sceneSubtype" onchange="updateSceneConfig()" style="height:34px">
+<option value="">请先选择一级场景</option>
+</select></div>
+</div>
+<div>
+<div id="sceneConfig" class="tip-blue" style="display:none;font-size:12px">
+<strong id="sceneLabel"></strong><br>
+<span id="sceneDesc"></span>
+</div>
+<div id="sceneDecisionTree" class="decision-tree" style="display:none">
+<div style="font-size:11px;color:#999;margin-bottom:6px">不确定场景分类？通过以下问答确定：</div>
+<div class="decision-node" onclick="selectByQ('文件传送')"><span class="q">Q:出行目的是什么？</span>&#9656; 传送文件/设备 → 机要通信</div>
+<div class="decision-node" onclick="selectByQ('接待来访')">&#9656; 接待来访人员 → 接待用车</div>
+<div class="decision-node" onclick="selectByQ('参加会议')">&#9656; 参加/保障会议 → 会议保障</div>
+<div class="decision-node" onclick="selectByQ('检查调研')">&#9656; 检查/调研工作 → 调研检查</div>
+<div class="decision-node" onclick="selectByQ('集体活动')">&#9656; 集体外出活动 → 集体活动</div>
+<div class="decision-node" onclick="selectByQ('紧急公务')">&#9656; 突发事件应急 → 紧急公务</div>
+<div class="decision-node" onclick="selectByQ('日常公务')">&#9656; 其他日常公务 → 需进一步确定距离</div>
+</div>
+</div>
+</div>
+<div id="sceneDetailPanel" class="panel" style="display:none">
+<div class="flex-row">
+<span class="tag tag-green" id="approvalLabel"></span>
+<span class="tag tag-blue" id="specLabel"></span>
+<span class="tag tag-orange" id="deadlineLabel"></span>
+<span id="holidayTag" style="display:none" class="tag tag-red">节假日用车</span>
+</div>
+</div>
+</div>
+
+<!-- 出行信息区 -->
+<div class="card">
+<div class="card-title">第二步：填写出行信息</div>
+
+<div class="tip-yellow" style="margin-bottom:12px">
+&#128161; 您有一份未完成的草稿（6月22日 保存），<a href="#" onclick="switchPage('drafts',null)" style="color:#1890ff">去草稿箱恢复</a>
+</div>
+
+<!-- 申请人信息行 -->
+<div class="flex-row" style="margin-bottom:12px">
+<div class="w-100"><div class="form-group"><label>申请人</label><input type="text" value="张伟" disabled style="background:#f5f5f5"></div></div>
+<div class="w-120"><div class="form-group"><label>部门</label><input type="text" value="综合管理部" disabled style="background:#f5f5f5"></div></div>
+<div class="w-100"><div class="form-group"><label>行政级别</label><input type="text" value="普通员工" disabled style="background:#f5f5f5"></div></div>
+<div class="w-120">
+<div class="form-group"><label>申请模式</label>
+<select onchange="toggleProxyMode(this.value)" style="height:34px"><option value="self">本人申请</option><option value="proxy">代他人申请</option></select></div></div>
+</div>
+
+<div id="proxyRow" style="display:none;background:#fafafa;padding:8px;border-radius:4px;margin-bottom:10px">
+<div class="form-group"><label>实际用车人<span class="required">*</span></label>
+<select style="height:34px"><option>请选择本部门人员...</option><option>刘洋 - 综合管理部</option><option>周明 - 综合管理部</option></select></div>
+</div>
+
+<!-- 出行信息 -->
+<div class="row-2">
+<div><div class="form-group"><label>用车事由<span class="required">*</span></label>
+<textarea id="purposeText" oninput="checkPurposeQuality()" placeholder="请详细描述出行目的和内容（至少20字）">赴北京大兴国际机场接国资委XXX副主任一行3人来我单位调研，需举牌接站</textarea>
+<div class="quality-bar"><span>事由质量：</span><div class="bar"><div class="bar-fill" id="qualityFill" style="width:90%;background:#52c41a"></div></div><span id="qualityScore">90分</span></div>
+<span class="quality-msg" id="qualityMsg" style="color:#52c41a">描述充分，包含目的地、对接人、事项详情</span>
+</div></div>
+</div>
+
+<div class="row-3">
+<div><div class="form-group"><label>出发地点<span class="required">*</span></label>
+<input type="text" value="集团公司总部" onfocus="showAddrSuggest(this)" id="originInput"></div></div>
+<div><div class="form-group"><label>目的地点<span class="required">*</span></label>
+<input type="text" value="北京大兴国际机场" onfocus="showAddrSuggest(this)" id="destInput"></div></div>
+<div><div class="form-group"><label>途经点</label><input type="text" placeholder="多个以逗号分隔"></div></div>
+</div>
+
+<div id="addrSuggest" class="panel" style="display:none;position:absolute;z-index:50;width:200px;background:#fff">
+<div style="font-size:10px;color:#999;margin-bottom:4px">我的常用路线</div>
+<div style="padding:4px 0;cursor:pointer;font-size:12px" onclick="selectAddr('集团公司总部')">&#128204; 总部→市发改委</div>
+<div style="padding:4px 0;cursor:pointer;font-size:12px" onclick="selectAddr('集团公司总部')">&#128204; 总部→大兴机场</div>
+<div style="padding:4px 0;cursor:pointer;font-size:12px" onclick="selectAddr('集团公司总部')">&#128204; 总部→密云项目现场</div>
+<div style="font-size:10px;color:#999;margin-top:4px">地址库匹配</div>
+<div style="padding:4px 0;cursor:pointer;font-size:12px">&#127970; 集团公司总部（朝阳区XX路XX号）</div>
+</div>
+
+<div class="row-3">
+<div><div class="form-group"><label>预计出发日期<span class="required">*</span></label><input type="date" value="2026-06-25" id="departDate"></div></div>
+<div><div class="form-group"><label>预计出发时间<span class="required">*</span></label><input type="time" value="08:30" id="departTime"></div></div>
+<div style="display:flex;align-items:flex-end;padding-bottom:10px">
+<span id="timeWarning" class="tag tag-orange" style="display:none">&#9888; 提交时间距出发不足2h，建议走紧急通道</span>
+</div>
+</div>
+
+<div class="row-3">
+<div><div class="form-group"><label>预计返回日期</label><input type="date" value="2026-06-25"></div></div>
+<div><div class="form-group"><label>预计返回时间</label><input type="time" value="11:00"></div></div>
+<div><div class="form-group"><label>乘车人数<span class="required">*</span></label><input type="number" value="4" min="1" max="50"></div></div>
+</div>
+
+<div class="row-3">
+<div><div class="form-group"><label>是否需要司机</label>
+<div class="radio-group"><label><input type="radio" name="needDriver" checked> 需要</label><label><input type="radio" name="needDriver"> 不需要</label></div></div></div>
+<div><div class="form-group"><label>是否涉密出行</label>
+<div class="radio-group"><label><input type="radio" name="isSecret"> 是</label><label><input type="radio" name="isSecret" checked> 否</label></div></div></div>
+<div style="display:flex;align-items:flex-end;padding-bottom:4px">
+<span style="font-size:11px;color:#999">乘车人数含司机</span>
+</div>
+</div>
+
+<!-- 场景特有字段 -->
+<div id="sceneSpecificFields" class="panel" style="display:none;background:#fafafa;margin-top:10px">
+<div style="font-weight:600;font-size:12px;color:#555;margin-bottom:8px">接待用车 - 接送站 特有信息</div>
+<div class="row-3">
+<div><div class="form-group"><label>接待对象单位<span class="required">*</span></label><input type="text" value="XX省国资委"></div></div>
+<div><div class="form-group"><label>接待对象职务</label><input type="text" value="副主任"></div></div>
+<div><div class="form-group"><label>接待对象人数</label><input type="number" value="3"></div></div>
+</div>
+<div class="row-3">
+<div><div class="form-group"><label>航班号/车次号<span class="required">*</span></label><input type="text" value="CA1234" placeholder="必填"></div></div>
+<div><div class="form-group"><label>是否举牌接站</label>
+<div class="radio-group"><label><input type="radio" name="signBoard" checked> 需要</label><label><input type="radio" name="signBoard"> 不需要</label></div></div></div>
+</div>
+<div class="tip-green" style="margin-top:6px;font-size:11px">&#128666; 航班计划到达 10:30，系统已预留±30分钟弹性窗口</div>
+</div>
+
+<div class="form-group mt-8"><label>备注</label><textarea placeholder="特殊需求说明"></textarea></div>
+</div>
+
+<!-- 拼车建议侧面板 -->
+<div class="card">
+<div class="card-title">&#128309; 拼车建议 <span class="tag tag-green">2条匹配</span></div>
+<div style="display:flex;gap:10px;overflow-x:auto">
+<div class="panel" style="min-width:280px;flex-shrink:0;background:#f6ffed;border-color:#b7eb8f">
+<div class="flex-between" style="margin-bottom:6px">
+<span style="font-weight:600;font-size:12px">&#128663; 京A·88606 比亚迪汉EV</span>
+<span class="tag tag-green">匹配度 85</span>
+</div>
+<div style="font-size:11px;color:#666;line-height:1.8">
+出发 08:30 | 目的地: 雁栖湖（顺路）<br>
+现有乘车人 2人 | 可拼人数: 3人<br>
+部门: 科技发展部 | 申请人: 张*</div>
+<div class="flex-row mt-8">
+<button class="btn btn-success btn-sm" onclick="alert('已发送拼车请求，等待对方确认。')">请求拼车</button>
+<button class="btn btn-default btn-sm">查看详情</button>
+</div>
+</div>
+<div class="panel" style="min-width:280px;flex-shrink:0;background:#fffbe6;border-color:#ffe58f">
+<div class="flex-between" style="margin-bottom:6px">
+<span style="font-weight:600;font-size:12px">&#128663; 京A·88602 别克GL8</span>
+<span class="tag tag-orange">匹配度 72</span>
+</div>
+<div style="font-size:11px;color:#666;line-height:1.8">
+出发 08:00 | 目的地: 密云（部分顺路）<br>
+现有乘车人 1人 | 可拼人数: 4人<br>
+部门: 综合管理部 | 申请人: 刘* <span class="tag tag-blue">同部门</span></div>
+<div class="flex-row mt-8">
+<button class="btn btn-success btn-sm" onclick="alert('已发送拼车请求，等待对方确认。')">请求拼车</button>
+<button class="btn btn-default btn-sm">查看详情</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 预估费用 + 资源紧张度 -->
+<div class="row-2">
+<div class="card">
+<div class="card-title">&#128176; 预估费用</div>
+<table>
+<tr><td style="color:#666">预估里程</td><td style="text-align:right;font-weight:600">130.5 km</td></tr>
+<tr><td style="color:#666">预估油费</td><td style="text-align:right">85.50 元</td></tr>
+<tr><td style="color:#666">预估过路费</td><td style="text-align:right">52.20 元</td></tr>
+<tr><td style="color:#666">预估停车费</td><td style="text-align:right">25.00 元</td></tr>
+<tr><td style="color:#666">司机补贴</td><td style="text-align:right">-</td></tr>
+<tr style="font-weight:bold;border-top:2px solid #f0f0f0"><td>合计预估</td><td style="text-align:right;color:#1890ff;font-size:14px">162.70 元</td></tr>
+<tr><td colspan="2" style="font-size:11px;color:#999;text-align:right">部门预算余额: 12,840.30元 &nbsp; <span class="tag tag-green">充足</span></td></tr>
+</table>
+</div>
+<div class="card">
+<div class="card-title">&#128197; 6月25日 资源紧张度</div>
+<div style="font-size:11px">
+<div class="progress-wrapper">08:00-08:30<span style="float:right">2/5 占用</span>
+<div class="progress-bar"><div class="progress-fill" style="width:40%;background:#b7eb8f"></div></div></div>
+<div class="progress-wrapper">08:30-09:00<span style="float:right">4/5 占用</span>
+<div class="progress-bar"><div class="progress-fill" style="width:80%;background:#ffd591"></div></div></div>
+<div class="progress-wrapper">09:00-09:30<span style="float:right">3/5 占用</span>
+<div class="progress-bar"><div class="progress-fill" style="width:60%;background:#ffe58f"></div></div></div>
+<div class="progress-wrapper">09:30-10:00<span style="float:right">2/5 占用</span>
+<div class="progress-bar"><div class="progress-fill" style="width:40%;background:#b7eb8f"></div></div></div>
+</div>
+<div class="tip-yellow mt-8" style="font-size:11px">&#9888; 08:30-09:00时段资源较紧张（80%），建议调整至09:00后出发</div>
+</div>
+</div>
+
+<!-- 操作按钮 -->
+<div class="card">
+<div class="flex-row" style="justify-content:flex-end;gap:10px">
+<button class="btn btn-default" onclick="alert('草稿已保存')">&#128190; 保存草稿</button>
+<button class="btn btn-primary" onclick="submitApplication()" style="padding:8px 28px">&#10003; 提交申请</button>
+</div>
+</div>
+</div>
+
+<!-- ========== 页面2: 我的申请 ========== -->
+<div id="page-list" class="page">
+<div class="card">
+<div class="flex-between" style="margin-bottom:10px">
+<div class="card-title" style="margin:0;padding:0;border:none">申请记录</div>
+<div class="flex-row">
+<select class="w-100" style="height:30px"><option>全部状态</option><option>审批中</option><option>已通过</option><option>已驳回</option><option>已出车</option><option>已完成</option></select>
+<select class="w-100" style="height:30px"><option>全部场景</option><option>日常公务</option><option>长途公务</option><option>接待用车</option></select>
+<input type="date" style="height:30px;width:120px"> <span style="font-size:12px">至</span> <input type="date" style="height:30px;width:120px">
+<button class="btn btn-primary btn-sm">查询</button>
+</div>
+</div>
+<table>
+<thead><tr><th>申请编号</th><th>场景</th><th>事由</th><th>出发日期</th><th>出发时间</th><th>目的地</th><th>人数</th><th>状态</th><th>审批进度</th><th>操作</th></tr></thead>
+<tbody>
+<tr>
+<td>SQ-0622-128</td><td><span class="tag tag-blue">接待-接送站</span></td><td>赴大兴机场接国资委领导</td><td>06-25</td><td>08:30</td><td>大兴机场</td><td>4</td><td><span class="tag tag-green">已通过</span></td><td>
+<div class="steps" style="margin:0;font-size:10px">
+<div class="step"><span class="circle done">&#10003;</span>部</div><div class="step-line done"></div>
+<div class="step"><span class="circle done">&#10003;</span>分</div>
+</div></td>
+<td><button class="btn btn-link" onclick="switchPage('detail',null)">查看</button>
+<button class="btn btn-sm btn-danger" onclick="cancelApp(128)">取消</button></td>
+</tr>
+<tr>
+<td>SQ-0621-120</td><td><span class="tag tag-blue">日常-市内</span></td><td>赴市发改委参加城市更新调度会</td><td>06-22</td><td>14:00</td><td>市发改委</td><td>2</td><td><span class="tag tag-green">已完成</span></td><td>
+<div class="steps" style="margin:0;font-size:10px">
+<div class="step"><span class="circle done">&#10003;</span>部</div><div class="step-line done"></div>
+<div class="step"><span class="circle done">&#10003;</span>分</div><div class="step-line done"></div>
+<div class="step"><span class="circle done">&#10003;</span>派</div><div class="step-line done"></div>
+<div class="step"><span class="circle done">&#10003;</span>完</div>
+</div></td>
+<td><button class="btn btn-link" onclick="switchPage('detail',null)">查看</button></td>
+</tr>
+<tr style="background:#fff7e6">
+<td>SQ-0618-115</td><td><span class="tag tag-orange">长途-跨市</span></td><td>赴天津滨海新区客户拜访</td><td>06-20</td><td>07:00</td><td>天津滨海</td><td>2</td><td><span class="tag tag-red">已驳回</span></td><td>
+<div class="steps" style="margin:0;font-size:10px">
+<div class="step"><span class="circle done">&#10003;</span>部</div><div class="step-line done"></div>
+<div class="step"><span class="circle rejected">&#10007;</span>分</div>
+</div></td>
+<td><button class="btn btn-link">查看</button> <span class="tag tag-red" style="cursor:pointer" title="驳回理由：该时段无可用长途车辆，建议调整为公共交通出行">驳回详情</span></td>
+</tr>
+<tr style="background:#f0f5ff">
+<td style="text-align:center" colspan="10"><a href="#" style="color:#1890ff;font-size:12px">+ 查看全部 15 条申请记录</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== 页面3: 草稿箱 ========== -->
+<div id="page-drafts" class="page">
+<div class="card">
+<div class="card-title">我的草稿箱 <span class="tag tag-orange">草稿保留7天，逾期自动删除</span></div>
+<table>
+<thead><tr><th>保存时间</th><th>场景</th><th>出发日期</th><th>目的地</th><th>剩余天数</th><th>操作</th></tr></thead>
+<tbody>
+<tr>
+<td>06-22 16:20</td><td><span class="tag tag-blue">接待-接送站</span></td><td>06-25</td><td>北京大兴国际机场</td><td><span class="tag tag-green">剩余5天</span></td>
+<td><button class="btn btn-primary btn-sm" onclick="switchPage('create',null);alert('已恢复草稿')">继续填写</button> <button class="btn btn-danger btn-sm">删除</button></td>
+</tr>
+<tr>
+<td>06-21 09:30</td><td><span class="tag tag-blue">日常-市内</span></td><td>06-22</td><td>市发改委</td><td><span class="tag tag-red">已过期</span></td>
+<td><button class="btn btn-disabled btn-sm" disabled>已失效</button> <button class="btn btn-danger btn-sm">删除</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== 页面4: 用车日历 ========== -->
+<div id="page-calendar" class="page">
+<div class="card">
+<div class="flex-between" style="margin-bottom:10px">
+<div class="card-title" style="margin:0;padding:0;border:none">用车日历 - 2026年6月第4周</div>
+<div class="flex-row">
+<button class="btn btn-default btn-sm">&#9664; 上周</button>
+<span style="font-size:13px;font-weight:600">6月22日 - 6月28日</span>
+<button class="btn btn-default btn-sm">下周 &#9654;</button>
+<select style="height:30px;width:80px"><option>周视图</option><option>日视图</option><option>月视图</option></select>
+</div>
+</div>
+<table>
+<thead><tr><th style="width:14%">周一<br>6/22</th><th style="width:14%">周二<br>6/23</th><th style="width:14%">周三<br>6/24</th><th style="width:14%">周四<br>6/25</th><th style="width:14%">周五<br>6/26</th><th style="width:14%">周六<br>6/27</th><th style="width:14%">周日<br>6/28</th></tr></thead>
+<tbody>
+<tr style="vertical-align:top;height:160px">
+<td style="background:#fafafa"><div style="font-size:11px;padding:4px"><div class="progress-wrapper">08:00-12:00<div class="progress-bar"><div class="progress-fill" style="width:60%;background:#b7eb8f"></div></div></div><div style="margin-top:4px;background:#e6f7ff;padding:2px 4px;border-radius:2px;font-size:10px">京A·88601 奥迪<br>张伟→市发改委</div></div></td>
+<td><div style="font-size:11px;padding:4px"><div class="progress-wrapper">08:00-12:00<div class="progress-bar"><div class="progress-fill" style="width:80%;background:#ffd591"></div></div></div><div style="margin-top:4px;background:#e6f7ff;padding:2px 4px;border-radius:2px;font-size:10px">京A·88602 GL8<br>刘洋→天津</div><div style="margin-top:2px;background:#f6ffed;padding:2px 4px;border-radius:2px;font-size:10px">京A·88606 汉EV<br>周明→怀柔</div></div></td>
+<td style="background:#fffbe6"><div style="font-size:11px;padding:4px"><div class="progress-wrapper">全天<div class="progress-bar"><div class="progress-fill" style="width:60%;background:#ffd591"></div></div></div><div style="margin-top:4px;background:#e6f7ff;padding:2px 4px;border-radius:2px;font-size:10px">京A·88603 考斯特<br>会议保障×3人</div></div></td>
+<td style="background:#fff1f0;outline:2px solid #f5222d;outline-offset:-1px"><div style="font-size:11px;padding:4px"><div class="progress-wrapper">08:30-11:00<div class="progress-bar"><div class="progress-fill" style="width:90%;background:#ffa39e"></div></div></div><div style="margin-top:4px;background:#fff1f0;padding:2px 4px;border-radius:2px;font-size:10px;font-weight:bold;color:#f5222d">&#9888; 资源紧张!<br>4/5车辆已占用</div><div style="margin-top:2px;background:#e6f7ff;padding:2px 4px;border-radius:2px;font-size:10px">京A·88601→大兴机场<br><span style="color:#1890ff">(我的申请)</span></div></div></td>
+<td><div style="font-size:11px;padding:4px"><div class="progress-wrapper">14:00-18:00<div class="progress-bar"><div class="progress-fill" style="width:40%;background:#b7eb8f"></div></div></div></div></td>
+<td style="background:#f9f0ff"><span class="tag tag-purple" style="margin:4px">节假日</span><div style="font-size:11px;padding:4px">暂无用车安排</div></td>
+<td style="background:#f9f0ff"><span class="tag tag-purple" style="margin:4px">节假日</span><div style="font-size:11px;padding:4px">暂无用车安排</div></td>
+</tr>
+</tbody>
+</table>
+<div class="tip-yellow mt-8" style="font-size:11px">&#128161; 建议避开6月25日（周四）上午时段，当前资源紧张度达90%</div>
+</div>
+</div>
+
+<!-- ========== 页面5: 常用路线模板 ========== -->
+<div id="page-templates" class="page">
+<div class="card">
+<div class="flex-between" style="margin-bottom:10px">
+<div class="card-title" style="margin:0;padding:0;border:none">我的常用路线</div>
+<button class="btn btn-primary btn-sm">+ 新增模板</button>
+</div>
+<table>
+<thead><tr><th>模板名称</th><th>场景</th><th>出发地</th><th>目的地</th><th>人数</th><th>使用次数</th><th>上次使用</th><th>操作</th></tr></thead>
+<tbody>
+<tr>
+<td>大兴机场接站</td><td><span class="tag tag-blue">接待-接送站</span></td><td>集团公司总部</td><td>大兴国际机场</td><td>4</td><td>12次</td><td>06-15</td>
+<td><button class="btn btn-sm btn-primary" onclick="alert('已一键带入模板到大兴机场接站')">一键申请</button> <button class="btn btn-sm btn-default">编辑</button> <button class="btn btn-sm btn-danger">删除</button></td>
+</tr>
+<tr>
+<td>赴市发改委</td><td><span class="tag tag-blue">日常-市内</span></td><td>集团公司总部</td><td>市发改委</td><td>2</td><td>8次</td><td>06-08</td>
+<td><button class="btn btn-sm btn-primary" onclick="alert('已一键带入模板到赴市发改委')">一键申请</button> <button class="btn btn-sm btn-default">编辑</button> <button class="btn btn-sm btn-danger">删除</button></td>
+</tr>
+<tr>
+<td>密云项目现场</td><td><span class="tag tag-blue">日常-多点</span></td><td>集团公司总部</td><td>密云项目指挥部</td><td>3</td><td>5次</td><td>06-02</td>
+<td><button class="btn btn-sm btn-primary" onclick="alert('已一键带入模板到密云项目现场')">一键申请</button> <button class="btn btn-sm btn-default">编辑</button> <button class="btn btn-sm btn-danger">删除</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ========== 页面6: 需求预报 ========== -->
+<div id="page-forecast" class="page">
+<div class="card">
+<div class="card-title">填报下周用车需求预报（6月29日 - 7月3日）</div>
+<div class="tip-blue" style="margin-bottom:12px">&#8505; 预报仅供车队做资源规划参考，不触发审批流程。请在周五17:00前提交。</div>
+<table>
+<thead><tr><th>日期</th><th>预计全天/半天</th><th>目的地</th><th>预计人数</th><th>用车场景（预估）</th><th>操作</th></tr></thead>
+<tbody>
+<tr><td>6月29日(周一)</td><td><select style="height:28px;font-size:11px"><option>半天</option><option>全天</option></select></td><td><input type="text" value="大兴机场" style="height:28px;width:140px"></td><td><input type="number" value="4" style="height:28px;width:60px"></td><td><select style="height:28px;font-size:11px"><option>接待用车</option></select></td><td><button class="btn btn-sm btn-danger">删除</button></td></tr>
+<tr><td>6月30日(周二)</td><td><select style="height:28px;font-size:11px"><option>半天</option></select></td><td><input type="text" placeholder="目的地" style="height:28px;width:140px"></td><td><input type="number" placeholder="人数" style="height:28px;width:60px"></td><td><select style="height:28px;font-size:11px"><option>日常公务</option></select></td><td><button class="btn btn-sm btn-danger">删除</button></td></tr>
+<tr><td><button class="btn btn-link" style="font-size:11px">+ 添加行</button></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+<div class="flex-row mt-12" style="justify-content:flex-end">
+<button class="btn btn-default">保存预报</button>
+<button class="btn btn-primary" onclick="alert('需求预报已提交至车队调度员')">提交预报</button>
+</div>
+</div>
+</div>
+
+<!-- ========== 页面7: 申请详情 ========== -->
+<div id="page-detail" class="page">
+<div class="card">
+<div class="flex-between" style="margin-bottom:10px">
+<div><span style="font-size:15px;font-weight:700;color:#1a3a6b">SQ-0622-128</span>
+<span class="tag tag-green" style="margin-left:8px">已通过</span>
+<span class="tag tag-blue" style="margin-left:4px">接待-接送站</span>
+</div>
+<div class="flex-row">
+<button class="btn btn-default btn-sm">&#128196; 打印</button>
+<button class="btn btn-danger btn-sm" onclick="cancelApp(128)">取消用车</button>
+</div>
+</div>
+
+<!-- 流程进度 -->
+<div class="steps">
+<div class="step"><span class="circle done">&#10003;</span><div>已提交<br><span style="font-size:9px;color:#999">06-22 16:30</span></div></div>
+<div class="step-line done"></div>
+<div class="step"><span class="circle done">&#10003;</span><div>部门审批<br><span style="font-size:9px;color:#999">李强 2.5h</span></div></div>
+<div class="step-line done"></div>
+<div class="step"><span class="circle done">&#10003;</span><div>分管审批<br><span style="font-size:9px;color:#999">王分管 3h</span></div></div>
+<div class="step-line"></div>
+<div class="step"><span class="circle active">&#9679;</span><div>待调度<br><span style="font-size:9px;color:#1890ff">预计等待30min</span></div></div>
+<div class="step-line"></div>
+<div class="step"><span class="circle pending">&#9679;</span><div>出车</div></div>
+<div class="step-line"></div>
+<div class="step"><span class="circle pending">&#9679;</span><div>完成</div></div>
+</div>
+
+<div class="row-2">
+<div class="panel">
+<div style="font-weight:600;font-size:12px;margin-bottom:8px">出行信息</div>
+<table style="font-size:11px">
+<tr><td style="color:#999;width:80px">用车事由</td><td>赴北京大兴国际机场接国资委XXX副主任一行3人来我单位调研，需举牌接站</td></tr>
+<tr><td style="color:#999">出发地点</td><td>集团公司总部</td></tr>
+<tr><td style="color:#999">目的地点</td><td>北京大兴国际机场</td></tr>
+<tr><td style="color:#999">出发时间</td><td>2026-06-25 08:30</td></tr>
+<tr><td style="color:#999">返回时间</td><td>2026-06-25 11:00</td></tr>
+<tr><td style="color:#999">乘车人数</td><td>4人</td></tr>
+<tr><td style="color:#999">航班号</td><td>CA1234（预计到达10:30）</td></tr>
+<tr><td style="color:#999">预估费用</td><td style="color:#1890ff">162.70元</td></tr>
+</table>
+</div>
+<div class="panel">
+<div style="font-weight:600;font-size:12px;margin-bottom:8px">审批记录</div>
+<div style="font-size:11px;border-left:2px solid #e8e8e8;padding-left:12px">
+<div style="padding:4px 0;position:relative">
+<div style="width:6px;height:6px;border-radius:50%;background:#52c41a;position:absolute;left:-16px;top:9px"></div>
+<span style="color:#999">06-22 18:55</span><br>李强(部门负责人) <span class="tag tag-green">同意</span><br>意见: 已核实，接送规格合规
+</div>
+<div style="padding:4px 0;margin-top:8px;position:relative">
+<div style="width:6px;height:6px;border-radius:50%;background:#52c41a;position:absolute;left:-16px;top:9px"></div>
+<span style="color:#999">06-23 08:20</span><br>王分管(分管领导) <span class="tag tag-green">同意</span><br>意见: 同意
+</div>
+</div>
+</div>
+</div>
+
+<div class="card mt-8">
+<div class="card-title">关联信息</div>
+<div class="flex-row" style="font-size:12px;gap:20px">
+<div style="cursor:pointer;padding:8px;border:1px solid #f0f0f0;border-radius:4px">
+<div style="color:#999">派车单</div><div style="font-weight:600;color:#fa8c16">待派车</div></div>
+<div style="cursor:pointer;padding:8px;border:1px solid #f0f0f0;border-radius:4px">
+<div style="color:#999">出车记录</div><div style="color:#999">-</div></div>
+<div style="cursor:pointer;padding:8px;border:1px solid #f0f0f0;border-radius:4px">
+<div style="color:#999">GPS轨迹</div><div style="color:#999">-</div></div>
+<div style="cursor:pointer;padding:8px;border:1px solid #f0f0f0;border-radius:4px">
+<div style="color:#999">费用明细</div><div style="color:#999">-</div></div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- 弹窗: 取消用车 -->
+<div id="cancelModal" class="modal-overlay">
+<div class="modal-box">
+<h3>取消用车确认</h3>
+<div class="tip-red">取消用车将影响您的用车信用分。当前信用分: <strong id="currentCredit">92</strong></div>
+<table style="margin:12px 0;font-size:12px">
+<tr><td style="color:#999">取消时机</td><td style="color:#999">扣分</td><td style="color:#999">当前情况</td></tr>
+<tr><td>出行前24h以上</td><td>0</td><td></td></tr>
+<tr style="background:#fff7e6"><td>出行前4-24h</td><td>-5</td><td>&#8592; 当前</td></tr>
+<tr><td>出行前1-4h</td><td>-15</td><td></td></tr>
+<tr><td>出行前1h内</td><td>-30</td><td></td></tr>
+<tr><td>司机已到达后取消</td><td style="color:#f5222d">-50</td><td></td></tr>
+</table>
+<div class="form-group"><label>取消原因<span class="required">*</span></label><textarea placeholder="请填写取消原因"></textarea></div>
+<div class="model-footer">
+<button class="btn btn-default" onclick="closeModal('cancelModal')">暂不取消</button>
+<button class="btn btn-danger" onclick="closeModal('cancelModal');alert('用车已取消,信用分扣减5分,资源已释放')">确认取消（扣5分）</button>
+</div>
+</div>
+</div>
+
+<script>
+var currentPage = 'create';
+
+function switchPage(page, el) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var p = document.getElementById('page-' + page); if (p) p.classList.add('active');
+  document.querySelectorAll('.sidebar .menu-item').forEach(function(m){ m.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var map = {
+    create:'新建申请',list:'我的申请',drafts:'草稿箱',calendar:'用车日历',
+    templates:'常用路线',forecast:'需求预报',detail:'申请详情示例'
+  };
+  document.getElementById('breadcrumb').textContent = map[page] || page;
+  currentPage = page;
+}
+
+function updateSubtypes() {
+  var cat = document.getElementById('sceneCategory').value;
+  var sel = document.getElementById('sceneSubtype');
+  var map = {
+    daily: [{v:'city',l:'市内公务出行-日常'},{v:'multi',l:'市内公务出行-多点'},{v:'roundtrip',l:'市内公务出行-往返多次'}],
+    long: [{v:'same_day',l:'长途公务出行-当日往返'},{v:'cross_city',l:'长途公务出行-跨市'},{v:'cross_province',l:'长途公务出行-跨省'}],
+    reception: [{v:'leader',l:'接待用车-上级领导'},{v:'client',l:'接待用车-来访客户'},{v:'foreign',l:'接待用车-外事接待'},{v:'pickup',l:'接待用车-接送站'}],
+    meeting: [{v:'internal',l:'会议保障-内部会议'},{v:'external',l:'会议保障-外部会议'}],
+    inspection: [{v:'internal_check',l:'调研检查-内部检查'},{v:'escort',l:'调研检查-陪同上级'},{v:'special',l:'调研检查-专项督查'}],
+    emergency: [{v:'accident',l:'紧急公务-突发事件'},{v:'temporary',l:'紧急公务-临时通知'}],
+    secret: [{v:'document',l:'机要通信-涉密文件传递'}],
+    group: [{v:'party',l:'集体活动-党团活动'},{v:'training',l:'集体活动-培训学习'}]
+  };
+  sel.innerHTML = '<option value="">请选择二级场景</option>';
+  if (map[cat]) {
+    map[cat].forEach(function(s){ sel.innerHTML += '<option value="'+s.v+'">'+s.l+'</option>'; });
+  }
+}
+
+function updateSceneConfig() {
+  var config = document.getElementById('sceneConfig');
+  var panel = document.getElementById('sceneDetailPanel');
+  var tree = document.getElementById('sceneDecisionTree');
+  var subtype = document.getElementById('sceneSubtype').value;
+
+  if (subtype) {
+    config.style.display = 'block';
+    tree.style.display = 'none';
+    panel.style.display = 'block';
+    var labelMap = {
+      city:'市内公务出行-日常', multi:'市内公务出行-多点', roundtrip:'市内公务出行-往返多次',
+      same_day:'长途公务出行-当日往返', cross_city:'长途公务出行-跨市', cross_province:'长途公务出行-跨省',
+      leader:'接待用车-上级领导', client:'接待用车-来访客户', foreign:'接待用车-外事接待', pickup:'接待用车-接送站',
+      internal:'会议保障-内部会议', external:'会议保障-外部会议',
+      internal_check:'调研检查-内部检查', escort:'调研检查-陪同上级', special:'调研检查-专项督查',
+      accident:'紧急公务-突发事件', temporary:'紧急公务-临时通知',
+      document:'机要通信-涉密文件传递',
+      party:'集体活动-党团活动', training:'集体活动-培训学习'
+    };
+    document.getElementById('sceneLabel').textContent = labelMap[subtype] || subtype;
+
+    if (subtype === 'pickup') {
+      document.getElementById('sceneDesc').innerHTML = '审批: 部门负责人 &rarr; 分管领导 | 规格: &le;2.0L / 轿车 | 提前4h提交';
+      document.getElementById('approvalLabel').textContent = '审批: 部门→分管领导';
+      document.getElementById('specLabel').textContent = '规格: ≤2.0L/轿车';
+      document.getElementById('deadlineLabel').textContent = '提前4h提交';
+      document.getElementById('sceneSpecificFields').style.display = 'block';
+      document.getElementById('holidayTag').style.display = 'none';
+    } else {
+      document.getElementById('sceneSpecificFields').style.display = 'none';
+    }
+  } else {
+    config.style.display = 'none';
+    tree.style.display = 'block';
+    panel.style.display = 'none';
+    document.getElementById('sceneSpecificFields').style.display = 'none';
+  }
+}
+
+function selectByQ(type) {
+  var map = {
+    '文件传送': {cat:'secret', sub:'document'},
+    '接待来访': {cat:'reception', sub:'client'},
+    '参加会议': {cat:'meeting', sub:'internal'},
+    '检查调研': {cat:'inspection', sub:'internal_check'},
+    '集体活动': {cat:'group', sub:'party'},
+    '紧急公务': {cat:'emergency', sub:'accident'},
+    '日常公务': {cat:'daily', sub:'city'}
+  };
+  var m = map[type];
+  if (m) {
+    document.getElementById('sceneCategory').value = m.cat;
+    updateSubtypes();
+    document.getElementById('sceneSubtype').value = m.sub;
+    updateSceneConfig();
+  }
+}
+
+function toggleProxyMode(val) {
+  document.getElementById('proxyRow').style.display = val === 'proxy' ? 'block' : 'none';
+}
+
+function checkPurposeQuality() {
+  var text = document.getElementById('purposeText').value;
+  var score = 100;
+  if (text.length < 20) score -= 30;
+  if (/(外出|办事|出行)$/.test(text)) score -= 20;
+  document.getElementById('qualityFill').style.width = score + '%';
+  document.getElementById('qualityFill').style.background = score >= 70 ? '#52c41a' : score >= 40 ? '#fa8c16' : '#f5222d';
+  document.getElementById('qualityScore').textContent = score + '分';
+  var msg = document.getElementById('qualityMsg');
+  if (score >= 70) { msg.textContent = '描述充分，包含目的地、对接人、事项详情'; msg.style.color = '#52c41a'; }
+  else if (score >= 40) { msg.textContent = '事由描述一般，建议补充更多细节'; msg.style.color = '#fa8c16'; }
+  else { msg.textContent = '事由过于笼统，可能影响审批通过率，建议补充目的地、对接人、事项详情'; msg.style.color = '#f5222d'; }
+}
+
+function showAddrSuggest(el) {
+  var s = document.getElementById('addrSuggest');
+  if (s.style.display === 'none' || !s.style.display) {
+    s.style.display = 'block';
+    var rect = el.getBoundingClientRect();
+    s.style.left = rect.left + 'px';
+    s.style.top = (rect.bottom + 4) + 'px';
+  } else { s.style.display = 'none'; }
+}
+
+function selectAddr(addr) {
+  document.getElementById('addrSuggest').style.display = 'none';
+}
+
+function submitApplication() {
+  if (!document.getElementById('sceneSubtype').value) { alert('请先选择用车场景'); return; }
+  if (document.getElementById('purposeText').value.length < 20) { alert('用车事由至少填写20字'); return; }
+  alert('申请提交成功！\n\n申请编号: SQ-0622-' + Math.floor(Math.random()*900+100) + '\n审批流程: 部门负责人 → 分管领导\n已推送待办通知至李强(部门负责人)');
+}
+
+function cancelApp(id) {
+  document.getElementById('cancelModal').classList.add('show');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+
+// 初始化
+updateSubtypes();
+</script>
+</body>
+</html>

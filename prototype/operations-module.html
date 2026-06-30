@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车辆运营管理 v2 - 组织树+分页</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background:#f0f2f5; color:#333; }
+.header { height:52px; background:#001529; color:#fff; display:flex; align-items:center; padding:0 24px; font-size:16px; font-weight:600; }
+.header span { color:#6b9dfc; }
+.wrap { display:flex; height:calc(100vh - 52px); }
+.sidebar { width:260px; background:#fff; border-right:1px solid #e8e8e8; display:flex; flex-direction:column; flex-shrink:0; }
+.sidebar-hd { padding:14px 16px; border-bottom:1px solid #f0f0f0; font-size:13px; color:#888; font-weight:500; }
+.tree { flex:1; overflow-y:auto; padding:8px 0; }
+.tree-node { user-select:none; }
+.tree-row { display:flex; align-items:center; padding:6px 16px; cursor:pointer; font-size:13px; color:#333; transition:background .12s; gap:6px; }
+.tree-row:hover { background:#f5f8ff; }
+.tree-row.active { background:#e6f4ff; color:#1677ff; font-weight:600; }
+.tree-row .arrow { width:16px; font-size:11px; color:#999; flex-shrink:0; text-align:center; transition:transform .15s; }
+.tree-row .arrow.expanded { transform:rotate(90deg); }
+.tree-row .icon { font-size:15px; }
+.tree-row .name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tree-row .count { font-size:11px; color:#999; background:#f5f5f5; padding:1px 7px; border-radius:10px; }
+.tree-row.active .count { background:#bae0ff; color:#1677ff; }
+.tree-children { overflow:hidden; }
+.tree-children.collapsed { display:none; }
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+.toolbar { display:flex; gap:12px; padding:12px 20px; background:#fff; border-bottom:1px solid #e8e8e8; align-items:center; }
+.toolbar .search { flex:1; max-width:360px; padding:7px 12px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; outline:none; }
+.toolbar .search:focus { border-color:#1677ff; }
+.toolbar select { padding:7px 10px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; }
+.summary-bar { display:flex; gap:12px; padding:12px 20px; background:#fff; border-bottom:1px solid #f0f0f0; }
+.summary-card { flex:1; background:#fafafa; border-radius:6px; padding:12px 16px; text-align:center; border:1px solid #f0f0f0; }
+.summary-card .num { font-size:24px; font-weight:700; }
+.summary-card .num.warn { color:#d48806; }
+.summary-card .num.danger { color:#cf1322; }
+.summary-card .lbl { font-size:11px; color:#999; margin-top:2px; }
+.vehicle-area { flex:1; display:flex; flex-direction:column; overflow:hidden; padding:16px 20px; }
+.vehicle-area .title { font-size:14px; font-weight:600; margin-bottom:10px; color:#333; display:flex; align-items:center; gap:8px; }
+.vehicle-area .title .cnt { font-size:12px; color:#999; font-weight:400; }
+.table-wrap { flex:1; overflow-y:auto; background:#fff; border-radius:8px; border:1px solid #e8e8e8; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { background:#fafafa; padding:8px 12px; text-align:left; font-weight:600; color:#555; border-bottom:2px solid #f0f0f0; white-space:nowrap; position:sticky; top:0; z-index:1; }
+td { padding:8px 12px; border-bottom:1px solid #f5f5f5; }
+tr:hover td { background:#fafcff; }
+tr.selected td { background:#e6f4ff; }
+.pager { display:flex; align-items:center; justify-content:center; gap:6px; padding:12px 0; font-size:13px; color:#666; }
+.pager button { padding:4px 12px; border:1px solid #d9d9d9; background:#fff; border-radius:4px; cursor:pointer; font-size:12px; }
+.pager button:hover { border-color:#1677ff; color:#1677ff; }
+.pager button:disabled { color:#ccc; cursor:default; }
+.pager .active { background:#1677ff; color:#fff; border-color:#1677ff; }
+.badge { display:inline-block; padding:1px 8px; border-radius:10px; font-size:11px; }
+.badge-free { background:#f6ffed; color:#52c41a; }
+.badge-out { background:#e6f4ff; color:#1677ff; }
+.badge-repair { background:#fffbe6; color:#d48806; }
+.badge-scrap { background:#f0f0f0; color:#999; }
+.mini-tag { font-size:10px; padding:1px 5px; border-radius:8px; }
+.mini-red { background:#fff1f0; color:#cf1322; }
+.mini-orange { background:#fffbe6; color:#d48806; }
+.mini-green { background:#f6ffed; color:#52c41a; }
+
+/* 弹窗内 Tab */
+.modal-tabs { display:flex; border-bottom:2px solid #e8e8e8; margin-bottom:16px; gap:0; }
+.modal-tab { padding:8px 18px; cursor:pointer; font-size:13px; color:#666; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .12s; }
+.modal-tab:hover { color:#1677ff; }
+.modal-tab.active { color:#1677ff; border-bottom-color:#1677ff; font-weight:600; }
+.modal-box.wide { width:780px; }
+.modal-tab-content { overflow-y:auto; max-height:50vh; padding:0 20px 16px 20px; }
+
+.stat-cards { display:flex; gap:12px; margin-bottom:14px; }
+.stat-card { flex:1; background:#fafafa; border-radius:6px; padding:10px 14px; border:1px solid #f0f0f0; }
+.stat-card .val { font-size:18px; font-weight:700; }
+.stat-card .val.orange { color:#d48806; }
+.stat-card .lbl { font-size:11px; color:#999; }
+.empty { text-align:center; padding:32px; color:#bbb; font-size:13px; }
+.tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:500; }
+.tag-green { background:#f6ffed; color:#52c41a; }
+.tag-orange { background:#fffbe6; color:#d48806; }
+.tag-red { background:#fff2f0; color:#cf1322; }
+.tag-blue { background:#e6f4ff; color:#1677ff; }
+.btn { display:inline-block; padding:6px 14px; border-radius:5px; font-size:12px; cursor:pointer; border:none; font-weight:500; }
+.btn-primary { background:#1677ff; color:#fff; }
+.btn-primary:hover { background:#4096ff; }
+.btn-sm { padding:3px 10px; font-size:11px; }
+.btn-success { background:#52c41a; color:#fff; }
+.alert-box { padding:10px 14px; border-radius:6px; margin-bottom:12px; font-size:12px; }
+.alert-warn { background:#fffbe6; color:#d48806; border:1px solid #ffe58f; }
+
+.modal-mask { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; display:flex; align-items:center; justify-content:center; }
+.modal-box { background:#fff; border-radius:10px; width:540px; max-height:78vh; overflow-y:auto; box-shadow:0 6px 30px rgba(0,0,0,.12); }
+.modal-header { padding:16px 20px; border-bottom:1px solid #f0f0f0; font-size:15px; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+.modal-close { cursor:pointer; font-size:18px; color:#999; }
+.modal-body { padding:16px 20px; }
+.modal-footer { padding:12px 20px; border-top:1px solid #f0f0f0; display:flex; justify-content:flex-end; gap:8px; }
+.form-group { margin-bottom:12px; }
+.form-label { display:block; font-size:12px; color:#555; margin-bottom:3px; font-weight:500; }
+.form-label .req { color:#cf1322; margin-left:1px; }
+.form-input,.form-select { width:100%; padding:7px 10px; border:1px solid #d9d9d9; border-radius:5px; font-size:12px; outline:none; }
+.form-input:focus,.form-select:focus { border-color:#1677ff; }
+.form-row { display:flex; gap:10px; }
+.form-row .form-group { flex:1; }
+.countdown { text-align:center; padding:14px; border-radius:8px; margin-bottom:14px; }
+.countdown.green { background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; }
+.countdown.orange { background:#fffbe6; color:#d48806; border:1px solid #ffe58f; }
+.countdown.red { background:#fff2f0; color:#cf1322; border:1px solid #ffccc7; }
+.countdown .days { font-size:30px; font-weight:700; }
+.countdown .desc { font-size:12px; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<div class="header">车辆运营管理 <span> | 加油 · 维修保养 · 保险 · 年检 · 违章</span></div>
+
+<div class="wrap">
+  <!-- 左侧组织树 -->
+  <div class="sidebar">
+    <div class="sidebar-hd">组织架构</div>
+    <div class="tree" id="orgTree"></div>
+  </div>
+
+  <!-- 右侧主区域 -->
+  <div class="main">
+    <!-- 搜索筛选栏 -->
+    <div class="toolbar">
+      <input class="search" placeholder="搜索车牌号 / 品牌型号..." id="searchInput" oninput="renderVehicleTable()">
+      <select id="filterStatus" onchange="renderVehicleTable()">
+        <option value="">全部状态</option><option value="空闲">空闲</option><option value="出车中">出车中</option><option value="维修中">维修中</option><option value="报废">报废</option>
+      </select>
+      <select id="filterType" onchange="renderVehicleTable()">
+        <option value="">全部车型</option><option value="轿车">轿车</option><option value="SUV">SUV</option><option value="商务车">商务车</option><option value="中型客车">中型客车</option><option value="大型客车">大型客车</option>
+      </select>
+      <span style="font-size:12px;color:#999;white-space:nowrap" id="scopeLabel">共 800 辆车</span>
+    </div>
+
+    <!-- 汇总卡片 -->
+    <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- 车辆表格 + 分页 -->
+    <div class="vehicle-area" id="vehicleArea">
+      <div class="title">车辆列表 <span class="cnt" id="tableTitleCnt"></span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>车牌号</th><th>品牌型号</th><th>车型</th><th>所属部门</th><th>状态</th><th>本月加油(L)</th><th>本月维修(元)</th><th>保险到期</th><th>年检到期</th><th>违章</th>
+          </tr></thead>
+          <tbody id="vehicleTableBody"></tbody>
+        </table>
+      </div>
+      <div class="pager" id="pager"></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="modalContainer"></div>
+
+<script>
+// ==================== 组织架构数据 ====================
+const orgTree = [
+  { id:'g1', name:'中国XX集团有限公司', icon:'🏢', children:[
+    { id:'c1', name:'北京分公司', children:[
+      { id:'d1', name:'办公室', vehicleCount:45, icon:'📋' },
+      { id:'d2', name:'财务部', vehicleCount:12, icon:'📋' },
+      { id:'d3', name:'后勤保障部', vehicleCount:88, icon:'📋' },
+      { id:'d4', name:'纪检监察部', vehicleCount:8, icon:'📋' },
+      { id:'d5', name:'市场经营部', vehicleCount:35, icon:'📋' },
+    ]},
+    { id:'c2', name:'上海分公司', children:[
+      { id:'d6', name:'办公室', vehicleCount:32, icon:'📋' },
+      { id:'d7', name:'后勤保障部', vehicleCount:65, icon:'📋' },
+      { id:'d8', name:'生产运营部', vehicleCount:42, icon:'📋' },
+    ]},
+    { id:'c3', name:'广州分公司', children:[
+      { id:'d9', name:'办公室', vehicleCount:28, icon:'📋' },
+      { id:'d10', name:'后勤保障部', vehicleCount:55, icon:'📋' },
+    ]},
+    { id:'c4', name:'成都分公司', children:[
+      { id:'d11', name:'办公室', vehicleCount:20, icon:'📋' },
+      { id:'d12', name:'后勤保障部', vehicleCount:40, icon:'📋' },
+    ]},
+    { id:'c5', name:'武汉分公司', children:[
+      { id:'d13', name:'办公室', vehicleCount:25, icon:'📋' },
+      { id:'d14', name:'后勤保障部', vehicleCount:50, icon:'📋' },
+    ]},
+    { id:'c6', name:'西安分公司', children:[
+      { id:'d15', name:'办公室', vehicleCount:18, icon:'📋' },
+      { id:'d16', name:'后勤保障部', vehicleCount:38, icon:'📋' },
+    ]},
+    { id:'c7', name:'沈阳分公司', children:[
+      { id:'d17', name:'办公室', vehicleCount:22, icon:'📋' },
+      { id:'d18', name:'后勤保障部', vehicleCount:42, icon:'📋' },
+    ]},
+    { id:'c8', name:'总部直属', children:[
+      { id:'d19', name:'机关车队', vehicleCount:52, icon:'📋' },
+      { id:'d20', name:'接待车队', vehicleCount:36, icon:'📋' },
+    ]},
+  ]}
+];
+
+// ==================== 生成模拟车辆数据 ====================
+const models = ['奥迪A6L 2024款','帕萨特 2024款','红旗H9 2024款','别克GL8 2024款','丰田柯斯达 2024款','宇通T7 2024款','比亚迪汉EV 2024款','荣威iMAX8 2024款','本田奥德赛 2024款','丰田凯美瑞 2024款'];
+const types = ['轿车','轿车','轿车','商务车','中型客车','大型客车','轿车','商务车','商务车','轿车'];
+const fuels = ['汽油','汽油','汽油','汽油','柴油','柴油','电动','汽油','汽油','汽油'];
+
+let allVehicles = [];
+let vehicleIdCounter = 1;
+
+function generateVehicles() {
+  allVehicles = [];
+  const depts = [];
+  function walk(nodes) {
+    nodes.forEach(n => {
+      if (n.vehicleCount) depts.push({ name: n.name, count: n.vehicleCount, parent: findParent(nodes, n.name) });
+      if (n.children) walk(n.children);
+    });
+  }
+  function findParent(nodes, deptName) {
+    for (const n of nodes) {
+      if (n.children) {
+        for (const c of n.children) {
+          if (c.name === deptName) return n.name;
+        }
+      }
+    }
+    return '';
+  }
+
+  walk(orgTree);
+
+  depts.forEach(d => {
+    for (let i = 0; i < d.count; i++) {
+      const mi = Math.floor(Math.random() * models.length);
+      const platePrefix = d.parent ? (d.parent.includes('北京') ? '京' : d.parent.includes('上海') ? '沪' : d.parent.includes('广州') ? '粤A' : d.parent.includes('成都') ? '川A' : d.parent.includes('武汉') ? '鄂A' : d.parent.includes('西安') ? '陕A' : d.parent.includes('沈阳') ? '辽A' : '京') : '京';
+      const plateLetters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+      const letter = plateLetters[Math.floor(Math.random() * plateLetters.length)];
+      const digits = String(Math.floor(Math.random() * 90000) + 10000);
+
+      allVehicles.push({
+        id: vehicleIdCounter++,
+        plate: `${platePrefix}${letter}${digits}`,
+        model: models[mi],
+        type: types[mi],
+        fuel: fuels[mi],
+        dept: d.name,
+        parent: d.parent,
+        status: ['空闲','空闲','空闲','空闲','空闲','出车中','维修中','空闲','空闲','空闲'][Math.floor(Math.random()*10)],
+        fuelMonth: Math.floor(Math.random() * 300),
+        repairMonth: Math.floor(Math.random() * 5000),
+        insuranceExpiry: randomDate(30),
+        inspectionExpiry: randomDate(60),
+        violationCount: Math.random() > 0.85 ? Math.floor(Math.random() * 3) + 1 : 0,
+      });
+    }
+  });
+}
+
+function randomDate(maxDays) {
+  const d = new Date();
+  d.setDate(d.getDate() + Math.floor(Math.random() * maxDays * 2) - maxDays);
+  return d.toISOString().split('T')[0];
+}
+
+generateVehicles();
+
+// ==================== 组织树 ====================
+let selectedOrgId = 'all';
+let expandedNodes = new Set(['g1']);
+
+function renderOrgTree() {
+  const tree = document.getElementById('orgTree');
+  let html = '';
+
+  html += `<div class="tree-row${selectedOrgId==='all'?' active':''}" onclick="selectOrg('all')">
+    <span class="icon">🏢</span><span class="name">全部车辆</span><span class="count">${allVehicles.length}</span>
+  </div>`;
+
+  function renderNode(nodes, level) {
+    nodes.forEach(n => {
+      const isExpanded = expandedNodes.has(n.id);
+      const hasChildren = n.children && n.children.length > 0;
+      const indent = level * 16;
+
+      html += `<div class="tree-row${selectedOrgId===n.id?' active':''}" onclick="toggleOrg('${n.id}')" style="padding-left:${16+indent}px">
+        ${hasChildren ? `<span class="arrow${isExpanded?' expanded':''}">▶</span>` : '<span style="width:16px;flex-shrink:0"></span>'}
+        <span class="icon">${n.icon||'📁'}</span>
+        <span class="name">${n.name}</span>
+        ${n.vehicleCount ? `<span class="count">${n.vehicleCount}</span>` : ''}
+      </div>`;
+
+      if (hasChildren && isExpanded) {
+        html += `<div class="tree-children">`;
+        renderNode(n.children, level + 1);
+        html += `</div>`;
+      }
+    });
+  }
+
+  renderNode(orgTree, 0);
+  tree.innerHTML = html;
+}
+
+function toggleOrg(id) {
+  if (expandedNodes.has(id)) {
+    expandedNodes.delete(id);
+  } else {
+    expandedNodes.add(id);
+  }
+  selectOrg(id);
+}
+
+function selectOrg(id) {
+  selectedOrgId = id;
+  if (id !== 'all' && !expandedNodes.has(id)) {
+    expandedNodes.add(id);
+  }
+  renderOrgTree();
+  renderVehicleTable();
+  renderSummary();
+}
+
+function getVehiclesByOrg(orgId) {
+  if (orgId === 'all') return allVehicles;
+  return allVehicles.filter(v => v.dept === findOrgName(orgId));
+}
+
+function findOrgName(id) {
+  function find(nodes) {
+    for (const n of nodes) {
+      if (n.id === id) return n.name;
+      if (n.children) {
+        const r = find(n.children);
+        if (r) return r;
+      }
+    }
+    return null;
+  }
+  return find(orgTree);
+}
+
+// ==================== 车辆表格 + 分页 ====================
+const PAGE_SIZE = 15;
+let currentPage = 1;
+
+function getFilteredVehicles() {
+  let list = getVehiclesByOrg(selectedOrgId);
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const type = document.getElementById('filterType').value;
+
+  if (search) list = list.filter(v => v.plate.toLowerCase().includes(search) || v.model.toLowerCase().includes(search));
+  if (status) list = list.filter(v => v.status === status);
+  if (type) list = list.filter(v => v.type === type);
+
+  return list;
+}
+
+function renderVehicleTable() {
+  currentPage = 1;
+  renderVehicleTablePage();
+}
+
+function renderVehicleTablePage() {
+  const filtered = getFilteredVehicles();
+  const total = filtered.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = filtered.slice(start, start + PAGE_SIZE);
+
+  const statusClass = { '空闲':'badge-free','出车中':'badge-out','维修中':'badge-repair','报废':'badge-scrap' };
+
+  document.getElementById('vehicleTableBody').innerHTML = pageData.map(v => {
+    const insDays = Math.ceil((new Date(v.inspectionExpiry) - new Date()) / (1000*60*60*24));
+    const insDays2 = Math.ceil((new Date(v.insuranceExpiry) - new Date()) / (1000*60*60*24));
+
+    let inspTag = '', insurTag = '', violTag = '';
+    if (insDays < 0) inspTag = '<span class="mini-tag mini-red">年检逾期</span>';
+    else if (insDays <= 30) inspTag = '<span class="mini-tag mini-orange">即将到期</span>';
+    else inspTag = '<span class="mini-tag mini-green">正常</span>';
+
+    if (insDays2 < 0) insurTag = '<span class="mini-tag mini-red">保险逾期</span>';
+    else if (insDays2 <= 30) insurTag = '<span class="mini-tag mini-orange">即将到期</span>';
+    else insurTag = '<span class="mini-tag mini-green">正常</span>';
+
+    if (v.violationCount > 0) violTag = `<span class="mini-tag mini-red">${v.violationCount}次</span>`;
+    else violTag = '<span class="mini-tag mini-green">无</span>';
+
+    return `<tr class="${selectedVehicleId===v.id?'selected':''}" onclick="selectVehicle(${v.id})" style="cursor:pointer">
+      <td><strong>${v.plate}</strong></td>
+      <td>${v.model}</td><td>${v.type}</td><td>${v.dept}</td>
+      <td><span class="badge ${statusClass[v.status]}">${v.status}</span></td>
+      <td>${v.fuelMonth}</td><td>${v.repairMonth}</td>
+      <td>${insurTag}</td><td>${inspTag}</td><td>${violTag}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tableTitleCnt').textContent = `(${total} 辆)`;
+  document.getElementById('scopeLabel').textContent = `共 ${total} 辆车`;
+
+  // 分页
+  let pagerHtml = `<button ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})">上一页</button>`;
+  const maxShow = 7;
+  let pStart = Math.max(1, currentPage - Math.floor(maxShow/2));
+  let pEnd = Math.min(totalPages, pStart + maxShow - 1);
+  if (pEnd - pStart < maxShow - 1) pStart = Math.max(1, pEnd - maxShow + 1);
+  for (let i = pStart; i <= pEnd; i++) {
+    pagerHtml += `<button class="${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  pagerHtml += `<button ${currentPage>=totalPages?'disabled':''} onclick="goPage(${currentPage+1})">下一页</button>`;
+  pagerHtml += `<span style="margin-left:8px">${currentPage} / ${totalPages} 页</span>`;
+  document.getElementById('pager').innerHTML = pagerHtml;
+}
+
+function goPage(page) {
+  currentPage = page;
+  renderVehicleTablePage();
+}
+
+// ==================== 汇总卡片 ====================
+function renderSummary() {
+  const list = getFilteredVehicles();
+  const total = list.length;
+  const totalFuel = list.reduce((s,v) => s + v.fuelMonth, 0);
+  const totalRepair = list.reduce((s,v) => s + v.repairMonth, 0);
+  const now = new Date();
+  const inspExpiring = list.filter(v => (new Date(v.inspectionExpiry) - now) / (1000*60*60*24) <= 30).length;
+  const insExpiring = list.filter(v => (new Date(v.insuranceExpiry) - now) / (1000*60*60*24) <= 30).length;
+  const violCount = list.filter(v => v.violationCount > 0).length;
+
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="summary-card"><div class="num">${total}</div><div class="lbl">车辆总数</div></div>
+    <div class="summary-card"><div class="num">${totalFuel.toLocaleString()} L</div><div class="lbl">本月总加油量</div></div>
+    <div class="summary-card"><div class="num">${totalRepair.toLocaleString()} 元</div><div class="lbl">本月维修费用</div></div>
+    <div class="summary-card"><div class="num${inspExpiring>0?' warn':''}">${inspExpiring}</div><div class="lbl">年检预警</div></div>
+    <div class="summary-card"><div class="num${insExpiring>0?' warn':''}">${insExpiring}</div><div class="lbl">保险预警</div></div>
+    <div class="summary-card"><div class="num${violCount>0?' danger':''}">${violCount}</div><div class="lbl">违章车辆</div></div>
+  `;
+}
+
+// ==================== 车辆详情弹窗 ====================
+let selectedVehicleId = null;
+let detailTab = 'refuel';
+
+function selectVehicle(id) {
+  selectedVehicleId = id;
+  renderVehicleTablePage();
+  openVehicleModal();
+}
+
+function openVehicleModal() {
+  const v = allVehicles.find(x => x.id === selectedVehicleId);
+  if (!v) return;
+
+  const badgeMap = { '空闲':'badge-free','出车中':'badge-out','维修中':'badge-repair','报废':'badge-scrap' };
+
+  const html = `
+    <div class="modal-mask" id="vehicleModal" onclick="if(event.target===this)closeVehicleModal()">
+      <div class="modal-box wide">
+        <div class="modal-header">
+          <span><strong>${v.plate}</strong> &nbsp; ${v.model} &middot; ${v.type} &middot; ${v.fuel}
+            <span class="badge ${badgeMap[v.status]}" style="margin-left:10px">${v.status}</span>
+            <span style="color:#999;font-size:12px;margin-left:10px">${v.dept}</span>
+          </span>
+          <span class="modal-close" onclick="closeVehicleModal()">✕</span>
+        </div>
+        <div class="modal-tabs" style="padding:0 20px">
+          <div class="modal-tab${detailTab==='refuel'?' active':''}" onclick="switchDetailTab('refuel')">加油管理</div>
+          <div class="modal-tab${detailTab==='maintenance'?' active':''}" onclick="switchDetailTab('maintenance')">维修保养</div>
+          <div class="modal-tab${detailTab==='insurance'?' active':''}" onclick="switchDetailTab('insurance')">保险管理</div>
+          <div class="modal-tab${detailTab==='inspection'?' active':''}" onclick="switchDetailTab('inspection')">年检管理</div>
+          <div class="modal-tab${detailTab==='violation'?' active':''}" onclick="switchDetailTab('violation')">违章处理</div>
+        </div>
+        <div class="modal-tab-content" id="detailContent"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('modalContainer').innerHTML = html;
+  renderDetailBody();
+}
+
+function closeVehicleModal() {
+  selectedVehicleId = null;
+  detailTab = 'refuel';
+  document.getElementById('modalContainer').innerHTML = '';
+  renderVehicleTablePage();
+}
+
+function switchDetailTab(tab) {
+  detailTab = tab;
+  const tabs = document.querySelectorAll('#vehicleModal .modal-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderDetailBody();
+}
+
+function renderDetailBody() {
+  const v = allVehicles.find(x => x.id === selectedVehicleId);
+  if (!v) return;
+  const body = document.getElementById('detailContent');
+
+  const mockRefuels = [
+    { date:'2026-06-28', station:'中石化朝阳站', type:'95#', amount:62.5, price:8.56, total:535, odo:15200, card:'ZSY-001', op:'张伟' },
+    { date:'2026-06-15', station:'中石油海淀站', type:'95#', amount:58.3, price:8.52, total:497, odo:14580, card:'ZSY-001', op:'张伟' },
+    { date:'2026-06-02', station:'中石化西城站', type:'95#', amount:55.0, price:8.60, total:473, odo:13920, card:'ZSY-001', op:'李明' },
+  ];
+  const mockRepairs = [
+    { date:'2026-06-05', type:'常规维修', items:'更换前刹车片', cost:2800, shop:'北京奥迪4S店', status:'已完工', op:'张伟' },
+  ];
+  const mockMaints = [
+    { date:'2026-05-15', type:'小保养', items:'更换机油、机滤', cost:1200, odo:13000, nextOdo:18000, nextDate:'2026-11-15', shop:'北京奥迪4S店', op:'张伟' },
+  ];
+  const mockInsurance = [
+    { company:'中国人保财险', type:'交强险', policyNo:'PICC-2026-BJ-001234', coverage:200000, premium:950, effDate:'2026-01-15', expDate:'2027-01-15', status:'active' },
+    { company:'中国人保财险', type:'商业险(全险)', policyNo:'PICC-2026-BJ-001235', coverage:500000, premium:8200, effDate:'2026-01-15', expDate:'2027-01-15', status:'active' },
+  ];
+  const inspDays = Math.ceil((new Date(v.inspectionExpiry) - new Date()) / (1000*60*60*24));
+  const inspCls = inspDays > 60 ? 'green' : inspDays > 30 ? 'orange' : 'red';
+
+  let html = '';
+  switch(detailTab) {
+    case 'refuel':
+      html = `<div class="stat-cards">
+        <div class="stat-card"><div class="val">${(mockRefuels.reduce((s,r)=>s+r.amount,0)).toFixed(1)} L</div><div class="lbl">本月累计加油量</div></div>
+        <div class="stat-card"><div class="val">${mockRefuels.reduce((s,r)=>s+r.total,0)} 元</div><div class="lbl">本月累计金额</div></div>
+        <div class="stat-card"><div class="val orange">11.2</div><div class="lbl">平均油耗(L/100km) <span style="color:#d48806">超标</span></div></div>
+      </div>
+      <button class="btn btn-primary" onclick="alert('添加加油记录')" style="margin-bottom:12px">+ 添加加油</button>
+      <table><thead><tr><th>日期</th><th>加油站</th><th>油品</th><th>加油量(L)</th><th>单价</th><th>金额</th><th>里程(km)</th><th>加油卡</th><th>操作人</th></tr></thead>
+      <tbody>${mockRefuels.map(r => `<tr><td>${r.date}</td><td>${r.station}</td><td>${r.type}</td><td>${r.amount}</td><td>${r.price}</td><td>${r.total}</td><td>${r.odo}</td><td>${r.card}</td><td>${r.op}</td></tr>`).join('')}</tbody></table>`;
+      break;
+    case 'maintenance':
+      html = `<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn btn-primary">+ 新增维修申请</button><button class="btn btn-sm" style="background:#f5f5f5;border:1px solid #d9d9d9">+ 保养记录</button></div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#555">维修记录</div>
+        ${mockRepairs.length===0?'<div class="empty">暂无</div>':`<table><thead><tr><th>日期</th><th>类型</th><th>项目</th><th>费用</th><th>维修厂</th><th>状态</th></tr></thead>
+        <tbody>${mockRepairs.map(r => `<tr><td>${r.date}</td><td>${r.type}</td><td>${r.items}</td><td>${r.cost}</td><td>${r.shop}</td><td><span class="tag tag-green">${r.status}</span></td></tr>`).join('')}</tbody></table>`}
+        <div style="font-size:13px;font-weight:600;margin:12px 0 8px;color:#555">保养记录</div>
+        ${mockMaints.length===0?'<div class="empty">暂无</div>':`<table><thead><tr><th>日期</th><th>类型</th><th>项目</th><th>费用</th><th>保养里程</th><th>下次保养</th></tr></thead>
+        <tbody>${mockMaints.map(r => `<tr><td>${r.date}</td><td>${r.type}</td><td>${r.items}</td><td>${r.cost}</td><td>${r.odo}km</td><td>${r.nextOdo}km / ${r.nextDate}</td></tr>`).join('')}</tbody></table>`}`;
+      break;
+    case 'insurance':
+      html = `<button class="btn btn-primary" onclick="alert('新增保险记录')" style="margin-bottom:12px">+ 新增保险</button>
+        <table><thead><tr><th>保险公司</th><th>险种</th><th>保单号</th><th>保额</th><th>保费</th><th>生效日</th><th>到期日</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>${mockInsurance.map(r => `<tr><td>${r.company}</td><td>${r.type}</td><td>${r.policyNo}</td><td>${r.coverage.toLocaleString()}</td><td>${r.premium}</td><td>${r.effDate}</td><td>${r.expDate}</td><td><span class="tag tag-green">生效中</span></td><td>${r.status==='active'?'-':'<button class="btn btn-sm btn-success" onclick="alert(\"续保成功\")">续保</button>'}</td></tr>`).join('')}</tbody></table>`;
+      break;
+    case 'inspection':
+      html = `<div class="countdown ${inspCls}">
+        <div class="days">${Math.abs(inspDays)}</div>
+        <div class="desc">${inspDays>0?'天后到期':'已逾期'} · 下次年检：${v.inspectionExpiry}</div>
+      </div>
+      <button class="btn btn-primary" onclick="alert('录入年检记录')" style="margin-bottom:12px">+ 录入年检</button>
+      <table><thead><tr><th>年检日期</th><th>下次年检</th><th>年检单位</th><th>结果</th><th>费用</th></tr></thead>
+      <tbody><tr><td>2026-01-15</td><td>${v.inspectionExpiry}</td><td>北京朝阳检测场</td><td><span class="tag tag-green">合格</span></td><td>320</td></tr></tbody></table>`;
+      break;
+    case 'violation':
+      const mockViols = [
+        { date:'2026-06-12', loc:'京通快速5km', behavior:'超速20%以下', points:3, penalty:200, status:'待处理' },
+        { date:'2026-05-20', loc:'三环路分钟寺桥', behavior:'违反禁止标线', points:1, penalty:100, status:'已处理' },
+      ];
+      html = `<div class="stat-cards">
+        <div class="stat-card"><div class="val">2</div><div class="lbl">累计违章</div></div>
+        <div class="stat-card"><div class="val">4</div><div class="lbl">累计扣分</div></div>
+        <div class="stat-card"><div class="val orange">300</div><div class="lbl">累计罚款(元)</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="alert('录入违章记录')" style="margin-bottom:12px">+ 录入违章</button>
+      <table><thead><tr><th>日期</th><th>地点</th><th>行为</th><th>扣分</th><th>罚款</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>${mockViols.map(r => `<tr><td>${r.date}</td><td>${r.loc}</td><td>${r.behavior}</td><td>${r.points}</td><td>${r.penalty}</td><td><span class="tag ${r.status==='已处理'?'tag-green':'tag-red'}">${r.status}</span></td><td>${r.status==='待处理'?'<button class="btn btn-sm btn-success" onclick="alert(\"已标记为已处理\")">标记已处理</button>':'-'}</td></tr>`).join('')}</tbody></table>`;
+      break;
+  }
+  body.innerHTML = html;
+}
+
+// ==================== 初始化 ====================
+renderOrgTree();
+renderVehicleTable();
+renderSummary();
+</script>
+
+</body>
+</html>

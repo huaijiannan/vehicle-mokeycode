@@ -174,3 +174,8 @@
 *.lz
 *.lzma
 *.iso
+
+# SQLite database runtime files
+*.db
+*.db-shm
+*.db-wal
