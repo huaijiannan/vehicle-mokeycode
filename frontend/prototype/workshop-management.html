@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>定点维修车厂管理</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+a { color: #1890ff; text-decoration: none; }
+
+/* 布局 */
+.page { max-width: 1440px; margin: 0 auto; padding: 24px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.header h2 { font-size: 22px; font-weight: 600; }
+.header .subtitle { font-size: 13px; color: #999; margin-top: 4px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; cursor: pointer; transition: all .2s; background: #fff; color: #333; }
+.btn:hover { border-color: #1890ff; color: #1890ff; }
+.btn-primary { background: #1890ff; color: #fff; border-color: #1890ff; }
+.btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+.btn-danger { color: #ff4d4f; border-color: #ff4d4f; }
+.btn-danger:hover { background: #fff2f0; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-xs { padding: 2px 8px; font-size: 12px; border-radius: 3px; }
+
+/* 统计卡片 */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.stat-card { background: #fff; border-radius: 8px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); display: flex; align-items: center; gap: 16px; }
+.stat-card .icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.stat-card .info .num { font-size: 28px; font-weight: 700; line-height: 1.2; }
+.stat-card .info .label { font-size: 13px; color: #999; margin-top: 2px; }
+.icon-blue { background: #e6f7ff; color: #1890ff; }
+.icon-green { background: #f6ffed; color: #52c41a; }
+.icon-orange { background: #fff7e6; color: #fa8c16; }
+.icon-red { background: #fff2f0; color: #ff4d4f; }
+
+/* 工具栏 */
+.toolbar { background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.toolbar input, .toolbar select { height: 36px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; outline: none; transition: border-color .2s; background: #fff; }
+.toolbar input:focus, .toolbar select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.1); }
+.toolbar input { width: 260px; }
+.toolbar select { min-width: 140px; }
+.toolbar .spacer { flex: 1; }
+
+/* 表格 */
+.table-wrap { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #fafafa; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; color: #666; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+tr:hover td { background: #fafafa; }
+tr:last-child td { border-bottom: none; }
+
+/* 标签 */
+.tag { display: inline-block; padding: 2px 10px; border-radius: 3px; font-size: 12px; font-weight: 500; }
+.tag-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.tag-warning { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+.tag-danger { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+.tag-default { background: #f5f5f5; color: #999; border: 1px solid #e8e8e8; }
+
+/* 星级评分 */
+.stars { color: #faad14; font-size: 14px; letter-spacing: 2px; }
+
+/* 分页 */
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 16px 20px; }
+.pagination .pg-btn { width: 32px; height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; background: #fff; transition: all .2s; }
+.pagination .pg-btn:hover { border-color: #1890ff; color: #1890ff; }
+.pagination .pg-btn.active { background: #1890ff; color: #fff; border-color: #1890ff; }
+.pagination .pg-info { font-size: 13px; color: #999; margin: 0 8px; }
+
+/* 模态框 */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: flex; align-items: flex-start; justify-content: center; padding-top: 60px; }
+.modal { background: #fff; border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.15); width: 720px; max-height: 85vh; display: flex; flex-direction: column; animation: modalIn .25s ease; }
+.modal-lg { width: 900px; }
+.modal-sm { width: 480px; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(-20px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid #f0f0f0; }
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-header .close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-size: 18px; color: #999; transition: all .2s; border: none; background: none; }
+.modal-header .close:hover { background: #f5f5f5; color: #333; }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0f0f0; }
+
+/* 表单 */
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #333; }
+.form-group label .required { color: #ff4d4f; margin-left: 2px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; outline: none; transition: border-color .2s; font-family: inherit; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.1); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 16px; }
+.form-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0 16px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px; }
+.tab { padding: 10px 20px; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .2s; }
+.tab:hover { color: #1890ff; }
+.tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 600; }
+
+/* 服务能力复选框 */
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; }
+.checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; padding: 6px 14px; border: 1px solid #e8e8e8; border-radius: 6px; transition: all .2s; user-select: none; }
+.checkbox-item:hover { border-color: #1890ff; }
+.checkbox-item.checked { background: #e6f7ff; border-color: #1890ff; color: #1890ff; }
+.checkbox-item input { display: none; }
+
+/* 看板图表 */
+.chart-bar { display: flex; align-items: flex-end; gap: 8px; height: 200px; padding: 0 20px 30px; border-bottom: 2px solid #e8e8e8; border-left: 2px solid #e8e8e8; margin: 20px 0 10px 40px; }
+.chart-bar .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.chart-bar .bar { width: 100%; max-width: 50px; background: linear-gradient(to top, #1890ff, #69c0ff); border-radius: 4px 4px 0 0; transition: height .4s; min-width: 24px; }
+.chart-bar .bar-val { font-size: 11px; color: #999; }
+.chart-bar .bar-label { font-size: 11px; color: #666; position: relative; top: 28px; }
+
+/* 上传区域 */
+.upload-area { border: 2px dashed #d9d9d9; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all .2s; }
+.upload-area:hover { border-color: #1890ff; background: #fafafa; }
+.upload-area .upload-icon { font-size: 32px; color: #999; margin-bottom: 8px; }
+.upload-area p { color: #999; font-size: 13px; }
+.file-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.file-tag { display: flex; align-items: center; gap: 6px; padding: 4px 12px; background: #f5f5f5; border-radius: 4px; font-size: 13px; }
+.file-tag .remove { cursor: pointer; color: #999; font-weight: bold; }
+
+/* 确认对话框 */
+.confirm-text { font-size: 15px; line-height: 1.6; color: #555; }
+.confirm-text strong { color: #ff4d4f; }
+
+/* 隐藏 */
+.hidden { display: none !important; }
+.actions-cell { display: flex; gap: 6px; }
+
+/* 操作员列表 */
+.operator-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.operator-table th, .operator-table td { padding: 10px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+.operator-table th { background: #fafafa; font-weight: 600; color: #666; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
+  .modal { width: 95%; }
+}
+</style>
+</head>
+<body>
+
+<div class="page" id="app">
+  <!-- 头部 -->
+  <div class="header">
+    <div>
+      <h2>定点维修车厂管理</h2>
+      <p class="subtitle">管理合作维修厂档案、服务能力、操作员及合作状态</p>
+    </div>
+    <button class="btn btn-primary" onclick="openWorkshopForm()">+ 新增维修厂</button>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="icon icon-blue">&#9879;</div>
+      <div class="info"><div class="num" id="totalCount">8</div><div class="label">维修厂总数</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon icon-green">&#10003;</div>
+      <div class="info"><div class="num" id="activeCount">5</div><div class="label">合作中</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon icon-orange">&#9888;</div>
+      <div class="info"><div class="num" id="suspendedCount">2</div><div class="label">暂停合作</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon icon-red">&#10007;</div>
+      <div class="info"><div class="num" id="terminatedCount">1</div><div class="label">已终止</div></div>
+    </div>
+  </div>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="搜索维修厂名称 / 地址 / 联系人..." oninput="renderTable()">
+    <select id="statusFilter" onchange="renderTable()">
+      <option value="">全部状态</option>
+      <option value="active">合作中</option>
+      <option value="suspended">暂停合作</option>
+      <option value="terminated">已终止</option>
+    </select>
+    <select id="sortBy" onchange="renderTable()">
+      <option value="name">按名称排序</option>
+      <option value="orders">按工单数排序</option>
+      <option value="rating">按评分排序</option>
+      <option value="duration">按合作时长排序</option>
+    </select>
+    <span class="spacer"></span>
+    <span style="font-size:13px;color:#999;" id="resultCount">共 8 条记录</span>
+  </div>
+
+  <!-- 表格 -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>维修厂名称</th>
+          <th>联系人</th>
+          <th>地址</th>
+          <th>服务类型</th>
+          <th>综合评分</th>
+          <th>累计工单</th>
+          <th>定点状态</th>
+          <th>合同到期</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="pagination">
+      <span class="pg-info" id="pageInfo">共 8 条记录</span>
+    </div>
+  </div>
+</div>
+
+<!-- 新增/编辑维修厂弹窗 -->
+<div class="modal-overlay hidden" id="workshopModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="workshopModalTitle">新增维修厂</h3>
+      <button class="close" onclick="closeModal('workshopModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>维修厂名称 <span class="required">*</span></label>
+          <input type="text" id="wsName" placeholder="请输入维修厂全称">
+        </div>
+        <div class="form-group">
+          <label>统一社会信用代码 <span class="required">*</span></label>
+          <input type="text" id="wsCreditCode" placeholder="18位信用代码">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>联系人姓名 <span class="required">*</span></label>
+          <input type="text" id="wsContact" placeholder="请输入联系人">
+        </div>
+        <div class="form-group">
+          <label>联系电话 <span class="required">*</span></label>
+          <input type="text" id="wsPhone" placeholder="请输入联系电话">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>经营地址 <span class="required">*</span></label>
+        <input type="text" id="wsAddress" placeholder="请输入详细地址">
+      </div>
+      <div class="form-group">
+        <label>经营范围描述</label>
+        <textarea id="wsScope" placeholder="描述维修厂主营业务和特色"></textarea>
+      </div>
+      <div class="form-group">
+        <label>资质文件</label>
+        <div class="upload-area" onclick="simulateUpload()">
+          <div class="upload-icon">&#128206;</div>
+          <p>点击上传营业执照、维修资质证书</p>
+          <p style="font-size:12px;">支持 JPG、PNG、PDF 格式</p>
+        </div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('workshopModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveWorkshop()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 服务能力配置弹窗 -->
+<div class="modal-overlay hidden" id="serviceModal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header">
+      <h3>服务能力配置 - <span id="serviceModalTitle"></span></h3>
+      <button class="close" onclick="closeModal('serviceModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>可提供服务类型 <span class="required">*</span></label>
+        <div class="checkbox-group" id="serviceTypes"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>营业开始时间</label>
+          <input type="time" id="wsOpenTime" value="08:00">
+        </div>
+        <div class="form-group">
+          <label>营业结束时间</label>
+          <input type="time" id="wsCloseTime" value="18:00">
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>工位数量</label>
+          <input type="number" id="wsStationCount" value="5" min="1">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;gap:10px;padding-bottom:18px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" id="wsTowService"> 提供拖车服务
+          </label>
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;gap:10px;padding-bottom:18px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" id="wsReplacementCar"> 提供代步车
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('serviceModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveServiceConfig()">保存配置</button>
+    </div>
+  </div>
+</div>
+
+<!-- 操作员管理弹窗 -->
+<div class="modal-overlay hidden" id="operatorModal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header">
+      <h3>操作员管理 - <span id="operatorModalTitle"></span></h3>
+      <button class="close" onclick="closeModal('operatorModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:16px;">
+        <div class="form-row" style="align-items:flex-end;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>操作员姓名</label>
+            <input type="text" id="opName" placeholder="请输入姓名">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>登录账号</label>
+            <input type="text" id="opAccount" placeholder="请输入登录账号">
+          </div>
+          <div style="padding-bottom:8px;">
+            <button class="btn btn-primary btn-sm" onclick="addOperator()">+ 添加</button>
+          </div>
+        </div>
+      </div>
+      <table class="operator-table">
+        <thead>
+          <tr><th>姓名</th><th>登录账号</th><th>状态</th><th>操作</th></tr>
+        </thead>
+        <tbody id="operatorTableBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('operatorModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 服务看板弹窗 -->
+<div class="modal-overlay hidden" id="dashboardModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>服务看板 - <span id="dashboardTitle"></span></h3>
+      <button class="close" onclick="closeModal('dashboardModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="stats" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <div class="icon icon-blue">&#128295;</div>
+          <div class="info"><div class="num" id="dbTotalOrders">156</div><div class="label">累计工单数</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="icon icon-green">&#128176;</div>
+          <div class="info"><div class="num" id="dbTotalCost">285,600</div><div class="label">累计维修费用(元)</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="icon icon-orange">&#9202;</div>
+          <div class="info"><div class="num" id="dbAvgDays">2.8</div><div class="label">平均维修周期(天)</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="icon icon-red">&#9888;</div>
+          <div class="info"><div class="num" id="dbPending">3</div><div class="label">待处理工单</div></div>
+        </div>
+      </div>
+      <div style="margin-bottom:8px;font-weight:600;font-size:14px;">近12个月工单量统计</div>
+      <div class="chart-bar" id="chartBar"></div>
+      <div style="margin-top:20px;">
+        <span style="font-weight:600;font-size:14px;">综合评分：</span>
+        <span class="stars" id="dbRating">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
+        <span style="color:#999;margin-left:8px;" id="dbRatingText">4.2 分</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('dashboardModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 状态变更确认弹窗 -->
+<div class="modal-overlay hidden" id="statusModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>变更合作状态</h3>
+      <button class="close" onclick="closeModal('statusModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-text" id="statusConfirmText"></div>
+      <div class="form-group hidden" id="contractFields" style="margin-top:16px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label>合同编号 <span class="required">*</span></label>
+            <input type="text" id="contractNumber" placeholder="请输入合同编号">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>签约日期 <span class="required">*</span></label>
+            <input type="date" id="contractSignDate">
+          </div>
+          <div class="form-group">
+            <label>合同有效期 <span class="required">*</span></label>
+            <select id="contractDuration">
+              <option value="365">1年</option>
+              <option value="730">2年</option>
+              <option value="1095">3年</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('statusModal')">取消</button>
+      <button class="btn btn-primary" id="statusConfirmBtn" onclick="confirmStatusChange()">确认变更</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVICE_TYPES = ['机电维修','钣金喷漆','轮胎服务','美容养护','四轮定位','空调维修','电路检修','变速箱维修'];
+
+const initialData = [
+  { id:1, name:'顺达汽车维修中心', creditCode:'91110108MA0012345X', contact:'王建国', phone:'13801001234', address:'北京市朝阳区望京西路18号', scope:'专业维修各类乘用车，擅长德系车维修', services:['机电维修','轮胎服务','四轮定位','空调维修'], openTime:'08:00', closeTime:'18:00', stationCount:8, towService:true, replacementCar:true, status:'active', contractNo:'HT-2024001', signDate:'2024-01-15', expireDate:'2027-01-14', rating:4.5, totalOrders:156, operators:[{name:'王建国',account:'wjg',status:'active'},{name:'刘敏',account:'lium',status:'active'}] },
+  { id:2, name:'安信4S店', creditCode:'91310115MA0056789Y', contact:'张伟', phone:'13902005678', address:'上海市浦东新区金桥路288号', scope:'品牌授权4S店，提供原厂配件和专业维修服务', services:['机电维修','钣金喷漆','美容养护','电路检修','变速箱维修'], openTime:'08:30', closeTime:'17:30', stationCount:15, towService:true, replacementCar:true, status:'active', contractNo:'HT-2024002', signDate:'2024-02-20', expireDate:'2027-02-19', rating:4.8, totalOrders:312, operators:[{name:'张伟',account:'zw',status:'active'}] },
+  { id:3, name:'快捷汽修连锁', creditCode:'91440101MA0090123W', contact:'李明', phone:'13701009876', address:'广州市天河区中山大道西108号', scope:'连锁品牌，覆盖常规保养和快速维修', services:['机电维修','轮胎服务','美容养护','空调维修'], openTime:'07:30', closeTime:'20:00', stationCount:6, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024003', signDate:'2024-03-10', expireDate:'2027-03-09', rating:4.0, totalOrders:89, operators:[{name:'李明',account:'lim',status:'active'}] },
+  { id:4, name:'宏达轮胎专修', creditCode:'91440300MA0112345P', contact:'赵强', phone:'13602003456', address:'深圳市南山区科技园南路8号', scope:'轮胎销售、更换、修补、动平衡专业服务', services:['轮胎服务','四轮定位'], openTime:'09:00', closeTime:'18:00', stationCount:3, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024004', signDate:'2024-04-01', expireDate:'2027-03-31', rating:4.3, totalHours:45, expireDate:'2027-03-31', totalOrders:45, operators:[{name:'赵强',account:'zhaoq',status:'active'}] },
+  { id:5, name:'鑫源汽车养护中心', creditCode:'91510100MA0123456Q', contact:'陈芳', phone:'13501004567', address:'成都市武侯区人民南路四段12号', scope:'汽车美容、养护、常规保养一站式服务', services:['美容养护','机电维修','空调维修'], openTime:'08:00', closeTime:'19:00', stationCount:5, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024005', signDate:'2024-05-15', expireDate:'2027-05-14', rating:3.8, totalOrders:72, operators:[{name:'陈芳',account:'cf',status:'active'}] },
+  { id:6, name:'永利汽修厂', creditCode:'91320100MA0078901R', contact:'孙志强', phone:'13301005678', address:'南京市江宁区将军大道32号', scope:'综合维修，可承接中小型车辆维修保养', services:['机电维修','钣金喷漆','变速箱维修'], openTime:'08:00', closeTime:'18:00', stationCount:4, towService:true, replacementCar:false, status:'suspended', contractNo:'HT-2024006', signDate:'2024-01-20', expireDate:'2026-01-19', rating:3.5, totalOrders:28, operators:[{name:'孙志强',account:'szq',status:'disabled'}] },
+  { id:7, name:'博世汽车服务', creditCode:'91330100MA0098765K', contact:'刘洋', phone:'13102008901', address:'杭州市西湖区文三路98号', scope:'博世授权服务网点，专业德系车维修检测', services:['机电维修','电路检修','变速箱维修','空调维修'], openTime:'08:30', closeTime:'17:00', stationCount:10, towService:true, replacementCar:true, status:'suspended', contractNo:'HT-2024007', signDate:'2024-06-01', expireDate:'2025-12-31', rating:4.6, totalOrders:198, operators:[{name:'刘洋',account:'ly',status:'disabled'},{name:'周华',account:'zhouh',status:'disabled'}] },
+  { id:8, name:'盛达汽配维修', creditCode:'91350200MA0045678X', contact:'黄建国', phone:'13001006789', address:'厦门市思明区湖滨北路56号', scope:'配件销售兼维修，可自带配件到店安装', services:['机电维修','轮胎服务','美容养护'], openTime:'09:00', closeTime:'18:30', stationCount:3, towService:false, replacementCar:false, status:'terminated', contractNo:'HT-2023008', signDate:'2023-01-01', expireDate:'2024-12-31', rating:3.2, totalOrders:18, operators:[{name:'黄建国',account:'hjg',status:'disabled'}] },
+];
+
+let workshops = JSON.parse(JSON.stringify(initialData));
+let currentWorkshopId = null;
+let currentStatusWsId = null;
+let currentStatusTarget = null;
+
+function renderStats() {
+  const total = workshops.length;
+  const active = workshops.filter(w => w.status === 'active').length;
+  const suspended = workshops.filter(w => w.status === 'suspended').length;
+  const terminated = workshops.filter(w => w.status === 'terminated').length;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('activeCount').textContent = active;
+  document.getElementById('suspendedCount').textContent = suspended;
+  document.getElementById('terminatedCount').textContent = terminated;
+}
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  const sort = document.getElementById('sortBy').value;
+
+  let list = workshops.filter(w => {
+    const matchSearch = !search || w.name.toLowerCase().includes(search) || w.address.toLowerCase().includes(search) || w.contact.toLowerCase().includes(search);
+    const matchStatus = !status || w.status === status;
+    return matchSearch && matchStatus;
+  });
+
+  if (sort === 'orders') list.sort((a,b) => b.totalOrders - a.totalOrders);
+  else if (sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+  else if (sort === 'duration') list.sort((a,b) => new Date(b.signDate) - new Date(a.signDate));
+  else list.sort((a,b) => a.name.localeCompare(b.name, 'zh'));
+
+  document.getElementById('resultCount').textContent = `共 ${list.length} 条记录`;
+  document.getElementById('pageInfo').textContent = `共 ${list.length} 条记录`;
+
+  const statusLabels = { active: '合作中', suspended: '暂停合作', terminated: '已终止' };
+  const statusClasses = { active: 'tag-success', suspended: 'tag-warning', terminated: 'tag-danger' };
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = list.map(w => `
+    <tr>
+      <td style="font-weight:500;">${w.name}</td>
+      <td>${w.contact}<br><span style="font-size:12px;color:#999;">${w.phone}</span></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${w.address}">${w.address}</td>
+      <td>${w.services.map(s => `<span class="tag tag-default" style="margin:1px 2px;">${s}</span>`).join('')}</td>
+      <td><span class="stars">${renderStars(w.rating)}</span> ${w.rating}</td>
+      <td style="text-align:center;">${w.totalOrders}</td>
+      <td><span class="tag ${statusClasses[w.status]}">${statusLabels[w.status]}</span></td>
+      <td style="font-size:13px;">${w.expireDate}<br><span style="color:#999;font-size:11px;">${daysUntilExpire(w.expireDate)}</span></td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn btn-sm" onclick="openWorkshopForm(${w.id})" title="编辑">&#9998;</button>
+          <button class="btn btn-sm" onclick="openServiceConfig(${w.id})" title="服务能力">&#9881;</button>
+          <button class="btn btn-sm" onclick="openOperatorMgmt(${w.id})" title="操作员">&#128101;</button>
+          <button class="btn btn-sm" onclick="openDashboard(${w.id})" title="看板">&#128202;</button>
+          ${statusActions(w)}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  renderStats();
+}
+
+function renderStars(rating) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return '&#9733;'.repeat(full) + (half ? '&#9733;' : '') + '&#9734;'.repeat(empty);
+}
+
+function daysUntilExpire(date) {
+  const days = Math.ceil((new Date(date) - new Date()) / (1000*60*60*24));
+  if (days < 0) return '已过期';
+  if (days <= 30) return `<span style="color:#ff4d4f;">${days}天后到期</span>`;
+  return `${days}天后到期`;
+}
+
+function statusActions(w) {
+  if (w.status === 'active') return `
+    <button class="btn btn-sm" style="color:#fa8c16;border-color:#fa8c16;" onclick="changeStatus(${w.id},'suspended')">暂停</button>
+    <button class="btn btn-sm btn-danger" onclick="changeStatus(${w.id},'terminated')">终止</button>`;
+  if (w.status === 'suspended') return `
+    <button class="btn btn-sm" style="color:#52c41a;border-color:#52c41a;" onclick="changeStatus(${w.id},'active')">恢复</button>
+    <button class="btn btn-sm btn-danger" onclick="changeStatus(${w.id},'terminated')">终止</button>`;
+  return '';
+}
+
+function openWorkshopForm(id) {
+  currentWorkshopId = id || null;
+  document.getElementById('workshopModalTitle').textContent = id ? '编辑维修厂' : '新增维修厂';
+  document.getElementById('fileList').innerHTML = '';
+  if (id) {
+    const w = workshops.find(x => x.id === id);
+    document.getElementById('wsName').value = w.name;
+    document.getElementById('wsCreditCode').value = w.creditCode;
+    document.getElementById('wsContact').value = w.contact;
+    document.getElementById('wsPhone').value = w.phone;
+    document.getElementById('wsAddress').value = w.address;
+    document.getElementById('wsScope').value = w.scope || '';
+  } else {
+    ['wsName','wsCreditCode','wsContact','wsPhone','wsAddress','wsScope'].forEach(id => document.getElementById(id).value = '');
+  }
+  document.getElementById('workshopModal').classList.remove('hidden');
+}
+
+function saveWorkshop() {
+  const data = {
+    id: currentWorkshopId || Date.now(),
+    name: document.getElementById('wsName').value.trim(),
+    creditCode: document.getElementById('wsCreditCode').value.trim(),
+    contact: document.getElementById('wsContact').value.trim(),
+    phone: document.getElementById('wsPhone').value.trim(),
+    address: document.getElementById('wsAddress').value.trim(),
+    scope: document.getElementById('wsScope').value.trim(),
+  };
+  if (!data.name || !data.creditCode || !data.contact || !data.phone || !data.address) {
+    alert('请填写所有必填字段'); return;
+  }
+  if (currentWorkshopId) {
+    const idx = workshops.findIndex(w => w.id === currentWorkshopId);
+    if (idx >= 0) Object.assign(workshops[idx], data);
+  } else {
+    if (workshops.some(w => w.creditCode === data.creditCode)) {
+      alert('该统一社会信用代码已存在'); return;
+    }
+    workshops.push({ ...data, services:[], openTime:'08:00', closeTime:'18:00', stationCount:1, towService:false, replacementCar:false, status:'active', contractNo:'', signDate:new Date().toISOString().slice(0,10), expireDate:'', rating:0, totalOrders:0, operators:[] });
+  }
+  closeModal('workshopModal');
+  renderTable();
+  showToast(currentWorkshopId ? '维修厂信息已更新' : '维修厂添加成功');
+}
+
+function openServiceConfig(id) {
+  currentWorkshopId = id;
+  const w = workshops.find(x => x.id === id);
+  document.getElementById('serviceModalTitle').textContent = w.name;
+  document.getElementById('wsOpenTime').value = w.openTime || '08:00';
+  document.getElementById('wsCloseTime').value = w.closeTime || '18:00';
+  document.getElementById('wsStationCount').value = w.stationCount || 1;
+  document.getElementById('wsTowService').checked = w.towService || false;
+  document.getElementById('wsReplacementCar').checked = w.replacementCar || false;
+  const container = document.getElementById('serviceTypes');
+  container.innerHTML = SERVICE_TYPES.map(t => `
+    <label class="checkbox-item ${w.services.includes(t) ? 'checked' : ''}" onclick="this.classList.toggle('checked');this.querySelector('input').checked=this.classList.contains('checked')">
+      <input type="checkbox" value="${t}" ${w.services.includes(t) ? 'checked' : ''}> ${t}
+    </label>
+  `).join('');
+  document.getElementById('serviceModal').classList.remove('hidden');
+}
+
+function saveServiceConfig() {
+  const w = workshops.find(x => x.id === currentWorkshopId);
+  if (!w) return;
+  const checks = document.querySelectorAll('#serviceTypes input:checked');
+  w.services = Array.from(checks).map(c => c.value);
+  w.openTime = document.getElementById('wsOpenTime').value;
+  w.closeTime = document.getElementById('wsCloseTime').value;
+  w.stationCount = parseInt(document.getElementById('wsStationCount').value) || 1;
+  w.towService = document.getElementById('wsTowService').checked;
+  w.replacementCar = document.getElementById('wsReplacementCar').checked;
+  closeModal('serviceModal');
+  renderTable();
+  showToast('服务能力配置已保存');
+}
+
+function openOperatorMgmt(id) {
+  currentWorkshopId = id;
+  const w = workshops.find(x => x.id === id);
+  document.getElementById('operatorModalTitle').textContent = w.name;
+  document.getElementById('opName').value = '';
+  document.getElementById('opAccount').value = '';
+  renderOperators(w);
+  document.getElementById('operatorModal').classList.remove('hidden');
+}
+
+function renderOperators(w) {
+  document.getElementById('operatorTableBody').innerHTML = (w.operators || []).map((op, i) => `
+    <tr>
+      <td>${op.name}</td>
+      <td>${op.account}</td>
+      <td><span class="tag ${op.status === 'active' ? 'tag-success' : 'tag-danger'}">${op.status === 'active' ? '正常' : '已禁用'}</span></td>
+      <td>
+        <button class="btn btn-xs btn-danger" onclick="removeOperator(${currentWorkshopId},${i})">删除</button>
+        ${op.status === 'active' ? `<button class="btn btn-xs" onclick="resetPassword('${op.account}')">重置密码</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function addOperator() {
+  const name = document.getElementById('opName').value.trim();
+  const account = document.getElementById('opAccount').value.trim();
+  if (!name || !account) { alert('请填写操作员姓名和账号'); return; }
+  const w = workshops.find(x => x.id === currentWorkshopId);
+  if (!w) return;
+  if (w.operators.some(op => op.account === account)) { alert('该账号已存在'); return; }
+  w.operators.push({ name, account, status: 'active' });
+  document.getElementById('opName').value = '';
+  document.getElementById('opAccount').value = '';
+  renderOperators(w);
+  showToast('操作员添加成功');
+}
+
+function removeOperator(wsId, opIdx) {
+  const w = workshops.find(x => x.id === wsId);
+  if (!w) return;
+  w.operators.splice(opIdx, 1);
+  renderOperators(w);
+}
+
+function resetPassword(account) {
+  showToast(`操作员 ${account} 的密码已重置，新密码已发送至绑定手机`);
+}
+
+function openDashboard(id) {
+  const w = workshops.find(x => x.id === id);
+  document.getElementById('dashboardTitle').textContent = w.name;
+  document.getElementById('dbTotalOrders').textContent = w.totalOrders || 0;
+  document.getElementById('dbTotalCost').textContent = ((w.totalOrders || 0) * 1830).toLocaleString();
+  document.getElementById('dbAvgDays').textContent = (Math.random() * 3 + 1.5).toFixed(1);
+  document.getElementById('dbPending').textContent = Math.floor(Math.random() * 6);
+  document.getElementById('dbRating').innerHTML = renderStars(w.rating);
+  document.getElementById('dbRatingText').textContent = `${w.rating} 分`;
+
+  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const chartBar = document.getElementById('chartBar');
+  const maxVal = 30;
+  chartBar.innerHTML = months.map(m => {
+    const val = Math.floor(Math.random() * 25) + 3;
+    const height = (val / maxVal) * 160;
+    return `<div class="bar-col"><div class="bar-val">${val}</div><div class="bar" style="height:${height}px;"></div><div class="bar-label">${m}</div></div>`;
+  }).join('');
+
+  document.getElementById('dashboardModal').classList.remove('hidden');
+}
+
+function changeStatus(id, target) {
+  currentStatusWsId = id;
+  currentStatusTarget = target;
+  const w = workshops.find(x => x.id === id);
+  const labels = { active: '恢复合作', suspended: '暂停合作', terminated: '终止合作' };
+  const descs = {
+    active: `确认将 <strong>${w.name}</strong> 恢复为合作中状态？恢复后可重新分配维修工单。`,
+    suspended: `确认将 <strong>${w.name}</strong> 设为暂停合作？暂停后该维修厂将无法接收新的维修工单。`,
+    terminated: `确认终止与 <strong>${w.name}</strong> 的合作？<br>终止后：<br>1. 维修厂将从可选列表中移除<br>2. 该维修厂下的所有操作员账号将被自动禁用<br>3. 已分配的未完成工单需手动转派`
+  };
+  document.getElementById('statusConfirmText').innerHTML = descs[target];
+  document.getElementById('statusConfirmBtn').textContent = labels[target];
+
+  const contractFields = document.getElementById('contractFields');
+  if (target === 'active') {
+    contractFields.classList.remove('hidden');
+    document.getElementById('contractNumber').value = `HT-${new Date().getFullYear()}${String(Math.floor(Math.random()*9000)+1000)}`;
+    document.getElementById('contractSignDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('contractDuration').value = '365';
+  } else {
+    contractFields.classList.add('hidden');
+  }
+  document.getElementById('statusModal').classList.remove('hidden');
+}
+
+function confirmStatusChange() {
+  const w = workshops.find(x => x.id === currentStatusWsId);
+  if (!w) return;
+  w.status = currentStatusTarget;
+  if (currentStatusTarget === 'active') {
+    w.contractNo = document.getElementById('contractNumber').value;
+    w.signDate = document.getElementById('contractSignDate').value;
+    const duration = parseInt(document.getElementById('contractDuration').value);
+    const expireDate = new Date(document.getElementById('contractSignDate').value);
+    expireDate.setDate(expireDate.getDate() + duration);
+    w.expireDate = expireDate.toISOString().slice(0,10);
+  }
+  if (currentStatusTarget === 'terminated') {
+    w.operators.forEach(op => op.status = 'disabled');
+  }
+  closeModal('statusModal');
+  renderTable();
+  showToast(`维修厂状态已变更为"${({active:'合作中',suspended:'暂停合作',terminated:'已终止'})[currentStatusTarget]}"`);
+}
+
+function simulateUpload() {
+  const mockFiles = ['营业执照.jpg', '维修资质证书.pdf'];
+  const fileList = document.getElementById('fileList');
+  fileList.innerHTML = mockFiles.map(f => `
+    <span class="file-tag">
+      <span>&#128196; ${f}</span>
+      <span class="remove" onclick="this.parentElement.remove()">&times;</span>
+    </span>
+  `).join('');
+  showToast('资质文件上传成功');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 24px;border-radius:6px;font-size:14px;z-index:9999;animation:fadeIn .3s;pointer-events:none;';
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; setTimeout(() => toast.remove(), 300); }, 2000);
+}
+
+renderTable();
+</script>
+</body>
+</html>
