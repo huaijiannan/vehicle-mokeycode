@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公务用车管理系统 - 完整原型</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#333;display:flex;height:100vh;overflow:hidden}
+a{color:#1890ff;text-decoration:none}
+
+/* 侧边栏 */
+.sidebar{width:240px;background:#001529;color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-logo{padding:20px 24px;font-size:16px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap}
+.sidebar-logo small{font-size:11px;color:rgba(255,255,255,.45);display:block;margin-top:4px;font-weight:400}
+.nav-group{border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-group-title{padding:12px 24px 6px;font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 24px;font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-item.active{color:#fff;background:#1890ff;border-left-color:#1890ff}
+.nav-item .badge{background:#ff4d4f;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:auto}
+
+/* 主内容 */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:48px;background:#fff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;padding:0 24px;justify-content:space-between;flex-shrink:0}
+.topbar .user{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;cursor:pointer}
+.topbar .user .avatar{width:32px;height:32px;border-radius:50%;background:#1890ff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+.content{flex:1;overflow-y:auto;padding:24px}
+.view{display:none}
+.view.active{display:block}
+
+/* 公用组件 */
+.page-title{font-size:20px;font-weight:600;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#999;margin-bottom:20px}
+.card{background:#fff;border-radius:8px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
+.card-title{font-size:15px;font-weight:600;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:8px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-card .s-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.stat-card .s-num{font-size:26px;font-weight:700}
+.stat-card .s-label{font-size:12px;color:#999;margin-top:2px}
+.s-blue{background:#e6f7ff;color:#1890ff}
+.s-green{background:#f6ffed;color:#52c41a}
+.s-orange{background:#fff7e6;color:#fa8c16}
+.s-red{background:#fff2f0;color:#ff4d4f}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;transition:all .2s}
+.btn:hover{border-color:#1890ff;color:#1890ff}
+.btn-primary{background:#1890ff;color:#fff;border-color:#1890ff}
+.btn-primary:hover{background:#40a9ff}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-xs{padding:2px 8px;font-size:11px;border-radius:3px}
+.btn-danger{color:#ff4d4f;border-color:#ff4d4f}
+.btn-danger:hover{background:#fff2f0}
+
+table{width:100%;border-collapse:collapse}
+th{background:#fafafa;padding:10px 14px;text-align:left;font-weight:600;font-size:13px;color:#666;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid #f0f0f0;font-size:13px}
+tr:hover td{background:#fafafa}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:500}
+.tag-success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.tag-warning{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
+.tag-danger{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7}
+.tag-info{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
+.tag-default{background:#f5f5f5;color:#999;border:1px solid #e8e8e8}
+
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.toolbar input,.toolbar select{height:34px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;background:#fff}
+.toolbar input:focus,.toolbar select:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.1)}
+.toolbar input{width:220px}
+.toolbar .spacer{flex:1}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:5px}
+.form-group label .req{color:#ff4d4f}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;font-family:inherit}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.1)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding-top:60px}
+.modal-overlay.hidden{display:none}
+.modal{background:#fff;border-radius:10px;box-shadow:0 12px 48px rgba(0,0,0,.15);width:680px;max-height:80vh;display:flex;flex-direction:column;animation:modalIn .25s}
+@keyframes modalIn{from{opacity:0;transform:translateY(-20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #f0f0f0}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:10px}
+
+.org-tree{font-size:13px;line-height:2}
+.org-tree .org-node{cursor:pointer;padding:3px 8px;border-radius:4px;transition:all .2s}
+.org-tree .org-node:hover{background:#e6f7ff}
+.org-tree .org-node.active{background:#1890ff;color:#fff}
+.org-tree .level1{padding-left:0;font-weight:600}
+.org-tree .level2{padding-left:20px}
+.org-tree .level3{padding-left:40px;font-size:12px;color:#999}
+
+.timeline{padding-left:20px;border-left:2px solid #e8e8e8}
+.timeline-item{position:relative;padding:0 0 16px 20px}
+.timeline-item::before{content:'';position:absolute;left:-26px;top:4px;width:10px;height:10px;border-radius:50%;background:#1890ff}
+.timeline-item .time{font-size:12px;color:#999}
+.timeline-item .desc{font-size:13px;margin-top:2px}
+
+.checkbox-group{display:flex;flex-wrap:wrap;gap:8px}
+.checkbox-item{padding:5px 12px;border:1px solid #e8e8e8;border-radius:6px;font-size:12px;cursor:pointer;user-select:none;transition:all .2s}
+.checkbox-item:hover{border-color:#1890ff}
+.checkbox-item.checked{background:#e6f7ff;border-color:#1890ff;color:#1890ff}
+.checkbox-item input{display:none}
+
+.stars{color:#faad14;font-size:13px}
+
+.tab-row{display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:16px}
+.tab-item{padding:8px 18px;font-size:13px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab-item:hover{color:#1890ff}
+.tab-item.active{color:#1890ff;border-bottom-color:#1890ff;font-weight:600}
+
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 10px 28px;border-bottom:2px solid #e8e8e8;border-left:2px solid #e8e8e8;margin:16px 0 8px 36px}
+.chart-bars .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.chart-bars .bar{width:100%;max-width:36px;background:linear-gradient(to top,#1890ff,#69c0ff);border-radius:3px 3px 0 0;min-width:18px}
+.chart-bars .bar-val{font-size:10px;color:#999}
+.chart-bars .bar-label{font-size:10px;color:#666;position:relative;top:24px}
+
+.dual-col{display:grid;grid-template-columns:240px 1fr;gap:16px}
+.org-panel{background:#fff;border-radius:8px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);height:fit-content;max-height:calc(100vh - 160px);overflow-y:auto}
+
+.empty-state{text-align:center;padding:60px 20px;color:#999}
+.empty-state .empty-icon{font-size:48px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">公务用车管理系统<small>Official Vehicle Management v1.0</small></div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">仪表盘</div>
+    <div class="nav-item active" data-view="dashboard" onclick="switchView(this)">&#x25A3; 系统仪表盘</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">车辆管理</div>
+    <div class="nav-item" data-view="req01" onclick="switchView(this)">&#x1F697; 车辆档案管理</div>
+    <div class="nav-item" data-view="req02" onclick="switchView(this)">&#x1F4C5; 年检与保险管理</div>
+    <div class="nav-item" data-view="req13" onclick="switchView(this)">&#x2699; 车辆运营管理</div>
+    <div class="nav-item" data-view="req14" onclick="switchView(this)">&#x1F527; 定点维修车厂</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">用车调度</div>
+    <div class="nav-item" data-view="req03" onclick="switchView(this)">&#x1F4DD; 用车申请</div>
+    <div class="nav-item" data-view="req04" onclick="switchView(this)">&#x2705; 用车审批 <span class="badge">3</span></div>
+    <div class="nav-item" data-view="req05" onclick="switchView(this)">&#x1F69A; 车辆调度</div>
+    <div class="nav-item" data-view="req06" onclick="switchView(this)">&#x1F3C1; 出车与归库</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">驾驶员管理</div>
+    <div class="nav-item" data-view="req12" onclick="switchView(this)">&#x1F464; 驾驶员信息</div>
+    <div class="nav-item" data-view="req12t" onclick="switchView(this)">&#x1F4DA; 驾驶员培训</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">费用与报表</div>
+    <div class="nav-item" data-view="req08" onclick="switchView(this)">&#x1F4B0; 费用管理</div>
+    <div class="nav-item" data-view="req09" onclick="switchView(this)">&#x1F4CA; 统计分析报表</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">监控与消息</div>
+    <div class="nav-item" data-view="req07" onclick="switchView(this)">&#x1F4CD; GPS轨迹监控</div>
+    <div class="nav-item" data-view="req11" onclick="switchView(this)">&#x1F514; 通知与消息 <span class="badge">5</span></div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">系统管理</div>
+    <div class="nav-item" data-view="req10" onclick="switchView(this)">&#x1F512; 权限与角色管理</div>
+  </div>
+</div>
+
+<!-- 主内容 -->
+<div class="main">
+  <div class="topbar">
+    <span style="font-size:13px;color:#999;">&#x1F4C5; 2026-07-02 星期三</span>
+    <div class="user">
+      <span style="font-size:13px;">管理员 张建国</span>
+      <div class="avatar">张</div>
+    </div>
+  </div>
+  <div class="content" id="contentArea">
+
+    <!-- ========================== 系统仪表盘 ========================== -->
+    <div class="view active" id="view-dashboard">
+      <div class="page-title">系统仪表盘</div>
+      <div class="page-subtitle">车队运营核心指标概览</div>
+      <div class="stats-row" style="grid-template-columns:repeat(5,1fr)">
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">128</div><div class="s-label">车辆总数</div></div></div>
+        <div class="stat-card"><div class="s-icon s-green">&#x1F698;</div><div><div class="s-num">43</div><div class="s-label">在途车辆</div></div></div>
+        <div class="stat-card"><div class="s-icon s-orange">&#x1F4CB;</div><div><div class="s-num" style="color:#fa8c16">3</div><div class="s-label">待审批申请</div></div></div>
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F3C1;</div><div><div class="s-num">18</div><div class="s-label">今日出车次数</div></div></div>
+        <div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">7</div><div class="s-label">即将到期提醒</div></div></div>
+      </div>
+      <div class="dual-col">
+        <div class="card" style="padding:16px"><div class="card-title">即将到期提醒</div>
+          <table><thead><tr><th>事项</th><th>车辆</th><th>到期日</th></tr></thead>
+            <tr><td><span class="tag tag-danger">年检逾期</span></td><td>京A·88321</td><td>2026-06-25</td></tr>
+            <tr><td><span class="tag tag-danger">保险逾期</span></td><td>沪B·55678</td><td>2026-06-28</td></tr>
+            <tr><td><span class="tag tag-warning">年检即将到期</span></td><td>粤C·32109</td><td>2026-07-05</td></tr>
+            <tr><td><span class="tag tag-warning">保险即将到期</span></td><td>京D·11234</td><td>2026-07-10</td></tr>
+            <tr><td><span class="tag tag-warning">合同即将到期</span></td><td>永利汽修厂</td><td>2026-07-15</td></tr>
+          </table>
+        </div>
+        <div class="card" style="padding:16px"><div class="card-title">部门编制执行情况</div>
+          <table><thead><tr><th>部门</th><th>编制数</th><th>实有数</th><th>执行率</th></tr></thead>
+            <tr><td>总公司/行政部</td><td>20</td><td>18</td><td>90%</td></tr>
+            <tr><td>北京分公司</td><td>25</td><td>23</td><td>92%</td></tr>
+            <tr><td>上海分公司</td><td>18</td><td>18</td><td>100%</td></tr>
+            <tr><td>深圳分公司</td><td>15</td><td>12</td><td>80%</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-01 车辆档案管理 ========================== -->
+    <div class="view" id="view-req01">
+      <div class="page-title">车辆档案管理</div>
+      <div class="page-subtitle">建立车辆基础档案，支持车辆信息登记、查询、修改和状态变更</div>
+      <div class="toolbar">
+        <input type="text" placeholder="搜索车牌号 / 品牌 / VIN..." oninput="filterTable('req01Table',this.value)">
+        <select><option>全部状态</option><option>空闲</option><option>出车中</option><option>维修中</option><option>报废</option></select>
+        <select><option>全部类型</option><option>轿车</option><option>SUV</option><option>商务车</option><option>货车</option></select>
+        <span class="spacer"></span>
+        <button class="btn btn-primary" onclick="showToast('新增车辆表单')">+ 新增车辆</button>
+      </div>
+      <div class="card" style="padding:0">
+        <table id="req01Table">
+          <thead><tr><th>车牌号</th><th>品牌型号</th><th>VIN</th><th>所属部门</th><th>车辆类型</th><th>状态</th><th>购置日期</th><th>当前里程</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>京A·88888</td><td>奥迪 A6L</td><td>LFV3A24K9P3000001</td><td>总公司/行政部</td><td>轿车</td><td><span class="tag tag-success">空闲</span></td><td>2023-01-15</td><td>52,340 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
+            <tr><td>京B·66666</td><td>别克 GL8</td><td>LSGUL83L0PA000002</td><td>总公司/行政部</td><td>商务车</td><td><span class="tag tag-info">出车中</span></td><td>2023-03-20</td><td>68,200 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
+            <tr><td>沪A·99999</td><td>奔驰 E300L</td><td>LE4ZG8DB7NL000004</td><td>上海分公司</td><td>轿车</td><td><span class="tag tag-success">空闲</span></td><td>2022-06-05</td><td>89,300 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
+            <tr><td>粤B·55555</td><td>比亚迪 汉EV</td><td>LC0CE6CD0R0000005</td><td>深圳分公司</td><td>轿车</td><td><span class="tag tag-warning">维修中</span></td><td>2024-01-08</td><td>18,700 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
+            <tr><td>京D·00001</td><td>福田 欧马可</td><td>LVBV5PBB1ME000006</td><td>北京分公司</td><td>货车</td><td><span class="tag tag-danger">报废</span></td><td>2021-09-12</td><td>156,200 km</td><td><button class="btn btn-sm">查看</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-02 年检与保险管理 ========================== -->
+    <div class="view" id="view-req02">
+      <div class="page-title">车辆年检与保险管理</div>
+      <div class="page-subtitle">记录年检和保险信息，支持到期提醒，避免脱检脱保运行</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">2</div><div class="s-label">年检逾期</div></div></div>
+        <div class="stat-card"><div class="s-icon s-orange">&#x23F3;</div><div><div class="s-num" style="color:#fa8c16">5</div><div class="s-label">30天内到期</div></div></div>
+        <div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">1</div><div class="s-label">保险逾期</div></div></div>
+        <div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">120</div><div class="s-label">正常车辆</div></div></div>
+      </div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>车牌号</th><th>年检到期日</th><th>年检状态</th><th>保险到期日</th><th>保险状态</th><th>保险公司</th><th>保单号</th><th>操作</th></tr></thead>
+          <tr><td>京A·88888</td><td>2027-01-15</td><td><span class="tag tag-success">正常</span></td><td>2026-12-31</td><td><span class="tag tag-success">正常</span></td><td>中国人保</td><td>PICC-20260001</td><td><button class="btn btn-sm">录入</button></td></tr>
+          <tr><td>京A·88321</td><td>2026-06-25</td><td><span class="tag tag-danger">已逾期</span></td><td>2026-10-15</td><td><span class="tag tag-warning">即将到期</span></td><td>平安保险</td><td>PA-20260008</td><td><button class="btn btn-sm">处理</button></td></tr>
+          <tr><td>沪B·55678</td><td>2027-03-20</td><td><span class="tag tag-success">正常</span></td><td>2026-06-28</td><td><span class="tag tag-danger">已逾期</span></td><td>太平洋保险</td><td>CPIC-20260015</td><td><button class="btn btn-sm">续保</button></td></tr>
+          <tr><td>粤C·32109</td><td>2026-07-05</td><td><span class="tag tag-warning">即将到期</span></td><td>2027-02-10</td><td><span class="tag tag-success">正常</span></td><td>中国人保</td><td>PICC-20260022</td><td><button class="btn btn-sm">预约</button></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-03 用车申请 ========================== -->
+    <div class="view" id="view-req03">
+      <div class="page-title">用车申请</div>
+      <div class="page-subtitle">提交用车申请，填写出行需求信息，进入审批流程</div>
+      <div class="toolbar"><button class="btn btn-primary" onclick="showToast('打开用车申请表单')">+ 新建申请</button> <span class="spacer"></span></div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>申请编号</th><th>申请人</th><th>用车事由</th><th>出发地点</th><th>目的地点</th><th>出发时间</th><th>乘车人数</th><th>是否需要司机</th><th>状态</th><th>操作</th></tr></thead>
+          <tr><td>20260701001</td><td>李伟</td><td>客户拜访</td><td>北京总部</td><td>朝阳区CBD</td><td>2026-07-02 09:00</td><td>3</td><td>是</td><td><span class="tag tag-info">待审批</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+          <tr><td>20260701002</td><td>王芳</td><td>机场接机</td><td>上海分公司</td><td>浦东机场T2</td><td>2026-07-02 14:00</td><td>2</td><td>是</td><td><span class="tag tag-success">已通过</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+          <tr><td>20260701003</td><td>赵明</td><td>项目考察</td><td>深圳分公司</td><td>南山区科技园</td><td>2026-07-03 08:30</td><td>4</td><td>否</td><td><span class="tag tag-info">待审批</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-04 用车审批 ========================== -->
+    <div class="view" id="view-req04">
+      <div class="page-title">用车审批</div>
+      <div class="page-subtitle">审批人对用车申请进行审核，支持通过和驳回操作</div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>申请编号</th><th>申请人</th><th>用车事由</th><th>出发时间</th><th>乘车人数</th><th>场景类型</th><th>提交时间</th><th>操作</th></tr></thead>
+          <tr style="background:#fffbe6">
+            <td>20260701001</td><td>李伟</td><td>客户拜访</td><td>2026-07-02 09:00</td><td>3</td><td><span class="tag tag-warning">节假日用车</span></td><td>07-01 14:30</td>
+            <td><button class="btn btn-sm btn-primary">通过</button> <button class="btn btn-sm btn-danger">驳回</button></td>
+          </tr>
+          <tr style="background:#fffbe6">
+            <td>20260701003</td><td>赵明</td><td>项目考察</td><td>2026-07-03 08:30</td><td>4</td><td><span class="tag tag-default">日常工作</span></td><td>07-01 16:20</td>
+            <td><button class="btn btn-sm btn-primary">通过</button> <button class="btn btn-sm btn-danger">驳回</button></td>
+          </tr>
+          <tr style="background:#fffbe6">
+            <td>20260701005</td><td>陈强</td><td>设备运输</td><td>2026-07-02 13:00</td><td>2</td><td><span class="tag tag-default">日常工作</span></td><td>07-01 17:45</td>
+            <td><button class="btn btn-sm btn-primary">通过</button> <button class="btn btn-sm btn-danger">驳回</button></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-05 车辆调度 ========================== -->
+    <div class="view" id="view-req05">
+      <div class="page-title">车辆调度</div>
+      <div class="page-subtitle">为审批通过的用车申请分配车辆和驾驶员，生成派车单</div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>申请编号</th><th>申请人</th><th>出发时间</th><th>用车事由</th><th>分配车辆</th><th>分配驾驶员</th><th>操作</th></tr></thead>
+          <tr><td>20260701002</td><td>王芳</td><td>07-02 14:00</td><td>机场接机</td><td>
+            <select style="font-size:12px"><option>请选择车辆</option><option>沪A·99999 奔驰E300L</option><option>沪C·22334 帕萨特</option></select>
+          </td><td>
+            <select style="font-size:12px"><option>请选择驾驶员</option><option>刘建国 (A1)</option><option>周明 (C1)</option></select>
+          </td>
+          <td><button class="btn btn-sm btn-primary">生成派车单</button></td></tr>
+          <tr><td>20260701006</td><td>林峰</td><td>07-02 08:00</td><td>商务接待</td><td>京A·88888 奥迪A6L</td><td>刘建国</td><td><span class="tag tag-success">已派车</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-06 出车与归库 ========================== -->
+    <div class="view" id="view-req06">
+      <div class="page-title">司机出车与归库</div>
+      <div class="page-subtitle">驾驶员执行出车任务，记录出车和归库信息</div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>派车单号</th><th>车牌号</th><th>路线</th><th>计划时间</th><th>出车状态</th><th>起始里程</th><th>结束里程</th><th>行程里程</th><th>操作</th></tr></thead>
+          <tr style="background:#f6ffed">
+            <td>PD-20260702-001</td><td>京A·88888</td><td>北京总部 → 朝阳CBD</td><td>07-02 09:00</td><td><span class="tag tag-info">待出车</span></td><td>-</td><td>-</td><td>-</td>
+            <td><button class="btn btn-sm btn-primary">开始出车</button></td>
+          </tr>
+          <tr>
+            <td>PD-20260702-002</td><td>沪A·99999</td><td>上海分公司 → 浦东机场</td><td>07-02 08:30</td><td><span class="tag tag-success">出车中</span></td><td>89,356 km</td><td>-</td><td>-</td>
+            <td><button class="btn btn-sm btn-primary">归库登记</button></td>
+          </tr>
+          <tr>
+            <td>PD-20260701-003</td><td>粤B·55555</td><td>深圳分公司 → 科技园</td><td>07-01 10:00</td><td><span class="tag tag-default">已归库</span></td><td>18,720 km</td><td>18,745 km</td><td>25 km</td>
+            <td>-</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-07 GPS轨迹监控 ========================== -->
+    <div class="view" id="view-req07">
+      <div class="page-title">GPS轨迹监控</div>
+      <div class="page-subtitle">记录车辆行驶GPS位置信息，支持轨迹回放和里程统计</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">43</div><div class="s-label">在线车辆</div></div></div>
+        <div class="stat-card"><div class="s-icon s-green">&#x1F4CD;</div><div><div class="s-num">1,280</div><div class="s-label">今日总里程(km)</div></div></div>
+      </div>
+      <div class="card"><div class="card-title">在途车辆实时列表</div>
+        <table><thead><tr><th>车牌号</th><th>驾驶员</th><th>当前位置</th><th>速度</th><th>行程方向</th><th>GPS里程</th><th>里程表里程</th><th>偏差</th></tr></thead>
+          <tr><td>京B·66666</td><td>刘建国</td><td>北京市东城区长安街</td><td>45 km/h</td><td>天安门 → 王府井</td><td>128 km</td><td>125 km</td><td>2.4%</td></tr>
+          <tr><td>沪A·99999</td><td>周明</td><td>上海市浦东新区迎宾高速</td><td>80 km/h</td><td>陆家嘴 → 浦东机场</td><td>42 km</td><td>45 km</td><td><span class="tag tag-warning">6.7%</span></td></tr>
+          <tr><td>粤B·55555</td><td>陈伟</td><td>深圳市南山区深南大道</td><td>35 km/h</td><td>科技园 → 福田</td><td>15 km</td><td>18 km</td><td><span class="tag tag-danger">16.7%</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-08 费用管理 ========================== -->
+    <div class="view" id="view-req08">
+      <div class="page-title">费用管理</div>
+      <div class="page-subtitle">记录车辆使用过程中产生的各类费用，支持费用查询和基础统计</div>
+      <div class="toolbar">
+        <input type="text" placeholder="搜索车牌号...">
+        <select><option>全部费用类型</option><option>燃油费</option><option>维修费</option><option>保险费</option><option>年检费</option><option>过路费</option><option>停车费</option></select>
+        <select><option>全部审核状态</option><option>待审核</option><option>已审核</option><option>已驳回</option></select>
+        <span class="spacer"></span>
+        <button class="btn btn-primary">+ 录入费用</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F4B5;</div><div><div class="s-num">1,256</div><div class="s-label">总记录数</div></div></div>
+        <div class="stat-card"><div class="s-icon s-green">&#x1F4B0;</div><div><div class="s-num">&yen;385,600</div><div class="s-label">本月总费用</div></div></div>
+      </div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>日期</th><th>车牌号</th><th>费用类型</th><th>金额</th><th>关联行程</th><th>审核状态</th><th>操作</th></tr></thead>
+          <tr><td>07-02</td><td>京B·66666</td><td><span class="tag tag-info">燃油费</span></td><td>&yen;450.00</td><td>PD-0702-001</td><td><span class="tag tag-warning">待审核</span></td><td><button class="btn btn-sm">审核</button></td></tr>
+          <tr><td>07-01</td><td>粤B·55555</td><td><span class="tag tag-default">维修费</span></td><td>&yen;2,800.00</td><td>-</td><td><span class="tag tag-success">已审核</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+          <tr><td>06-30</td><td>沪A·99999</td><td><span class="tag tag-info">过路费</span></td><td>&yen;35.00</td><td>PD-0630-005</td><td><span class="tag tag-success">已审核</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+          <tr><td>06-28</td><td>京A·88888</td><td><span class="tag tag-default">保险费</span></td><td>&yen;8,500.00</td><td>-</td><td><span class="tag tag-danger">已驳回</span></td><td><button class="btn btn-sm">修改</button></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-09 统计分析报表 ========================== -->
+    <div class="view" id="view-req09">
+      <div class="page-title">统计分析报表</div>
+      <div class="page-subtitle">提供基础的数据统计看板和报表，帮助管理层了解车队运营概况</div>
+      <div class="toolbar"><button class="btn btn-primary">导出Excel</button></div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">128</div><div class="s-label">车辆总数</div></div></div>
+        <div class="stat-card"><div class="s-icon s-green">&#x26FD;</div><div><div class="s-num">12,580L</div><div class="s-label">本月总加油量</div></div></div>
+        <div class="stat-card"><div class="s-icon s-orange">&#x1F527;</div><div><div class="s-num">&yen;52,300</div><div class="s-label">本月维修费用</div></div></div>
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F4C8;</div><div><div class="s-num">86%</div><div class="s-label">车辆利用率</div></div></div>
+      </div>
+      <div class="card"><div class="card-title">月度费用趋势（万元）</div>
+        <div class="chart-bars" style="height:180px">
+          <div class="bar-col"><div class="bar-val">3.2</div><div class="bar" style="height:96px"></div><div class="bar-label">1月</div></div>
+          <div class="bar-col"><div class="bar-val">2.8</div><div class="bar" style="height:84px"></div><div class="bar-label">2月</div></div>
+          <div class="bar-col"><div class="bar-val">3.5</div><div class="bar" style="height:105px"></div><div class="bar-label">3月</div></div>
+          <div class="bar-col"><div class="bar-val">4.1</div><div class="bar" style="height:123px"></div><div class="bar-label">4月</div></div>
+          <div class="bar-col"><div class="bar-val">3.6</div><div class="bar" style="height:108px"></div><div class="bar-label">5月</div></div>
+          <div class="bar-col"><div class="bar-val">3.9</div><div class="bar" style="height:117px"></div><div class="bar-label">6月</div></div>
+          <div class="bar-col"><div class="bar-val">4.5</div><div class="bar" style="height:135px"></div><div class="bar-label">7月</div></div>
+          <div class="bar-col"><div class="bar-val">3.3</div><div class="bar" style="height:99px"></div><div class="bar-label">8月</div></div>
+          <div class="bar-col"><div class="bar-val">3.8</div><div class="bar" style="height:114px"></div><div class="bar-label">9月</div></div>
+          <div class="bar-col"><div class="bar-val">4.2</div><div class="bar" style="height:126px"></div><div class="bar-label">10月</div></div>
+          <div class="bar-col"><div class="bar-val">3.7</div><div class="bar" style="height:111px"></div><div class="bar-label">11月</div></div>
+          <div class="bar-col"><div class="bar-val">5.1</div><div class="bar" style="height:153px"></div><div class="bar-label">12月</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-10 权限与角色管理 ========================== -->
+    <div class="view" id="view-req10">
+      <div class="page-title">权限与角色管理</div>
+      <div class="page-subtitle">建立用户账号体系，通过角色控制不同用户的功能访问权限</div>
+      <div class="card"><div class="card-title">用户列表</div>
+        <div class="toolbar"><button class="btn btn-primary">+ 新增用户</button></div>
+        <table><thead><tr><th>用户名</th><th>姓名</th><th>所属部门</th><th>角色</th><th>手机号</th><th>状态</th><th>操作</th></tr></thead>
+          <tr><td>zhangjg</td><td>张建国</td><td>总公司/行政部</td><td><span class="tag tag-info">系统管理员</span></td><td>138****1234</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">停用</button></td></tr>
+          <tr><td>liujg</td><td>刘建国</td><td>北京分公司</td><td><span class="tag tag-default">驾驶员</span></td><td>139****5678</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">停用</button></td></tr>
+          <tr><td>wangf</td><td>王芳</td><td>上海分公司</td><td><span class="tag tag-warning">调度员</span></td><td>137****9012</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">停用</button></td></tr>
+          <tr><td>liming</td><td>李明</td><td>深圳分公司</td><td><span class="tag tag-default">车队管理员</span></td><td>136****3456</td><td><span class="tag tag-danger">停用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">启用</button></td></tr>
+        </table>
+      </div>
+      <div class="card"><div class="card-title">角色权限矩阵</div>
+        <table><thead><tr><th>功能模块</th><th>系统管理员</th><th>车队管理员</th><th>调度员</th><th>审批人</th><th>驾驶员</th></tr></thead>
+          <tr><td>车辆档案管理</td><td>&#x2705; 全部</td><td>&#x2705; 本部门</td><td>&#x2705; 查看</td><td>&#x274C;</td><td>&#x2705; 查看</td></tr>
+          <tr><td>用车申请</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x274C;</td></tr>
+          <tr><td>用车审批</td><td>&#x2705;</td><td>&#x274C;</td><td>&#x274C;</td><td>&#x2705; 本部门</td><td>&#x274C;</td></tr>
+          <tr><td>车辆调度</td><td>&#x2705;</td><td>&#x2705; 本部门</td><td>&#x2705;</td><td>&#x274C;</td><td>&#x274C;</td></tr>
+          <tr><td>费用管理</td><td>&#x2705;</td><td>&#x2705; 本部门</td><td>&#x274C;</td><td>&#x274C;</td><td>&#x2705; 录入</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-11 通知与消息 ========================== -->
+    <div class="view" id="view-req11">
+      <div class="page-title">通知与消息</div>
+      <div class="page-subtitle">在关键业务节点向相关人员推送通知消息</div>
+      <div class="toolbar">
+        <select><option>全部类型</option><option>待办通知</option><option>提醒通知</option><option>系统通知</option></select>
+        <button class="btn">全部标记为已读</button>
+      </div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>类型</th><th>消息内容</th><th>关联业务</th><th>时间</th><th>状态</th></tr></thead>
+          <tr style="background:#f0f8ff;font-weight:500">
+            <td><span class="tag tag-info">待办通知</span></td><td>李伟提交的用车申请待您审批</td><td>申请编号: 20260701001</td><td>07-01 14:30</td><td><span class="tag tag-danger">未读</span></td>
+          </tr>
+          <tr style="background:#f0f8ff;font-weight:500">
+            <td><span class="tag tag-info">待办通知</span></td><td>赵明提交的用车申请待您审批</td><td>申请编号: 20260701003</td><td>07-01 16:20</td><td><span class="tag tag-danger">未读</span></td>
+          </tr>
+          <tr style="background:#f0f8ff;font-weight:500">
+            <td><span class="tag tag-info">待办通知</span></td><td>陈强提交的用车申请待您审批</td><td>申请编号: 20260701005</td><td>07-01 17:45</td><td><span class="tag tag-danger">未读</span></td>
+          </tr>
+          <tr style="background:#fffbe6">
+            <td><span class="tag tag-warning">提醒通知</span></td><td>车辆京A·88321 年检已逾期，请尽快处理</td><td>车辆年检</td><td>06-28 09:00</td><td><span class="tag tag-danger">未读</span></td>
+          </tr>
+          <tr style="background:#fffbe6">
+            <td><span class="tag tag-warning">提醒通知</span></td><td>车辆沪B·55678 保险已逾期，请尽快续保</td><td>车辆保险</td><td>06-29 09:00</td><td><span class="tag tag-danger">未读</span></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-default">系统通知</span></td><td>系统将于周六凌晨2:00-4:00进行维护升级</td><td>-</td><td>06-30 10:00</td><td><span class="tag tag-success">已读</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-12 驾驶员信息管理 ========================== -->
+    <div class="view" id="view-req12">
+      <div class="page-title">驾驶员信息管理</div>
+      <div class="page-subtitle">建立驾驶员基础档案，管理驾驶证、从业资格证和体检信息</div>
+      <div class="toolbar">
+        <input type="text" placeholder="搜索驾驶员姓名/工号...">
+        <select><option>全部状态</option><option>空闲</option><option>出车中</option><option>暂停出车</option><option>重点关注</option></select>
+        <span class="spacer"></span>
+        <button class="btn btn-primary">+ 新增驾驶员</button>
+      </div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>工号</th><th>姓名</th><th>性别</th><th>驾龄/工龄/年龄</th><th>驾驶证类型</th><th>准驾车型</th><th>联系电话</th><th>状态</th><th>操作</th></tr></thead>
+          <tr><td>DRV2023001</td><td>刘建国</td><td>男</td><td><span class="tag tag-info">15年</span>/<span class="tag tag-default">8年</span>/<span class="tag tag-default">42岁</span></td><td>A1</td><td>大型客车/轿车</td><td>139****5678</td><td><span class="tag tag-info">出车中</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+          <tr><td>DRV2023002</td><td>周明</td><td>男</td><td><span class="tag tag-info">10年</span>/<span class="tag tag-default">5年</span>/<span class="tag tag-default">35岁</span></td><td>C1</td><td>轿车/商务车</td><td>138****2345</td><td><span class="tag tag-success">空闲</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+          <tr><td>DRV2024001</td><td>陈伟</td><td>男</td><td><span class="tag tag-info">8年</span>/<span class="tag tag-default">3年</span>/<span class="tag tag-default">30岁</span></td><td>C1</td><td>轿车</td><td>137****8901</td><td><span class="tag tag-warning">暂停出车</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+          <tr><td>DRV2022005</td><td>赵永强</td><td>男</td><td><span class="tag tag-info">20年</span>/<span class="tag tag-default">12年</span>/<span class="tag tag-default">50岁</span></td><td>A1</td><td>大型客车/货车</td><td>136****4567</td><td><span class="tag tag-default">重点关注</span></td><td><button class="btn btn-sm">查看</button></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-12T 驾驶员培训管理 ========================== -->
+    <div class="view" id="view-req12t">
+      <div class="page-title">驾驶员培训管理</div>
+      <div class="page-subtitle">培训计划制定、执行记录、考核评估、逾期预警</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F4DA;</div><div><div class="s-num">12</div><div class="s-label">年度培训计划</div></div></div>
+        <div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">94%</div><div class="s-label">培训覆盖率</div></div></div>
+        <div class="stat-card"><div class="s-icon s-orange">&#x26A0;</div><div><div class="s-num" style="color:#fa8c16">3</div><div class="s-label">培训逾期</div></div></div>
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F3C6;</div><div><div class="s-num">88%</div><div class="s-label">考核合格率</div></div></div>
+      </div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>培训编号</th><th>培训主题</th><th>培训类型</th><th>培训日期</th><th>参训人数</th><th>合格率</th><th>状态</th></tr></thead>
+          <tr><td>PX-20260701</td><td>夏季安全驾驶培训</td><td><span class="tag tag-warning">安全培训</span></td><td>2026-07-15</td><td>45</td><td>-</td><td><span class="tag tag-info">即将开始</span></td></tr>
+          <tr><td>PX-20260601</td><td>新能源车辆操作规范</td><td><span class="tag tag-info">技能培训</span></td><td>2026-06-10</td><td>32</td><td>96%</td><td><span class="tag tag-success">已完成</span></td></tr>
+          <tr><td>PX-20260501</td><td>交通安全法规学习</td><td><span class="tag tag-default">法规培训</span></td><td>2026-05-20</td><td>48</td><td>91%</td><td><span class="tag tag-success">已完成</span></td></tr>
+      </table></div>
+      <div class="card"><div class="card-title">培训逾期驾驶员</div>
+        <table><thead><tr><th>工号</th><th>姓名</th><th>未完成培训</th><th>逾期天数</th><th>催办级别</th></tr></thead>
+          <tr><td>DRV2024001</td><td>陈伟</td><td>春季安全驾驶培训</td><td style="color:#ff4d4f">45天</td><td><span class="tag tag-danger">三级催办</span></td></tr>
+          <tr><td>DRV2022005</td><td>赵永强</td><td>交通安全法规学习</td><td style="color:#ff4d4f">32天</td><td><span class="tag tag-danger">三级催办</span></td></tr>
+          <tr><td>DRV2023003</td><td>王志刚</td><td>新能源车辆操作规范</td><td style="color:#fa8c16">18天</td><td><span class="tag tag-warning">二级催办</span></td></tr>
+      </table></div>
+    </div>
+
+    <!-- ========================== REQ-13 车辆运营管理 ========================== -->
+    <div class="view" id="view-req13">
+      <div class="page-title">车辆运营管理</div>
+      <div class="page-subtitle">车队日常运营核心工作台，以组织树导航管理车辆业务</div>
+      <div class="dual-col">
+        <div class="org-panel">
+          <div class="card-title">组织架构</div>
+          <div class="org-tree">
+            <div class="org-node level1 active" onclick="this.classList.toggle('active')">&#x25B6; 集团总部 (35)</div>
+            <div class="org-node level2" onclick="this.classList.toggle('active')">&#x25B6; 行政部 (18)</div>
+            <div class="org-node level3 active">商务车队 (8)</div>
+            <div class="org-node level3">行政车队 (10)</div>
+            <div class="org-node level2" onclick="this.classList.toggle('active')">&#x25B6; 市场部 (12)</div>
+            <div class="org-node level2" onclick="this.classList.toggle('active')">&#x25B6; 研发部 (5)</div>
+            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 北京分公司 (28)</div>
+            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 上海分公司 (25)</div>
+            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 深圳分公司 (18)</div>
+            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 成都分公司 (12)</div>
+            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 南京分公司 (10)</div>
+          </div>
+        </div>
+        <div>
+          <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">
+            <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">8</div><div class="s-label">当前车辆数</div></div></div>
+            <div class="stat-card"><div class="s-icon s-green">&#x26FD;</div><div><div class="s-num">2,580L</div><div class="s-label">本月加油量</div></div></div>
+            <div class="stat-card"><div class="s-icon s-orange">&#x1F527;</div><div><div class="s-num">&yen;8,200</div><div class="s-label">维修费用</div></div></div>
+          </div>
+          <div class="toolbar"><input type="text" placeholder="搜索车牌..." style="width:180px"><span class="spacer"></span></div>
+          <div class="card" style="padding:0">
+            <table><thead><tr><th>车牌号</th><th>品牌型号</th><th>里程</th><th>保险到期</th><th>年检到期</th><th>违章</th><th>操作</th></tr></thead>
+              <tr>
+                <td>京A·88888</td><td>奥迪 A6L</td><td>52,340 km</td><td><span class="tag tag-success">2026-12-31</span></td><td><span class="tag tag-success">2027-01-15</span></td><td><span class="tag tag-success">正常</span></td>
+                <td><button class="btn btn-sm btn-primary">查看详情</button></td>
+              </tr>
+              <tr>
+                <td>京B·66666</td><td>别克 GL8</td><td>68,200 km</td><td><span class="tag tag-warning">30天后</span></td><td><span class="tag tag-success">2027-03-20</span></td><td><span class="tag tag-success">正常</span></td>
+                <td><button class="btn btn-sm btn-primary">查看详情</button></td>
+              </tr>
+              <tr>
+                <td>京C·12345</td><td>丰田 凯美瑞</td><td>35,100 km</td><td><span class="tag tag-success">2027-05-10</span></td><td><span class="tag tag-danger">已逾期</span></td><td><span class="tag tag-danger">1条违章</span></td>
+                <td><button class="btn btn-sm btn-primary">查看详情</button></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================== REQ-14 定点维修车厂管理 ========================== -->
+    <div class="view" id="view-req14">
+      <div class="page-title">定点维修车厂管理</div>
+      <div class="page-subtitle">管理合作维修厂档案、服务能力及合作状态</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="s-icon s-blue">&#x1F527;</div><div><div class="s-num">8</div><div class="s-label">维修厂总数</div></div></div>
+        <div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">5</div><div class="s-label">合作中</div></div></div>
+        <div class="stat-card"><div class="s-icon s-orange">&#x23F8;</div><div><div class="s-num">2</div><div class="s-label">暂停合作</div></div></div>
+        <div class="stat-card"><div class="s-icon s-red">&#x2716;</div><div><div class="s-num">1</div><div class="s-label">已终止</div></div></div>
+      </div>
+      <div class="toolbar">
+        <input type="text" placeholder="搜索维修厂名称/地址...">
+        <select><option>全部状态</option><option>合作中</option><option>暂停合作</option><option>已终止</option></select>
+        <span class="spacer"></span>
+        <button class="btn btn-primary">+ 新增维修厂</button>
+      </div>
+      <div class="card" style="padding:0">
+        <table><thead><tr><th>维修厂名称</th><th>联系人</th><th>服务类型</th><th>综合评分</th><th>累计工单</th><th>定点状态</th><th>合同到期</th><th>操作</th></tr></thead>
+          <tr><td>顺达汽车维修中心</td><td>王建国<br><span style="font-size:11px;color:#999">138****1234</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">轮胎服务</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span> 4.5</td><td>156</td><td><span class="tag tag-success">合作中</span></td><td>2027-01-14</td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">看板</button></td></tr>
+          <tr><td>安信4S店</td><td>张伟<br><span style="font-size:11px;color:#999">139****5678</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">钣金喷漆</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> 4.8</td><td>312</td><td><span class="tag tag-success">合作中</span></td><td>2027-02-19</td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">看板</button></td></tr>
+          <tr><td>永利汽修厂</td><td>孙志强<br><span style="font-size:11px;color:#999">133****5678</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">钣金喷漆</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span> 3.5</td><td>28</td><td><span class="tag tag-warning">暂停合作</span></td><td>2026-01-19</td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">看板</button></td></tr>
+          <tr><td>盛达汽配维修</td><td>黄建国<br><span style="font-size:11px;color:#999">130****6789</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">轮胎服务</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span> 3.2</td><td>18</td><td><span class="tag tag-danger">已终止</span></td><td>2024-12-31</td><td><button class="btn btn-sm">查看</button></td></tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchView(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + el.dataset.view).classList.add('active');
+}
+
+function filterTable(tableId, keyword) {
+  const rows = document.getElementById(tableId).querySelectorAll('tbody tr');
+  const k = keyword.toLowerCase();
+  rows.forEach(r => { r.style.display = !k || r.textContent.toLowerCase().includes(k) ? '' : 'none'; });
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 24px;border-radius:6px;font-size:14px;z-index:9999;pointer-events:none';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300); }, 2000);
+}
+</script>
+</body>
+</html>
