@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>公务用车管理系统 - 完整原型</title>
+<title>公务用车管理系统 - 交互原型</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#333;display:flex;height:100vh;overflow:hidden}
 a{color:#1890ff;text-decoration:none}
-
-/* 侧边栏 */
 .sidebar{width:240px;background:#001529;color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
 .sidebar-logo{padding:20px 24px;font-size:16px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap}
 .sidebar-logo small{font-size:11px;color:rgba(255,255,255,.45);display:block;margin-top:4px;font-weight:400}
@@ -19,22 +17,19 @@ a{color:#1890ff;text-decoration:none}
 .nav-item:hover{color:#fff;background:rgba(255,255,255,.08)}
 .nav-item.active{color:#fff;background:#1890ff;border-left-color:#1890ff}
 .nav-item .badge{background:#ff4d4f;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:auto}
-
-/* 主内容 */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:48px;background:#fff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;padding:0 24px;justify-content:space-between;flex-shrink:0}
 .topbar .user{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;cursor:pointer}
 .topbar .user .avatar{width:32px;height:32px;border-radius:50%;background:#1890ff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
 .content{flex:1;overflow-y:auto;padding:24px}
-.view{display:none}
-.view.active{display:block}
-
-/* 公用组件 */
 .page-title{font-size:20px;font-weight:600;margin-bottom:4px}
 .page-subtitle{font-size:13px;color:#999;margin-bottom:20px}
 .card{background:#fff;border-radius:8px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
 .card-title{font-size:15px;font-weight:600;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stats-row.cols5{grid-template-columns:repeat(5,1fr)}
+.stats-row.cols3{grid-template-columns:repeat(3,1fr)}
+.stats-row.cols2{grid-template-columns:repeat(2,1fr)}
 .stat-card{background:#fff;border-radius:8px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .stat-card .s-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
 .stat-card .s-num{font-size:26px;font-weight:700}
@@ -43,33 +38,33 @@ a{color:#1890ff;text-decoration:none}
 .s-green{background:#f6ffed;color:#52c41a}
 .s-orange{background:#fff7e6;color:#fa8c16}
 .s-red{background:#fff2f0;color:#ff4d4f}
-
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;transition:all .2s}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;transition:all .2s;color:#333}
 .btn:hover{border-color:#1890ff;color:#1890ff}
 .btn-primary{background:#1890ff;color:#fff;border-color:#1890ff}
-.btn-primary:hover{background:#40a9ff}
+.btn-primary:hover{background:#40a9ff;color:#fff}
 .btn-sm{padding:4px 10px;font-size:12px}
 .btn-xs{padding:2px 8px;font-size:11px;border-radius:3px}
 .btn-danger{color:#ff4d4f;border-color:#ff4d4f}
-.btn-danger:hover{background:#fff2f0}
-
+.btn-danger:hover{background:#fff2f0;color:#ff4d4f}
+.btn-success{color:#52c41a;border-color:#52c41a}
+.btn-success:hover{background:#f6ffed;color:#52c41a}
 table{width:100%;border-collapse:collapse}
 th{background:#fafafa;padding:10px 14px;text-align:left;font-weight:600;font-size:13px;color:#666;border-bottom:1px solid #f0f0f0;white-space:nowrap}
 td{padding:12px 14px;border-bottom:1px solid #f0f0f0;font-size:13px}
 tr:hover td{background:#fafafa}
+tr.highlight td{background:#fffbe6}
+tr.unread td{background:#f0f8ff}
 .tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:500}
 .tag-success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
 .tag-warning{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
 .tag-danger{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7}
 .tag-info{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
 .tag-default{background:#f5f5f5;color:#999;border:1px solid #e8e8e8}
-
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
 .toolbar input,.toolbar select{height:34px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;background:#fff}
 .toolbar input:focus,.toolbar select:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.1)}
 .toolbar input{width:220px}
 .toolbar .spacer{flex:1}
-
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
 .form-group{margin-bottom:14px}
@@ -78,539 +73,1319 @@ tr:hover td{background:#fafafa}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:7px 10px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;font-family:inherit}
 .form-group textarea{resize:vertical;min-height:70px}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.1)}
-
+.form-group input.error,.form-group select.error{border-color:#ff4d4f}
+.form-group .err-msg{font-size:11px;color:#ff4d4f;margin-top:3px;display:none}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding-top:60px}
 .modal-overlay.hidden{display:none}
 .modal{background:#fff;border-radius:10px;box-shadow:0 12px 48px rgba(0,0,0,.15);width:680px;max-height:80vh;display:flex;flex-direction:column;animation:modalIn .25s}
+.modal-lg{width:800px}
+.modal-sm{width:480px}
 @keyframes modalIn{from{opacity:0;transform:translateY(-20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #f0f0f0}
 .modal-header h3{font-size:16px;font-weight:600}
+.modal-header .close-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:6px;font-size:18px;color:#999;border:none;background:none;transition:all .2s}
+.modal-header .close-btn:hover{background:#f5f5f5;color:#333}
 .modal-body{padding:20px 24px;overflow-y:auto;flex:1}
 .modal-footer{padding:14px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:10px}
-
+.org-panel{background:#fff;border-radius:8px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);height:fit-content}
 .org-tree{font-size:13px;line-height:2}
-.org-tree .org-node{cursor:pointer;padding:3px 8px;border-radius:4px;transition:all .2s}
-.org-tree .org-node:hover{background:#e6f7ff}
-.org-tree .org-node.active{background:#1890ff;color:#fff}
-.org-tree .level1{padding-left:0;font-weight:600}
-.org-tree .level2{padding-left:20px}
-.org-tree .level3{padding-left:40px;font-size:12px;color:#999}
-
-.timeline{padding-left:20px;border-left:2px solid #e8e8e8}
-.timeline-item{position:relative;padding:0 0 16px 20px}
-.timeline-item::before{content:'';position:absolute;left:-26px;top:4px;width:10px;height:10px;border-radius:50%;background:#1890ff}
-.timeline-item .time{font-size:12px;color:#999}
-.timeline-item .desc{font-size:13px;margin-top:2px}
-
-.checkbox-group{display:flex;flex-wrap:wrap;gap:8px}
-.checkbox-item{padding:5px 12px;border:1px solid #e8e8e8;border-radius:6px;font-size:12px;cursor:pointer;user-select:none;transition:all .2s}
-.checkbox-item:hover{border-color:#1890ff}
-.checkbox-item.checked{background:#e6f7ff;border-color:#1890ff;color:#1890ff}
-.checkbox-item input{display:none}
-
-.stars{color:#faad14;font-size:13px}
-
-.tab-row{display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:16px}
-.tab-item{padding:8px 18px;font-size:13px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
-.tab-item:hover{color:#1890ff}
-.tab-item.active{color:#1890ff;border-bottom-color:#1890ff;font-weight:600}
-
+.org-node{cursor:pointer;padding:3px 8px;border-radius:4px;transition:all .2s}
+.org-node:hover{background:#e6f7ff}
+.org-node.active{background:#1890ff;color:#fff}
+.level1{padding-left:0;font-weight:600}
+.level2{padding-left:20px}
+.level3{padding-left:40px;font-size:12px;color:#999}
+.dual-col{display:grid;grid-template-columns:240px 1fr;gap:16px}
 .chart-bars{display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 10px 28px;border-bottom:2px solid #e8e8e8;border-left:2px solid #e8e8e8;margin:16px 0 8px 36px}
 .chart-bars .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
 .chart-bars .bar{width:100%;max-width:36px;background:linear-gradient(to top,#1890ff,#69c0ff);border-radius:3px 3px 0 0;min-width:18px}
 .chart-bars .bar-val{font-size:10px;color:#999}
 .chart-bars .bar-label{font-size:10px;color:#666;position:relative;top:24px}
-
-.dual-col{display:grid;grid-template-columns:240px 1fr;gap:16px}
-.org-panel{background:#fff;border-radius:8px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);height:fit-content;max-height:calc(100vh - 160px);overflow-y:auto}
-
+.stars{color:#faad14;font-size:13px}
 .empty-state{text-align:center;padding:60px 20px;color:#999}
 .empty-state .empty-icon{font-size:48px;margin-bottom:12px}
+.tab-row{display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:16px}
+.tab-item{padding:8px 18px;font-size:13px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab-item:hover{color:#1890ff}
+.tab-item.active{color:#1890ff;border-bottom-color:#1890ff;font-weight:600}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.upload-area{border:2px dashed #d9d9d9;border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-top:8px}
+.upload-area:hover{border-color:#1890ff;background:#fafafa}
+.file-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.file-tag{display:flex;align-items:center;gap:6px;padding:4px 12px;background:#f5f5f5;border-radius:4px;font-size:12px}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.checkbox-item{padding:5px 12px;border:1px solid #e8e8e8;border-radius:6px;font-size:12px;cursor:pointer;user-select:none;transition:all .2s}
+.checkbox-item:hover{border-color:#1890ff}
+.checkbox-item.checked{background:#e6f7ff;border-color:#1890ff;color:#1890ff}
+.checkbox-item input{display:none}
+.alert-banner{background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#ff4d4f;display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
-
-<!-- 侧边栏 -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">公务用车管理系统<small>Official Vehicle Management v1.0</small></div>
-
-  <div class="nav-group">
-    <div class="nav-group-title">仪表盘</div>
-    <div class="nav-item active" data-view="dashboard" onclick="switchView(this)">&#x25A3; 系统仪表盘</div>
-  </div>
-
-  <div class="nav-group">
-    <div class="nav-group-title">车辆管理</div>
+  <div class="nav-group"><div class="nav-group-title">仪表盘</div>
+    <div class="nav-item active" data-view="dashboard" onclick="switchView(this)">&#x1F4CA; 系统仪表盘</div></div>
+  <div class="nav-group"><div class="nav-group-title">车辆管理</div>
     <div class="nav-item" data-view="req01" onclick="switchView(this)">&#x1F697; 车辆档案管理</div>
     <div class="nav-item" data-view="req02" onclick="switchView(this)">&#x1F4C5; 年检与保险管理</div>
     <div class="nav-item" data-view="req13" onclick="switchView(this)">&#x2699; 车辆运营管理</div>
-    <div class="nav-item" data-view="req14" onclick="switchView(this)">&#x1F527; 定点维修车厂</div>
-  </div>
-
-  <div class="nav-group">
-    <div class="nav-group-title">用车调度</div>
+    <div class="nav-item" data-view="req14" onclick="switchView(this)">&#x1F527; 定点维修车厂</div></div>
+  <div class="nav-group"><div class="nav-group-title">用车调度</div>
     <div class="nav-item" data-view="req03" onclick="switchView(this)">&#x1F4DD; 用车申请</div>
-    <div class="nav-item" data-view="req04" onclick="switchView(this)">&#x2705; 用车审批 <span class="badge">3</span></div>
+    <div class="nav-item" data-view="req04" onclick="switchView(this)">&#x2705; 用车审批 <span class="badge" id="badgeApproval">3</span></div>
     <div class="nav-item" data-view="req05" onclick="switchView(this)">&#x1F69A; 车辆调度</div>
-    <div class="nav-item" data-view="req06" onclick="switchView(this)">&#x1F3C1; 出车与归库</div>
-  </div>
-
-  <div class="nav-group">
-    <div class="nav-group-title">驾驶员管理</div>
+    <div class="nav-item" data-view="req06" onclick="switchView(this)">&#x1F3C1; 出车与归库</div></div>
+  <div class="nav-group"><div class="nav-group-title">驾驶员管理</div>
     <div class="nav-item" data-view="req12" onclick="switchView(this)">&#x1F464; 驾驶员信息</div>
-    <div class="nav-item" data-view="req12t" onclick="switchView(this)">&#x1F4DA; 驾驶员培训</div>
-  </div>
-
-  <div class="nav-group">
-    <div class="nav-group-title">费用与报表</div>
+    <div class="nav-item" data-view="req12t" onclick="switchView(this)">&#x1F4DA; 驾驶员培训</div></div>
+  <div class="nav-group"><div class="nav-group-title">费用与报表</div>
     <div class="nav-item" data-view="req08" onclick="switchView(this)">&#x1F4B0; 费用管理</div>
-    <div class="nav-item" data-view="req09" onclick="switchView(this)">&#x1F4CA; 统计分析报表</div>
-  </div>
-
-  <div class="nav-group">
-    <div class="nav-group-title">监控与消息</div>
+    <div class="nav-item" data-view="req09" onclick="switchView(this)">&#x1F4CA; 统计分析报表</div></div>
+  <div class="nav-group"><div class="nav-group-title">监控与消息</div>
     <div class="nav-item" data-view="req07" onclick="switchView(this)">&#x1F4CD; GPS轨迹监控</div>
-    <div class="nav-item" data-view="req11" onclick="switchView(this)">&#x1F514; 通知与消息 <span class="badge">5</span></div>
-  </div>
-
-  <div class="nav-group">
-    <div class="nav-group-title">系统管理</div>
-    <div class="nav-item" data-view="req10" onclick="switchView(this)">&#x1F512; 权限与角色管理</div>
-  </div>
+    <div class="nav-item" data-view="req11" onclick="switchView(this)">&#x1F514; 通知与消息 <span class="badge" id="badgeNotify">5</span></div></div>
+  <div class="nav-group"><div class="nav-group-title">系统管理</div>
+    <div class="nav-item" data-view="req10" onclick="switchView(this)">&#x1F512; 权限与角色管理</div></div>
 </div>
-
-<!-- 主内容 -->
 <div class="main">
-  <div class="topbar">
-    <span style="font-size:13px;color:#999;">&#x1F4C5; 2026-07-02 星期三</span>
-    <div class="user">
-      <span style="font-size:13px;">管理员 张建国</span>
-      <div class="avatar">张</div>
-    </div>
+  <div class="topbar"><span style="font-size:13px;color:#999;" id="topbarDate"></span>
+    <div class="user"><span style="font-size:13px;">管理员 张建国</span><div class="avatar">张</div></div>
   </div>
-  <div class="content" id="contentArea">
-
-    <!-- ========================== 系统仪表盘 ========================== -->
-    <div class="view active" id="view-dashboard">
-      <div class="page-title">系统仪表盘</div>
-      <div class="page-subtitle">车队运营核心指标概览</div>
-      <div class="stats-row" style="grid-template-columns:repeat(5,1fr)">
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">128</div><div class="s-label">车辆总数</div></div></div>
-        <div class="stat-card"><div class="s-icon s-green">&#x1F698;</div><div><div class="s-num">43</div><div class="s-label">在途车辆</div></div></div>
-        <div class="stat-card"><div class="s-icon s-orange">&#x1F4CB;</div><div><div class="s-num" style="color:#fa8c16">3</div><div class="s-label">待审批申请</div></div></div>
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F3C1;</div><div><div class="s-num">18</div><div class="s-label">今日出车次数</div></div></div>
-        <div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">7</div><div class="s-label">即将到期提醒</div></div></div>
-      </div>
-      <div class="dual-col">
-        <div class="card" style="padding:16px"><div class="card-title">即将到期提醒</div>
-          <table><thead><tr><th>事项</th><th>车辆</th><th>到期日</th></tr></thead>
-            <tr><td><span class="tag tag-danger">年检逾期</span></td><td>京A·88321</td><td>2026-06-25</td></tr>
-            <tr><td><span class="tag tag-danger">保险逾期</span></td><td>沪B·55678</td><td>2026-06-28</td></tr>
-            <tr><td><span class="tag tag-warning">年检即将到期</span></td><td>粤C·32109</td><td>2026-07-05</td></tr>
-            <tr><td><span class="tag tag-warning">保险即将到期</span></td><td>京D·11234</td><td>2026-07-10</td></tr>
-            <tr><td><span class="tag tag-warning">合同即将到期</span></td><td>永利汽修厂</td><td>2026-07-15</td></tr>
-          </table>
-        </div>
-        <div class="card" style="padding:16px"><div class="card-title">部门编制执行情况</div>
-          <table><thead><tr><th>部门</th><th>编制数</th><th>实有数</th><th>执行率</th></tr></thead>
-            <tr><td>总公司/行政部</td><td>20</td><td>18</td><td>90%</td></tr>
-            <tr><td>北京分公司</td><td>25</td><td>23</td><td>92%</td></tr>
-            <tr><td>上海分公司</td><td>18</td><td>18</td><td>100%</td></tr>
-            <tr><td>深圳分公司</td><td>15</td><td>12</td><td>80%</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-01 车辆档案管理 ========================== -->
-    <div class="view" id="view-req01">
-      <div class="page-title">车辆档案管理</div>
-      <div class="page-subtitle">建立车辆基础档案，支持车辆信息登记、查询、修改和状态变更</div>
-      <div class="toolbar">
-        <input type="text" placeholder="搜索车牌号 / 品牌 / VIN..." oninput="filterTable('req01Table',this.value)">
-        <select><option>全部状态</option><option>空闲</option><option>出车中</option><option>维修中</option><option>报废</option></select>
-        <select><option>全部类型</option><option>轿车</option><option>SUV</option><option>商务车</option><option>货车</option></select>
-        <span class="spacer"></span>
-        <button class="btn btn-primary" onclick="showToast('新增车辆表单')">+ 新增车辆</button>
-      </div>
-      <div class="card" style="padding:0">
-        <table id="req01Table">
-          <thead><tr><th>车牌号</th><th>品牌型号</th><th>VIN</th><th>所属部门</th><th>车辆类型</th><th>状态</th><th>购置日期</th><th>当前里程</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr><td>京A·88888</td><td>奥迪 A6L</td><td>LFV3A24K9P3000001</td><td>总公司/行政部</td><td>轿车</td><td><span class="tag tag-success">空闲</span></td><td>2023-01-15</td><td>52,340 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
-            <tr><td>京B·66666</td><td>别克 GL8</td><td>LSGUL83L0PA000002</td><td>总公司/行政部</td><td>商务车</td><td><span class="tag tag-info">出车中</span></td><td>2023-03-20</td><td>68,200 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
-            <tr><td>沪A·99999</td><td>奔驰 E300L</td><td>LE4ZG8DB7NL000004</td><td>上海分公司</td><td>轿车</td><td><span class="tag tag-success">空闲</span></td><td>2022-06-05</td><td>89,300 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
-            <tr><td>粤B·55555</td><td>比亚迪 汉EV</td><td>LC0CE6CD0R0000005</td><td>深圳分公司</td><td>轿车</td><td><span class="tag tag-warning">维修中</span></td><td>2024-01-08</td><td>18,700 km</td><td><button class="btn btn-sm">查看</button> <button class="btn btn-sm">编辑</button></td></tr>
-            <tr><td>京D·00001</td><td>福田 欧马可</td><td>LVBV5PBB1ME000006</td><td>北京分公司</td><td>货车</td><td><span class="tag tag-danger">报废</span></td><td>2021-09-12</td><td>156,200 km</td><td><button class="btn btn-sm">查看</button></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-02 年检与保险管理 ========================== -->
-    <div class="view" id="view-req02">
-      <div class="page-title">车辆年检与保险管理</div>
-      <div class="page-subtitle">记录年检和保险信息，支持到期提醒，避免脱检脱保运行</div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">2</div><div class="s-label">年检逾期</div></div></div>
-        <div class="stat-card"><div class="s-icon s-orange">&#x23F3;</div><div><div class="s-num" style="color:#fa8c16">5</div><div class="s-label">30天内到期</div></div></div>
-        <div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">1</div><div class="s-label">保险逾期</div></div></div>
-        <div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">120</div><div class="s-label">正常车辆</div></div></div>
-      </div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>车牌号</th><th>年检到期日</th><th>年检状态</th><th>保险到期日</th><th>保险状态</th><th>保险公司</th><th>保单号</th><th>操作</th></tr></thead>
-          <tr><td>京A·88888</td><td>2027-01-15</td><td><span class="tag tag-success">正常</span></td><td>2026-12-31</td><td><span class="tag tag-success">正常</span></td><td>中国人保</td><td>PICC-20260001</td><td><button class="btn btn-sm">录入</button></td></tr>
-          <tr><td>京A·88321</td><td>2026-06-25</td><td><span class="tag tag-danger">已逾期</span></td><td>2026-10-15</td><td><span class="tag tag-warning">即将到期</span></td><td>平安保险</td><td>PA-20260008</td><td><button class="btn btn-sm">处理</button></td></tr>
-          <tr><td>沪B·55678</td><td>2027-03-20</td><td><span class="tag tag-success">正常</span></td><td>2026-06-28</td><td><span class="tag tag-danger">已逾期</span></td><td>太平洋保险</td><td>CPIC-20260015</td><td><button class="btn btn-sm">续保</button></td></tr>
-          <tr><td>粤C·32109</td><td>2026-07-05</td><td><span class="tag tag-warning">即将到期</span></td><td>2027-02-10</td><td><span class="tag tag-success">正常</span></td><td>中国人保</td><td>PICC-20260022</td><td><button class="btn btn-sm">预约</button></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-03 用车申请 ========================== -->
-    <div class="view" id="view-req03">
-      <div class="page-title">用车申请</div>
-      <div class="page-subtitle">提交用车申请，填写出行需求信息，进入审批流程</div>
-      <div class="toolbar"><button class="btn btn-primary" onclick="showToast('打开用车申请表单')">+ 新建申请</button> <span class="spacer"></span></div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>申请编号</th><th>申请人</th><th>用车事由</th><th>出发地点</th><th>目的地点</th><th>出发时间</th><th>乘车人数</th><th>是否需要司机</th><th>状态</th><th>操作</th></tr></thead>
-          <tr><td>20260701001</td><td>李伟</td><td>客户拜访</td><td>北京总部</td><td>朝阳区CBD</td><td>2026-07-02 09:00</td><td>3</td><td>是</td><td><span class="tag tag-info">待审批</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-          <tr><td>20260701002</td><td>王芳</td><td>机场接机</td><td>上海分公司</td><td>浦东机场T2</td><td>2026-07-02 14:00</td><td>2</td><td>是</td><td><span class="tag tag-success">已通过</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-          <tr><td>20260701003</td><td>赵明</td><td>项目考察</td><td>深圳分公司</td><td>南山区科技园</td><td>2026-07-03 08:30</td><td>4</td><td>否</td><td><span class="tag tag-info">待审批</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-04 用车审批 ========================== -->
-    <div class="view" id="view-req04">
-      <div class="page-title">用车审批</div>
-      <div class="page-subtitle">审批人对用车申请进行审核，支持通过和驳回操作</div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>申请编号</th><th>申请人</th><th>用车事由</th><th>出发时间</th><th>乘车人数</th><th>场景类型</th><th>提交时间</th><th>操作</th></tr></thead>
-          <tr style="background:#fffbe6">
-            <td>20260701001</td><td>李伟</td><td>客户拜访</td><td>2026-07-02 09:00</td><td>3</td><td><span class="tag tag-warning">节假日用车</span></td><td>07-01 14:30</td>
-            <td><button class="btn btn-sm btn-primary">通过</button> <button class="btn btn-sm btn-danger">驳回</button></td>
-          </tr>
-          <tr style="background:#fffbe6">
-            <td>20260701003</td><td>赵明</td><td>项目考察</td><td>2026-07-03 08:30</td><td>4</td><td><span class="tag tag-default">日常工作</span></td><td>07-01 16:20</td>
-            <td><button class="btn btn-sm btn-primary">通过</button> <button class="btn btn-sm btn-danger">驳回</button></td>
-          </tr>
-          <tr style="background:#fffbe6">
-            <td>20260701005</td><td>陈强</td><td>设备运输</td><td>2026-07-02 13:00</td><td>2</td><td><span class="tag tag-default">日常工作</span></td><td>07-01 17:45</td>
-            <td><button class="btn btn-sm btn-primary">通过</button> <button class="btn btn-sm btn-danger">驳回</button></td>
-          </tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-05 车辆调度 ========================== -->
-    <div class="view" id="view-req05">
-      <div class="page-title">车辆调度</div>
-      <div class="page-subtitle">为审批通过的用车申请分配车辆和驾驶员，生成派车单</div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>申请编号</th><th>申请人</th><th>出发时间</th><th>用车事由</th><th>分配车辆</th><th>分配驾驶员</th><th>操作</th></tr></thead>
-          <tr><td>20260701002</td><td>王芳</td><td>07-02 14:00</td><td>机场接机</td><td>
-            <select style="font-size:12px"><option>请选择车辆</option><option>沪A·99999 奔驰E300L</option><option>沪C·22334 帕萨特</option></select>
-          </td><td>
-            <select style="font-size:12px"><option>请选择驾驶员</option><option>刘建国 (A1)</option><option>周明 (C1)</option></select>
-          </td>
-          <td><button class="btn btn-sm btn-primary">生成派车单</button></td></tr>
-          <tr><td>20260701006</td><td>林峰</td><td>07-02 08:00</td><td>商务接待</td><td>京A·88888 奥迪A6L</td><td>刘建国</td><td><span class="tag tag-success">已派车</span></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-06 出车与归库 ========================== -->
-    <div class="view" id="view-req06">
-      <div class="page-title">司机出车与归库</div>
-      <div class="page-subtitle">驾驶员执行出车任务，记录出车和归库信息</div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>派车单号</th><th>车牌号</th><th>路线</th><th>计划时间</th><th>出车状态</th><th>起始里程</th><th>结束里程</th><th>行程里程</th><th>操作</th></tr></thead>
-          <tr style="background:#f6ffed">
-            <td>PD-20260702-001</td><td>京A·88888</td><td>北京总部 → 朝阳CBD</td><td>07-02 09:00</td><td><span class="tag tag-info">待出车</span></td><td>-</td><td>-</td><td>-</td>
-            <td><button class="btn btn-sm btn-primary">开始出车</button></td>
-          </tr>
-          <tr>
-            <td>PD-20260702-002</td><td>沪A·99999</td><td>上海分公司 → 浦东机场</td><td>07-02 08:30</td><td><span class="tag tag-success">出车中</span></td><td>89,356 km</td><td>-</td><td>-</td>
-            <td><button class="btn btn-sm btn-primary">归库登记</button></td>
-          </tr>
-          <tr>
-            <td>PD-20260701-003</td><td>粤B·55555</td><td>深圳分公司 → 科技园</td><td>07-01 10:00</td><td><span class="tag tag-default">已归库</span></td><td>18,720 km</td><td>18,745 km</td><td>25 km</td>
-            <td>-</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-07 GPS轨迹监控 ========================== -->
-    <div class="view" id="view-req07">
-      <div class="page-title">GPS轨迹监控</div>
-      <div class="page-subtitle">记录车辆行驶GPS位置信息，支持轨迹回放和里程统计</div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">43</div><div class="s-label">在线车辆</div></div></div>
-        <div class="stat-card"><div class="s-icon s-green">&#x1F4CD;</div><div><div class="s-num">1,280</div><div class="s-label">今日总里程(km)</div></div></div>
-      </div>
-      <div class="card"><div class="card-title">在途车辆实时列表</div>
-        <table><thead><tr><th>车牌号</th><th>驾驶员</th><th>当前位置</th><th>速度</th><th>行程方向</th><th>GPS里程</th><th>里程表里程</th><th>偏差</th></tr></thead>
-          <tr><td>京B·66666</td><td>刘建国</td><td>北京市东城区长安街</td><td>45 km/h</td><td>天安门 → 王府井</td><td>128 km</td><td>125 km</td><td>2.4%</td></tr>
-          <tr><td>沪A·99999</td><td>周明</td><td>上海市浦东新区迎宾高速</td><td>80 km/h</td><td>陆家嘴 → 浦东机场</td><td>42 km</td><td>45 km</td><td><span class="tag tag-warning">6.7%</span></td></tr>
-          <tr><td>粤B·55555</td><td>陈伟</td><td>深圳市南山区深南大道</td><td>35 km/h</td><td>科技园 → 福田</td><td>15 km</td><td>18 km</td><td><span class="tag tag-danger">16.7%</span></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-08 费用管理 ========================== -->
-    <div class="view" id="view-req08">
-      <div class="page-title">费用管理</div>
-      <div class="page-subtitle">记录车辆使用过程中产生的各类费用，支持费用查询和基础统计</div>
-      <div class="toolbar">
-        <input type="text" placeholder="搜索车牌号...">
-        <select><option>全部费用类型</option><option>燃油费</option><option>维修费</option><option>保险费</option><option>年检费</option><option>过路费</option><option>停车费</option></select>
-        <select><option>全部审核状态</option><option>待审核</option><option>已审核</option><option>已驳回</option></select>
-        <span class="spacer"></span>
-        <button class="btn btn-primary">+ 录入费用</button>
-      </div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F4B5;</div><div><div class="s-num">1,256</div><div class="s-label">总记录数</div></div></div>
-        <div class="stat-card"><div class="s-icon s-green">&#x1F4B0;</div><div><div class="s-num">&yen;385,600</div><div class="s-label">本月总费用</div></div></div>
-      </div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>日期</th><th>车牌号</th><th>费用类型</th><th>金额</th><th>关联行程</th><th>审核状态</th><th>操作</th></tr></thead>
-          <tr><td>07-02</td><td>京B·66666</td><td><span class="tag tag-info">燃油费</span></td><td>&yen;450.00</td><td>PD-0702-001</td><td><span class="tag tag-warning">待审核</span></td><td><button class="btn btn-sm">审核</button></td></tr>
-          <tr><td>07-01</td><td>粤B·55555</td><td><span class="tag tag-default">维修费</span></td><td>&yen;2,800.00</td><td>-</td><td><span class="tag tag-success">已审核</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-          <tr><td>06-30</td><td>沪A·99999</td><td><span class="tag tag-info">过路费</span></td><td>&yen;35.00</td><td>PD-0630-005</td><td><span class="tag tag-success">已审核</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-          <tr><td>06-28</td><td>京A·88888</td><td><span class="tag tag-default">保险费</span></td><td>&yen;8,500.00</td><td>-</td><td><span class="tag tag-danger">已驳回</span></td><td><button class="btn btn-sm">修改</button></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-09 统计分析报表 ========================== -->
-    <div class="view" id="view-req09">
-      <div class="page-title">统计分析报表</div>
-      <div class="page-subtitle">提供基础的数据统计看板和报表，帮助管理层了解车队运营概况</div>
-      <div class="toolbar"><button class="btn btn-primary">导出Excel</button></div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">128</div><div class="s-label">车辆总数</div></div></div>
-        <div class="stat-card"><div class="s-icon s-green">&#x26FD;</div><div><div class="s-num">12,580L</div><div class="s-label">本月总加油量</div></div></div>
-        <div class="stat-card"><div class="s-icon s-orange">&#x1F527;</div><div><div class="s-num">&yen;52,300</div><div class="s-label">本月维修费用</div></div></div>
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F4C8;</div><div><div class="s-num">86%</div><div class="s-label">车辆利用率</div></div></div>
-      </div>
-      <div class="card"><div class="card-title">月度费用趋势（万元）</div>
-        <div class="chart-bars" style="height:180px">
-          <div class="bar-col"><div class="bar-val">3.2</div><div class="bar" style="height:96px"></div><div class="bar-label">1月</div></div>
-          <div class="bar-col"><div class="bar-val">2.8</div><div class="bar" style="height:84px"></div><div class="bar-label">2月</div></div>
-          <div class="bar-col"><div class="bar-val">3.5</div><div class="bar" style="height:105px"></div><div class="bar-label">3月</div></div>
-          <div class="bar-col"><div class="bar-val">4.1</div><div class="bar" style="height:123px"></div><div class="bar-label">4月</div></div>
-          <div class="bar-col"><div class="bar-val">3.6</div><div class="bar" style="height:108px"></div><div class="bar-label">5月</div></div>
-          <div class="bar-col"><div class="bar-val">3.9</div><div class="bar" style="height:117px"></div><div class="bar-label">6月</div></div>
-          <div class="bar-col"><div class="bar-val">4.5</div><div class="bar" style="height:135px"></div><div class="bar-label">7月</div></div>
-          <div class="bar-col"><div class="bar-val">3.3</div><div class="bar" style="height:99px"></div><div class="bar-label">8月</div></div>
-          <div class="bar-col"><div class="bar-val">3.8</div><div class="bar" style="height:114px"></div><div class="bar-label">9月</div></div>
-          <div class="bar-col"><div class="bar-val">4.2</div><div class="bar" style="height:126px"></div><div class="bar-label">10月</div></div>
-          <div class="bar-col"><div class="bar-val">3.7</div><div class="bar" style="height:111px"></div><div class="bar-label">11月</div></div>
-          <div class="bar-col"><div class="bar-val">5.1</div><div class="bar" style="height:153px"></div><div class="bar-label">12月</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-10 权限与角色管理 ========================== -->
-    <div class="view" id="view-req10">
-      <div class="page-title">权限与角色管理</div>
-      <div class="page-subtitle">建立用户账号体系，通过角色控制不同用户的功能访问权限</div>
-      <div class="card"><div class="card-title">用户列表</div>
-        <div class="toolbar"><button class="btn btn-primary">+ 新增用户</button></div>
-        <table><thead><tr><th>用户名</th><th>姓名</th><th>所属部门</th><th>角色</th><th>手机号</th><th>状态</th><th>操作</th></tr></thead>
-          <tr><td>zhangjg</td><td>张建国</td><td>总公司/行政部</td><td><span class="tag tag-info">系统管理员</span></td><td>138****1234</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">停用</button></td></tr>
-          <tr><td>liujg</td><td>刘建国</td><td>北京分公司</td><td><span class="tag tag-default">驾驶员</span></td><td>139****5678</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">停用</button></td></tr>
-          <tr><td>wangf</td><td>王芳</td><td>上海分公司</td><td><span class="tag tag-warning">调度员</span></td><td>137****9012</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">停用</button></td></tr>
-          <tr><td>liming</td><td>李明</td><td>深圳分公司</td><td><span class="tag tag-default">车队管理员</span></td><td>136****3456</td><td><span class="tag tag-danger">停用</span></td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">启用</button></td></tr>
-        </table>
-      </div>
-      <div class="card"><div class="card-title">角色权限矩阵</div>
-        <table><thead><tr><th>功能模块</th><th>系统管理员</th><th>车队管理员</th><th>调度员</th><th>审批人</th><th>驾驶员</th></tr></thead>
-          <tr><td>车辆档案管理</td><td>&#x2705; 全部</td><td>&#x2705; 本部门</td><td>&#x2705; 查看</td><td>&#x274C;</td><td>&#x2705; 查看</td></tr>
-          <tr><td>用车申请</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x2705;</td><td>&#x274C;</td></tr>
-          <tr><td>用车审批</td><td>&#x2705;</td><td>&#x274C;</td><td>&#x274C;</td><td>&#x2705; 本部门</td><td>&#x274C;</td></tr>
-          <tr><td>车辆调度</td><td>&#x2705;</td><td>&#x2705; 本部门</td><td>&#x2705;</td><td>&#x274C;</td><td>&#x274C;</td></tr>
-          <tr><td>费用管理</td><td>&#x2705;</td><td>&#x2705; 本部门</td><td>&#x274C;</td><td>&#x274C;</td><td>&#x2705; 录入</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-11 通知与消息 ========================== -->
-    <div class="view" id="view-req11">
-      <div class="page-title">通知与消息</div>
-      <div class="page-subtitle">在关键业务节点向相关人员推送通知消息</div>
-      <div class="toolbar">
-        <select><option>全部类型</option><option>待办通知</option><option>提醒通知</option><option>系统通知</option></select>
-        <button class="btn">全部标记为已读</button>
-      </div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>类型</th><th>消息内容</th><th>关联业务</th><th>时间</th><th>状态</th></tr></thead>
-          <tr style="background:#f0f8ff;font-weight:500">
-            <td><span class="tag tag-info">待办通知</span></td><td>李伟提交的用车申请待您审批</td><td>申请编号: 20260701001</td><td>07-01 14:30</td><td><span class="tag tag-danger">未读</span></td>
-          </tr>
-          <tr style="background:#f0f8ff;font-weight:500">
-            <td><span class="tag tag-info">待办通知</span></td><td>赵明提交的用车申请待您审批</td><td>申请编号: 20260701003</td><td>07-01 16:20</td><td><span class="tag tag-danger">未读</span></td>
-          </tr>
-          <tr style="background:#f0f8ff;font-weight:500">
-            <td><span class="tag tag-info">待办通知</span></td><td>陈强提交的用车申请待您审批</td><td>申请编号: 20260701005</td><td>07-01 17:45</td><td><span class="tag tag-danger">未读</span></td>
-          </tr>
-          <tr style="background:#fffbe6">
-            <td><span class="tag tag-warning">提醒通知</span></td><td>车辆京A·88321 年检已逾期，请尽快处理</td><td>车辆年检</td><td>06-28 09:00</td><td><span class="tag tag-danger">未读</span></td>
-          </tr>
-          <tr style="background:#fffbe6">
-            <td><span class="tag tag-warning">提醒通知</span></td><td>车辆沪B·55678 保险已逾期，请尽快续保</td><td>车辆保险</td><td>06-29 09:00</td><td><span class="tag tag-danger">未读</span></td>
-          </tr>
-          <tr>
-            <td><span class="tag tag-default">系统通知</span></td><td>系统将于周六凌晨2:00-4:00进行维护升级</td><td>-</td><td>06-30 10:00</td><td><span class="tag tag-success">已读</span></td>
-          </tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-12 驾驶员信息管理 ========================== -->
-    <div class="view" id="view-req12">
-      <div class="page-title">驾驶员信息管理</div>
-      <div class="page-subtitle">建立驾驶员基础档案，管理驾驶证、从业资格证和体检信息</div>
-      <div class="toolbar">
-        <input type="text" placeholder="搜索驾驶员姓名/工号...">
-        <select><option>全部状态</option><option>空闲</option><option>出车中</option><option>暂停出车</option><option>重点关注</option></select>
-        <span class="spacer"></span>
-        <button class="btn btn-primary">+ 新增驾驶员</button>
-      </div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>工号</th><th>姓名</th><th>性别</th><th>驾龄/工龄/年龄</th><th>驾驶证类型</th><th>准驾车型</th><th>联系电话</th><th>状态</th><th>操作</th></tr></thead>
-          <tr><td>DRV2023001</td><td>刘建国</td><td>男</td><td><span class="tag tag-info">15年</span>/<span class="tag tag-default">8年</span>/<span class="tag tag-default">42岁</span></td><td>A1</td><td>大型客车/轿车</td><td>139****5678</td><td><span class="tag tag-info">出车中</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-          <tr><td>DRV2023002</td><td>周明</td><td>男</td><td><span class="tag tag-info">10年</span>/<span class="tag tag-default">5年</span>/<span class="tag tag-default">35岁</span></td><td>C1</td><td>轿车/商务车</td><td>138****2345</td><td><span class="tag tag-success">空闲</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-          <tr><td>DRV2024001</td><td>陈伟</td><td>男</td><td><span class="tag tag-info">8年</span>/<span class="tag tag-default">3年</span>/<span class="tag tag-default">30岁</span></td><td>C1</td><td>轿车</td><td>137****8901</td><td><span class="tag tag-warning">暂停出车</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-          <tr><td>DRV2022005</td><td>赵永强</td><td>男</td><td><span class="tag tag-info">20年</span>/<span class="tag tag-default">12年</span>/<span class="tag tag-default">50岁</span></td><td>A1</td><td>大型客车/货车</td><td>136****4567</td><td><span class="tag tag-default">重点关注</span></td><td><button class="btn btn-sm">查看</button></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-12T 驾驶员培训管理 ========================== -->
-    <div class="view" id="view-req12t">
-      <div class="page-title">驾驶员培训管理</div>
-      <div class="page-subtitle">培训计划制定、执行记录、考核评估、逾期预警</div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F4DA;</div><div><div class="s-num">12</div><div class="s-label">年度培训计划</div></div></div>
-        <div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">94%</div><div class="s-label">培训覆盖率</div></div></div>
-        <div class="stat-card"><div class="s-icon s-orange">&#x26A0;</div><div><div class="s-num" style="color:#fa8c16">3</div><div class="s-label">培训逾期</div></div></div>
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F3C6;</div><div><div class="s-num">88%</div><div class="s-label">考核合格率</div></div></div>
-      </div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>培训编号</th><th>培训主题</th><th>培训类型</th><th>培训日期</th><th>参训人数</th><th>合格率</th><th>状态</th></tr></thead>
-          <tr><td>PX-20260701</td><td>夏季安全驾驶培训</td><td><span class="tag tag-warning">安全培训</span></td><td>2026-07-15</td><td>45</td><td>-</td><td><span class="tag tag-info">即将开始</span></td></tr>
-          <tr><td>PX-20260601</td><td>新能源车辆操作规范</td><td><span class="tag tag-info">技能培训</span></td><td>2026-06-10</td><td>32</td><td>96%</td><td><span class="tag tag-success">已完成</span></td></tr>
-          <tr><td>PX-20260501</td><td>交通安全法规学习</td><td><span class="tag tag-default">法规培训</span></td><td>2026-05-20</td><td>48</td><td>91%</td><td><span class="tag tag-success">已完成</span></td></tr>
-      </table></div>
-      <div class="card"><div class="card-title">培训逾期驾驶员</div>
-        <table><thead><tr><th>工号</th><th>姓名</th><th>未完成培训</th><th>逾期天数</th><th>催办级别</th></tr></thead>
-          <tr><td>DRV2024001</td><td>陈伟</td><td>春季安全驾驶培训</td><td style="color:#ff4d4f">45天</td><td><span class="tag tag-danger">三级催办</span></td></tr>
-          <tr><td>DRV2022005</td><td>赵永强</td><td>交通安全法规学习</td><td style="color:#ff4d4f">32天</td><td><span class="tag tag-danger">三级催办</span></td></tr>
-          <tr><td>DRV2023003</td><td>王志刚</td><td>新能源车辆操作规范</td><td style="color:#fa8c16">18天</td><td><span class="tag tag-warning">二级催办</span></td></tr>
-      </table></div>
-    </div>
-
-    <!-- ========================== REQ-13 车辆运营管理 ========================== -->
-    <div class="view" id="view-req13">
-      <div class="page-title">车辆运营管理</div>
-      <div class="page-subtitle">车队日常运营核心工作台，以组织树导航管理车辆业务</div>
-      <div class="dual-col">
-        <div class="org-panel">
-          <div class="card-title">组织架构</div>
-          <div class="org-tree">
-            <div class="org-node level1 active" onclick="this.classList.toggle('active')">&#x25B6; 集团总部 (35)</div>
-            <div class="org-node level2" onclick="this.classList.toggle('active')">&#x25B6; 行政部 (18)</div>
-            <div class="org-node level3 active">商务车队 (8)</div>
-            <div class="org-node level3">行政车队 (10)</div>
-            <div class="org-node level2" onclick="this.classList.toggle('active')">&#x25B6; 市场部 (12)</div>
-            <div class="org-node level2" onclick="this.classList.toggle('active')">&#x25B6; 研发部 (5)</div>
-            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 北京分公司 (28)</div>
-            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 上海分公司 (25)</div>
-            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 深圳分公司 (18)</div>
-            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 成都分公司 (12)</div>
-            <div class="org-node level1" onclick="this.classList.toggle('active')">&#x25B6; 南京分公司 (10)</div>
-          </div>
-        </div>
-        <div>
-          <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">
-            <div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">8</div><div class="s-label">当前车辆数</div></div></div>
-            <div class="stat-card"><div class="s-icon s-green">&#x26FD;</div><div><div class="s-num">2,580L</div><div class="s-label">本月加油量</div></div></div>
-            <div class="stat-card"><div class="s-icon s-orange">&#x1F527;</div><div><div class="s-num">&yen;8,200</div><div class="s-label">维修费用</div></div></div>
-          </div>
-          <div class="toolbar"><input type="text" placeholder="搜索车牌..." style="width:180px"><span class="spacer"></span></div>
-          <div class="card" style="padding:0">
-            <table><thead><tr><th>车牌号</th><th>品牌型号</th><th>里程</th><th>保险到期</th><th>年检到期</th><th>违章</th><th>操作</th></tr></thead>
-              <tr>
-                <td>京A·88888</td><td>奥迪 A6L</td><td>52,340 km</td><td><span class="tag tag-success">2026-12-31</span></td><td><span class="tag tag-success">2027-01-15</span></td><td><span class="tag tag-success">正常</span></td>
-                <td><button class="btn btn-sm btn-primary">查看详情</button></td>
-              </tr>
-              <tr>
-                <td>京B·66666</td><td>别克 GL8</td><td>68,200 km</td><td><span class="tag tag-warning">30天后</span></td><td><span class="tag tag-success">2027-03-20</span></td><td><span class="tag tag-success">正常</span></td>
-                <td><button class="btn btn-sm btn-primary">查看详情</button></td>
-              </tr>
-              <tr>
-                <td>京C·12345</td><td>丰田 凯美瑞</td><td>35,100 km</td><td><span class="tag tag-success">2027-05-10</span></td><td><span class="tag tag-danger">已逾期</span></td><td><span class="tag tag-danger">1条违章</span></td>
-                <td><button class="btn btn-sm btn-primary">查看详情</button></td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================== REQ-14 定点维修车厂管理 ========================== -->
-    <div class="view" id="view-req14">
-      <div class="page-title">定点维修车厂管理</div>
-      <div class="page-subtitle">管理合作维修厂档案、服务能力及合作状态</div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="s-icon s-blue">&#x1F527;</div><div><div class="s-num">8</div><div class="s-label">维修厂总数</div></div></div>
-        <div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">5</div><div class="s-label">合作中</div></div></div>
-        <div class="stat-card"><div class="s-icon s-orange">&#x23F8;</div><div><div class="s-num">2</div><div class="s-label">暂停合作</div></div></div>
-        <div class="stat-card"><div class="s-icon s-red">&#x2716;</div><div><div class="s-num">1</div><div class="s-label">已终止</div></div></div>
-      </div>
-      <div class="toolbar">
-        <input type="text" placeholder="搜索维修厂名称/地址...">
-        <select><option>全部状态</option><option>合作中</option><option>暂停合作</option><option>已终止</option></select>
-        <span class="spacer"></span>
-        <button class="btn btn-primary">+ 新增维修厂</button>
-      </div>
-      <div class="card" style="padding:0">
-        <table><thead><tr><th>维修厂名称</th><th>联系人</th><th>服务类型</th><th>综合评分</th><th>累计工单</th><th>定点状态</th><th>合同到期</th><th>操作</th></tr></thead>
-          <tr><td>顺达汽车维修中心</td><td>王建国<br><span style="font-size:11px;color:#999">138****1234</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">轮胎服务</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span> 4.5</td><td>156</td><td><span class="tag tag-success">合作中</span></td><td>2027-01-14</td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">看板</button></td></tr>
-          <tr><td>安信4S店</td><td>张伟<br><span style="font-size:11px;color:#999">139****5678</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">钣金喷漆</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> 4.8</td><td>312</td><td><span class="tag tag-success">合作中</span></td><td>2027-02-19</td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">看板</button></td></tr>
-          <tr><td>永利汽修厂</td><td>孙志强<br><span style="font-size:11px;color:#999">133****5678</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">钣金喷漆</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span> 3.5</td><td>28</td><td><span class="tag tag-warning">暂停合作</span></td><td>2026-01-19</td><td><button class="btn btn-sm">编辑</button> <button class="btn btn-sm">看板</button></td></tr>
-          <tr><td>盛达汽配维修</td><td>黄建国<br><span style="font-size:11px;color:#999">130****6789</span></td><td><span class="tag tag-default">机电维修</span> <span class="tag tag-default">轮胎服务</span></td><td><span class="stars">&#9733;&#9733;&#9733;&#9734;&#9734;</span> 3.2</td><td>18</td><td><span class="tag tag-danger">已终止</span></td><td>2024-12-31</td><td><button class="btn btn-sm">查看</button></td></tr>
-        </table>
-      </div>
-    </div>
-
-  </div>
+  <div class="content" id="contentArea"></div>
 </div>
-
+<div id="modalContainer"></div>
+<div id="toastContainer" style="position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none"></div>
 <script>
-function switchView(el) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + el.dataset.view).classList.add('active');
+// ==================== CENTRAL DATA STORE ====================
+window.AppData = {
+  vehicles: [
+    {id:"V001",plate:"京A·88888",brand:"奥迪 A6L",vin:"LFV3A24K9P3000001",dept:"总公司/行政部",deptId:"D0010101",type:"轿车",purchaseDate:"2023-01-15",mileage:52340,status:"idle",inspectionExpiry:"2027-06-15",insuranceExpiry:"2027-03-31",insuranceCompany:"中国人保",insuranceNo:"PICC-20260001"},
+    {id:"V002",plate:"京B·66666",brand:"别克 GL8",vin:"LSGUL83L0PA000002",dept:"总公司/行政部",deptId:"D0010101",type:"商务车",purchaseDate:"2023-03-20",mileage:68200,status:"in-transit",inspectionExpiry:"2027-04-20",insuranceExpiry:"2027-05-15",insuranceCompany:"平安保险",insuranceNo:"PA-20260002"},
+    {id:"V003",plate:"沪A·99999",brand:"奔驰 E300L",vin:"LE4ZG8DB7NL000004",dept:"上海分公司",deptId:"D003",type:"轿车",purchaseDate:"2022-06-05",mileage:89300,status:"idle",inspectionExpiry:"2027-01-05",insuranceExpiry:"2027-06-30",insuranceCompany:"太平洋保险",insuranceNo:"CPIC-20260003"},
+    {id:"V004",plate:"粤B·55555",brand:"比亚迪 汉EV",vin:"LC0CE6CD0R0000005",dept:"深圳分公司",deptId:"D004",type:"轿车",purchaseDate:"2024-01-08",mileage:18700,status:"maintenance",inspectionExpiry:"2026-07-05",insuranceExpiry:"2027-02-10",insuranceCompany:"中国人保",insuranceNo:"PICC-20260022"},
+    {id:"V005",plate:"京D·00001",brand:"福田 欧马可",vin:"LVBV5PBB1ME000006",dept:"北京分公司",deptId:"D002",type:"货车",purchaseDate:"2021-09-12",mileage:156200,status:"scrapped",inspectionExpiry:"2025-09-12",insuranceExpiry:"2025-12-31",insuranceCompany:"平安保险",insuranceNo:"PA-20250001"},
+    {id:"V006",plate:"京A·88321",brand:"大众 帕萨特",vin:"LSVCD6A49P3000007",dept:"总公司/行政部",deptId:"D0010101",type:"轿车",purchaseDate:"2022-06-25",mileage:75200,status:"idle",inspectionExpiry:"2026-06-25",insuranceExpiry:"2026-10-15",insuranceCompany:"平安保险",insuranceNo:"PA-20260008"},
+    {id:"V007",plate:"沪B·55678",brand:"丰田 凯美瑞",vin:"LVGBE40K0NG000008",dept:"上海分公司",deptId:"D003",type:"轿车",purchaseDate:"2023-08-14",mileage:42800,status:"idle",inspectionExpiry:"2027-03-20",insuranceExpiry:"2026-06-28",insuranceCompany:"太平洋保险",insuranceNo:"CPIC-20260015"},
+    {id:"V008",plate:"粤C·32109",brand:"本田 CR-V",vin:"LVHRW1840N0000009",dept:"深圳分公司",deptId:"D004",type:"SUV",purchaseDate:"2024-03-01",mileage:21800,status:"idle",inspectionExpiry:"2026-07-05",insuranceExpiry:"2027-02-10",insuranceCompany:"中国人保",insuranceNo:"PICC-20260002"},
+    {id:"V009",plate:"京C·12345",brand:"丰田 凯美瑞",vin:"LVGBE40K5PG000010",dept:"北京分公司",deptId:"D002",type:"轿车",purchaseDate:"2023-11-10",mileage:35100,status:"idle",inspectionExpiry:"2025-11-10",insuranceExpiry:"2027-05-10",insuranceCompany:"平安保险",insuranceNo:"PA-20260055"},
+    {id:"V010",plate:"沪C·22334",brand:"大众 帕萨特",vin:"LSVCD6A46NG000011",dept:"上海分公司",deptId:"D003",type:"轿车",purchaseDate:"2022-12-20",mileage:56200,status:"idle",inspectionExpiry:"2027-05-20",insuranceExpiry:"2027-01-15",insuranceCompany:"太平洋保险",insuranceNo:"CPIC-20260028"}
+  ],
+  drivers: [
+    {id:"DRV2023001",name:"刘建国",gender:"男",licenseType:"A1",phone:"139****5678",dept:"北京分公司",deptId:"D002",drivingYears:15,workYears:8,age:42,status:"idle"},
+    {id:"DRV2023002",name:"周明",gender:"男",licenseType:"C1",phone:"138****2345",dept:"上海分公司",deptId:"D003",drivingYears:10,workYears:5,age:35,status:"idle"},
+    {id:"DRV2024001",name:"陈伟",gender:"男",licenseType:"C1",phone:"137****8901",dept:"深圳分公司",deptId:"D004",drivingYears:8,workYears:3,age:30,status:"suspended"},
+    {id:"DRV2022005",name:"赵永强",gender:"男",licenseType:"A1",phone:"136****4567",dept:"北京分公司",deptId:"D002",drivingYears:20,workYears:12,age:50,status:"focus"},
+    {id:"DRV2023003",name:"王志刚",gender:"男",licenseType:"B1",phone:"135****7890",dept:"总公司/行政部",deptId:"D00101",drivingYears:12,workYears:6,age:38,status:"idle"},
+    {id:"DRV2024002",name:"李小红",gender:"女",licenseType:"C1",phone:"134****1122",dept:"深圳分公司",deptId:"D004",drivingYears:6,workYears:2,age:28,status:"idle"}
+  ],
+  applications: [
+    {id:"AP20260701001",applicant:"李伟",reason:"客户拜访",from:"北京总部",to:"朝阳区CBD",departureTime:"2026-07-02 09:00",passengers:3,needDriver:true,status:"pending",submitTime:"2026-07-01 14:30",dept:"总公司/市场部",rejectReason:""},
+    {id:"AP20260701002",applicant:"王芳",reason:"机场接机",from:"上海分公司",to:"浦东机场T2",departureTime:"2026-07-02 14:00",passengers:2,needDriver:true,status:"approved",submitTime:"2026-07-01 15:00",dept:"上海分公司",rejectReason:""},
+    {id:"AP20260701003",applicant:"赵明",reason:"项目考察",from:"深圳分公司",to:"南山区科技园",departureTime:"2026-07-03 08:30",passengers:4,needDriver:false,status:"pending",submitTime:"2026-07-01 16:20",dept:"深圳分公司",rejectReason:""},
+    {id:"AP20260701004",applicant:"周晓燕",reason:"商务接待",from:"北京总部",to:"国贸大酒店",departureTime:"2026-07-02 18:00",passengers:5,needDriver:true,status:"approved",submitTime:"2026-07-01 17:00",dept:"总公司/行政部",rejectReason:""},
+    {id:"AP20260701005",applicant:"陈强",reason:"设备运输",from:"北京分公司",to:"亦庄经济开发区",departureTime:"2026-07-02 13:00",passengers:2,needDriver:false,status:"pending",submitTime:"2026-07-01 17:45",dept:"北京分公司",rejectReason:""}
+  ],
+  dispatches: [
+    {id:"DP20260702001",applicationId:"AP20260701002",vehicleId:"V003",driverId:"DRV2023002",plate:"沪A·99999",driver:"周明",origin:"上海分公司",destination:"浦东机场T2",departureTime:"2026-07-02 14:00",status:"dispatched",startOdometer:0,endOdometer:0,distance:0},
+    {id:"DP20260702002",applicationId:"AP20260701004",vehicleId:"V001",driverId:"DRV2023003",plate:"京A·88888",driver:"王志刚",origin:"北京总部",destination:"国贸大酒店",departureTime:"2026-07-02 18:00",status:"dispatched",startOdometer:0,endOdometer:0,distance:0}
+  ],
+  fees: [
+    {id:"F001",date:"2026-07-02",plate:"京B·66666",type:"fuel",amount:450,linkedTrip:"DP0702-001",notes:"92号汽油 60L",auditStatus:"pending"},
+    {id:"F002",date:"2026-07-01",plate:"粤B·55555",type:"maintenance",amount:2800,linkedTrip:"",notes:"更换刹车片和机油",auditStatus:"approved"},
+    {id:"F003",date:"2026-06-30",plate:"沪A·99999",type:"toll",amount:35,linkedTrip:"DP0630-005",notes:"虹桥机场高速",auditStatus:"approved"},
+    {id:"F004",date:"2026-06-28",plate:"京A·88888",type:"insurance",amount:8500,linkedTrip:"",notes:"2026年度商业险+交强险",auditStatus:"rejected"},
+    {id:"F005",date:"2026-06-25",plate:"京A·88321",type:"inspection",amount:320,linkedTrip:"",notes:"车辆年检费用",auditStatus:"approved"},
+    {id:"F006",date:"2026-07-01",plate:"京B·66666",type:"parking",amount:60,linkedTrip:"",notes:"国贸地下停车场",auditStatus:"pending"}
+  ],
+  workshops: [
+    {id:"WS001",name:"顺达汽车维修中心",creditCode:"91110108MA0xxxxxx",contact:"王建国",phone:"138****1234",address:"北京市海淀区中关村大街88号",scope:"机电维修、轮胎服务、钣金喷漆",serviceTypes:["机电维修","轮胎服务","钣金喷漆"],rating:4.5,orders:156,status:"active",contractExpiry:"2027-06-14",files:["营业执照.jpg","维修资质.pdf"]},
+    {id:"WS002",name:"安信4S店",creditCode:"91310000MA1xxxxxx",contact:"张伟",phone:"139****5678",address:"上海市浦东新区张江高科技园区",scope:"机电维修、钣金喷漆、空调维修",serviceTypes:["机电维修","钣金喷漆","空调维修"],rating:4.8,orders:312,status:"active",contractExpiry:"2027-08-19",files:["营业执照.jpg","资质证书.pdf"]},
+    {id:"WS003",name:"永利汽修厂",creditCode:"91440300MA5xxxxxx",contact:"孙志强",phone:"133****5678",address:"深圳市龙华区工业路56号",scope:"机电维修、钣金喷漆",serviceTypes:["机电维修","钣金喷漆"],rating:3.5,orders:28,status:"suspended",contractExpiry:"2026-01-19",files:["营业执照.jpg"]},
+    {id:"WS004",name:"盛达汽配维修",creditCode:"91510100MA6xxxxxx",contact:"黄建国",phone:"130****6789",address:"成都市武侯区高新区孵化园",scope:"机电维修、轮胎服务",serviceTypes:["机电维修","轮胎服务"],rating:3.2,orders:18,status:"terminated",contractExpiry:"2024-12-31",files:[]},
+    {id:"WS005",name:"华通汽车服务连锁",creditCode:"91110105MA0yyyyyy",contact:"赵磊",phone:"131****9999",address:"北京市朝阳区望京SOHO",scope:"机电维修、轮胎服务、美容养护",serviceTypes:["机电维修","轮胎服务","美容养护"],rating:4.2,orders:89,status:"active",contractExpiry:"2027-11-30",files:["营业执照.jpg"]}
+  ],
+  notifications: [
+    {id:"N001",type:"todo",content:"李伟提交的用车申请待您审批",businessRef:"AP20260701001",time:"2026-07-01 14:30",read:false},
+    {id:"N002",type:"todo",content:"赵明提交的用车申请待您审批",businessRef:"AP20260701003",time:"2026-07-01 16:20",read:false},
+    {id:"N003",type:"todo",content:"陈强提交的用车申请待您审批",businessRef:"AP20260701005",time:"2026-07-01 17:45",read:false},
+    {id:"N004",type:"reminder",content:"车辆京A·88321 年检已逾期，请尽快处理",businessRef:"V006",time:"2026-06-28 09:00",read:false},
+    {id:"N005",type:"reminder",content:"车辆沪B·55678 保险已逾期，请尽快续保",businessRef:"V007",time:"2026-06-29 09:00",read:false},
+    {id:"N006",type:"system",content:"系统将于周六凌晨2:00-4:00进行维护升级",businessRef:"",time:"2026-06-30 10:00",read:true},
+    {id:"N007",type:"reminder",content:"粤B·55555 年检将于7月5日到期，请尽快安排",businessRef:"V004",time:"2026-07-01 08:00",read:true}
+  ],
+  trainings: [
+    {id:"TR001",code:"PX-20260701",title:"夏季安全驾驶培训",type:"安全培训",date:"2026-07-15",participants:45,passRate:0,status:"upcoming"},
+    {id:"TR002",code:"PX-20260601",title:"新能源车辆操作规范",type:"技能培训",date:"2026-06-10",participants:32,passRate:96,status:"completed"},
+    {id:"TR003",code:"PX-20260501",title:"交通安全法规学习",type:"法规培训",date:"2026-05-20",participants:48,passRate:91,status:"completed"},
+    {id:"TR004",code:"PX-20260401",title:"春季车辆保养知识",type:"技能培训",date:"2026-04-15",participants:40,passRate:85,status:"completed"},
+    {id:"TR005",code:"PX-20260801",title:"秋季安全驾驶讲座",type:"安全培训",date:"2026-08-20",participants:50,passRate:0,status:"upcoming"}
+  ],
+  trainingsOverdue: [
+    {driverId:"DRV2024001",name:"陈伟",training:"春季安全驾驶培训",days:45,level:3},
+    {driverId:"DRV2022005",name:"赵永强",training:"交通安全法规学习",days:32,level:3},
+    {driverId:"DRV2023003",name:"王志刚",training:"新能源车辆操作规范",days:18,level:2}
+  ],
+  users: [
+    {id:"U001",username:"zhangjg",name:"张建国",dept:"总公司/行政部",role:"系统管理员",phone:"138****1234",status:"active"},
+    {id:"U002",username:"liujg",name:"刘建国",dept:"北京分公司",role:"驾驶员",phone:"139****5678",status:"active"},
+    {id:"U003",username:"wangf",name:"王芳",dept:"上海分公司",role:"调度员",phone:"137****9012",status:"active"},
+    {id:"U004",username:"liming",name:"李明",dept:"深圳分公司",role:"车队管理员",phone:"136****3456",status:"inactive"},
+    {id:"U005",username:"chenq",name:"陈强",dept:"北京分公司",role:"审批人",phone:"135****1111",status:"active"}
+  ],
+  depts: [
+    {id:"D001",name:"集团总部",parentId:""},
+    {id:"D00101",name:"行政部",parentId:"D001"},
+    {id:"D0010101",name:"商务车队",parentId:"D00101"},
+    {id:"D0010102",name:"行政车队",parentId:"D00101"},
+    {id:"D00102",name:"市场部",parentId:"D001"},
+    {id:"D00103",name:"研发部",parentId:"D001"},
+    {id:"D002",name:"北京分公司",parentId:""},
+    {id:"D003",name:"上海分公司",parentId:""},
+    {id:"D004",name:"深圳分公司",parentId:""},
+    {id:"D005",name:"成都分公司",parentId:""},
+    {id:"D006",name:"南京分公司",parentId:""}
+  ],
+  simGPS: [
+    {vehicleId:"V002",plate:"京B·66666",driver:"刘建国",lat:39.9219,lng:116.4435,speed:45,direction:"天安门 → 王府井",gpsDist:128,odoDist:125},
+    {vehicleId:"V010",plate:"沪C·22334",driver:"周明",lat:31.2304,lng:121.4737,speed:80,direction:"陆家嘴 → 浦东机场",gpsDist:42,odoDist:45},
+    {vehicleId:"V008",plate:"粤C·32109",driver:"陈伟",lat:22.5431,lng:113.9378,speed:35,direction:"科技园 → 福田",gpsDist:15,odoDist:18}
+  ],
+  selectedDept: "D0010101"
+};
+var D = AppData;
+
+// ==================== HELPERS ====================
+function genId(p){ return p + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase(); }
+function genDrvId(){ var y=new Date().getFullYear(); return "DRV"+y+String(D.drivers.length+1).padStart(3,"0"); }
+function getVehicleById(id){ return D.vehicles.find(function(v){return v.id===id;}); }
+function getDriverById(id){ return D.drivers.find(function(d){return d.id===id;}); }
+function getDeptById(id){ return D.depts.find(function(d){return d.id===id;}); }
+
+function statusTag(status, type){
+  var m={
+    "idle":"tag-success","in-transit":"tag-info","maintenance":"tag-warning","scrapped":"tag-danger",
+    "pending":"tag-info","approved":"tag-success","rejected":"tag-danger",
+    "dispatched":"tag-info","returned":"tag-default",
+    "active":"tag-success","inactive":"tag-danger",
+    "overdue":"tag-danger","soon":"tag-warning","normal":"tag-success",
+    "fuel":"tag-info","toll":"tag-info","parking":"tag-default",
+    "active-ws":"tag-success","suspended-ws":"tag-warning","terminated-ws":"tag-danger",
+    "upcoming":"tag-info","completed":"tag-success",
+    "suspended":"tag-warning","focus":"tag-default","resigned":"tag-danger",
+    "todo":"tag-info","reminder":"tag-warning","system":"tag-default"
+  };
+  var labels={
+    "idle":"空闲","in-transit":"出车中","maintenance":"维修中","scrapped":"报废",
+    "pending":"待审批","approved":"已通过","rejected":"已驳回",
+    "dispatched":"待出车","returned":"已归库",
+    "active":"启用","inactive":"停用",
+    "overdue":"已逾期","soon":"即将到期","normal":"正常",
+    "fuel":"燃油费","maintenance":"维修费","insurance":"保险费","inspection":"年检费","toll":"过路费","parking":"停车费",
+    "active-ws":"合作中","suspended-ws":"暂停合作","terminated-ws":"已终止",
+    "upcoming":"即将开始","completed":"已完成",
+    "suspended":"暂停出车","focus":"重点关注","resigned":"离职",
+    "todo":"待办通知","reminder":"提醒通知","system":"系统通知",
+    "pending-audit":"待审核","approved-audit":"已审核","rejected-audit":"已驳回"
+  };
+  var k = status + (type ? "-"+type : "");
+  var cls = m[status] || m[k] || "tag-default";
+  var lbl = labels[status] || labels[k] || status;
+  return '<span class="tag '+cls+'">'+lbl+'</span>';
 }
 
-function filterTable(tableId, keyword) {
-  const rows = document.getElementById(tableId).querySelectorAll('tbody tr');
-  const k = keyword.toLowerCase();
-  rows.forEach(r => { r.style.display = !k || r.textContent.toLowerCase().includes(k) ? '' : 'none'; });
+function statusTagFee(s){ return statusTag(s); }
+function statusTagAudit(s){ return statusTag(s==="pending"?"pending-audit":s==="approved"?"approved-audit":"rejected-audit"); }
+function statusTagWS(s){
+  if(s==="active") return '<span class="tag tag-success">合作中</span>';
+  if(s==="suspended") return '<span class="tag tag-warning">暂停合作</span>';
+  return '<span class="tag tag-danger">已终止</span>';
+}
+function statusTagDriver(s){
+  var m={idle:"空闲","in-transit":"出车中",suspended:"暂停出车",focus:"重点关注",resigned:"离职"};
+  var c={idle:"tag-success","in-transit":"tag-info",suspended:"tag-warning",focus:"tag-default",resigned:"tag-danger"};
+  return '<span class="tag '+(c[s]||"tag-default")+'">'+(m[s]||s)+'</span>';
 }
 
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 24px;border-radius:6px;font-size:14px;z-index:9999;pointer-events:none';
+function showToast(msg, type){
+  var tc = document.getElementById("toastContainer");
+  var t = document.createElement("div");
+  t.style.cssText = "background:#333;color:#fff;padding:10px 24px;border-radius:6px;font-size:14px;pointer-events:none;animation:slideDown .3s";
+  if(type==="success") t.style.background = "#52c41a";
+  if(type==="error") t.style.background = "#ff4d4f";
   t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => { t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300); }, 2000);
+  tc.appendChild(t);
+  setTimeout(function(){ t.style.opacity="0";t.style.transition="opacity .3s";setTimeout(function(){t.remove()},300); }, 2500);
 }
+
+function showModal(id){ document.getElementById(id).classList.remove("hidden"); }
+function hideModal(id){ document.getElementById(id).classList.add("hidden"); }
+
+function clearFormError(id){
+  var el = document.getElementById(id); if(!el) return;
+  el.classList.remove("error"); var err = el.parentElement.querySelector(".err-msg");
+  if(err) err.style.display = "none";
+}
+function setFormError(id, msg){
+  var el = document.getElementById(id); if(!el) return;
+  el.classList.add("error"); var err = el.parentElement.querySelector(".err-msg");
+  if(err){ err.textContent = msg; err.style.display = "block"; }
+}
+function resetForm(prefix){
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(function(el){
+    if(el.tagName==="INPUT"||el.tagName==="SELECT"||el.tagName==="TEXTAREA"){
+      if(el.type==="checkbox") el.checked = false;
+      else el.value = "";
+    }
+    el.classList.remove("error");
+  });
+}
+
+function updateBadges(){
+  var pendingApps = D.applications.filter(function(a){return a.status==="pending";}).length;
+  var ba = document.getElementById("badgeApproval");
+  ba.textContent = pendingApps; ba.style.display = pendingApps>0 ? "" : "none";
+  var unread = D.notifications.filter(function(n){return !n.read;}).length;
+  var bn = document.getElementById("badgeNotify");
+  bn.textContent = unread; bn.style.display = unread>0 ? "" : "none";
+}
+
+function deptOptions(){
+  return D.depts.filter(function(d){return d.parentId!=="";}).map(function(d){
+    var p = getDeptById(d.parentId); var n = p ? p.name+"/"+d.name : d.name;
+    return '<option value="'+d.id+'">'+n+'</option>';
+  }).join("");
+}
+
+// ==================== NAVIGATION ====================
+function switchView(el){
+  document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active")});
+  el.classList.add("active");
+  renderView(el.dataset.view);
+}
+function renderView(vid){
+  var area = document.getElementById("contentArea");
+  var fns = {
+    dashboard:renderDashboard,req01:renderReq01,req02:renderReq02,req03:renderReq03,
+    req04:renderReq04,req05:renderReq05,req06:renderReq06,req07:renderReq07,
+    req08:renderReq08,req09:renderReq09,req10:renderReq10,req11:renderReq11,
+    req12:renderReq12,req12t:renderReq12t,req13:renderReq13,req14:renderReq14
+  };
+  (fns[vid] || renderDashboard)(area);
+  updateBadges();
+}
+
+// ==================== MODAL BUILDERS ====================
+function buildAllModals(){
+  var mc = document.getElementById("modalContainer");
+  mc.innerHTML = buildModalVehicle() + buildModalVehicleView() + buildModalInspections()
+    + buildModalApplication() + buildModalReject() + buildModalDeparture() + buildModalReturn()
+    + buildModalFee() + buildModalUser() + buildModalDriver() + buildModalWorkshop()
+    + buildModalWorkshopView() + buildModalOperationDetail() + buildModalConfirm();
+  document.querySelectorAll(".modal-overlay").forEach(function(o){
+    o.addEventListener("click", function(e){ if(e.target===o) o.classList.add("hidden"); });
+  });
+}
+
+function buildModalVehicle(){
+  return '<div class="modal-overlay hidden" id="modalVehicle"><div class="modal" style="width:720px"><div class="modal-header"><h3 id="modalVehicleTitle">新增车辆</h3><button class="close-btn" onclick="hideModal(\'modalVehicle\')">&times;</button></div><div class="modal-body">'
+  +'<input type="hidden" id="vehEditId">'
+  +'<div class="form-row"><div class="form-group"><label>车牌号 <span class="req">*</span></label><input id="vehPlate" placeholder="如：京A·88888"><span class="err-msg"></span></div><div class="form-group"><label>品牌型号 <span class="req">*</span></label><input id="vehBrand" placeholder="如：奥迪 A6L"><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>VIN码 <span class="req">*</span></label><input id="vehVin" placeholder="17位VIN码"><span class="err-msg"></span></div><div class="form-group"><label>所属部门 <span class="req">*</span></label><select id="vehDept"><option value="">请选择部门</option>'+deptOptions()+'</select><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>车辆类型 <span class="req">*</span></label><select id="vehType"><option value="">请选择类型</option><option>轿车</option><option>SUV</option><option>商务车</option><option>货车</option><option>客车</option></select><span class="err-msg"></span></div><div class="form-group"><label>购置日期 <span class="req">*</span></label><input type="date" id="vehPurchase"><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>初始里程(km) <span class="req">*</span></label><input type="number" id="vehMileage" placeholder="初始里程"><span class="err-msg"></span></div><div class="form-group"><label>状态</label><select id="vehStatus"><option value="idle">空闲</option><option value="in-transit">出车中</option><option value="maintenance">维修中</option><option value="scrapped">报废</option></select></div></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalVehicle\')">取消</button><button class="btn btn-primary" onclick="saveVehicle()">保存</button></div></div></div>';
+}
+
+function buildModalVehicleView(){
+  return '<div class="modal-overlay hidden" id="modalVehicleView"><div class="modal" style="width:600px"><div class="modal-header"><h3>车辆详情</h3><button class="close-btn" onclick="hideModal(\'modalVehicleView\')">&times;</button></div><div class="modal-body" id="modalVehicleViewBody"></div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalVehicleView\')">关闭</button></div></div></div>';
+}
+
+function buildModalInspections(){
+  var opts = D.vehicles.filter(function(v){return v.status!=="scrapped";}).map(function(v){return '<option value="'+v.id+'">'+v.plate+' - '+v.brand+'</option>';}).join("");
+  return '<div class="modal-overlay hidden" id="modalInspections"><div class="modal" style="width:600px"><div class="modal-header"><h3>录入年检/保险信息</h3><button class="close-btn" onclick="hideModal(\'modalInspections\')">&times;</button></div><div class="modal-body">'
+  +'<input type="hidden" id="inspEditId">'
+  +'<div class="form-group"><label>车牌号 <span class="req">*</span></label><select id="inspPlate">'+opts+'</select><span class="err-msg"></span></div>'
+  +'<div class="form-row"><div class="form-group"><label>年检到期日</label><input type="date" id="inspInspection"></div><div class="form-group"><label>保险到期日</label><input type="date" id="inspInsurance"></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>保险公司</label><input id="inspCompany" placeholder="保险公司名称"></div><div class="form-group"><label>保单号</label><input id="inspPolicyNo" placeholder="保单号码"></div></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalInspections\')">取消</button><button class="btn btn-primary" onclick="saveInspection()">保存</button></div></div></div>';
+}
+
+function buildModalApplication(){
+  return '<div class="modal-overlay hidden" id="modalApplication"><div class="modal" style="width:680px"><div class="modal-header"><h3>新建用车申请</h3><button class="close-btn" onclick="hideModal(\'modalApplication\')">&times;</button></div><div class="modal-body">'
+  +'<div class="form-row"><div class="form-group"><label>申请人 <span class="req">*</span></label><input id="appApplicant" placeholder="请输入姓名"><span class="err-msg"></span></div><div class="form-group"><label>所属部门</label><select id="appDept">'+deptOptions()+'</select></div></div>'
+  +'<div class="form-group"><label>用车事由 <span class="req">*</span></label><textarea id="appReason" placeholder="请详细描述用车事由"></textarea><span class="err-msg"></span></div>'
+  +'<div class="form-row"><div class="form-group"><label>出发地点 <span class="req">*</span></label><input id="appFrom" placeholder="出发地址"><span class="err-msg"></span></div><div class="form-group"><label>目的地点 <span class="req">*</span></label><input id="appTo" placeholder="目的地址"><span class="err-msg"></span></div></div>'
+  +'<div class="form-row-3"><div class="form-group"><label>出发时间 <span class="req">*</span></label><input type="datetime-local" id="appTime"><span class="err-msg"></span></div><div class="form-group"><label>乘车人数</label><input type="number" id="appPassengers" value="1" min="1"></div><div class="form-group"><label>需要司机</label><select id="appNeedDriver"><option value="true">是</option><option value="false">否</option></select></div></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalApplication\')">取消</button><button class="btn btn-primary" onclick="saveApplication()">提交申请</button></div></div></div>';
+}
+
+function buildModalReject(){
+  return '<div class="modal-overlay hidden" id="modalReject"><div class="modal modal-sm"><div class="modal-header"><h3>驳回申请</h3><button class="close-btn" onclick="hideModal(\'modalReject\')">&times;</button></div><div class="modal-body">'
+  +'<input type="hidden" id="rejectAppId"><div class="form-group"><label>驳回原因 <span class="req">*</span></label><textarea id="rejectReason" placeholder="请输入驳回原因"></textarea><span class="err-msg"></span></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalReject\')">取消</button><button class="btn btn-danger" onclick="confirmReject()">确认驳回</button></div></div></div>';
+}
+
+function buildModalDeparture(){
+  return '<div class="modal-overlay hidden" id="modalDeparture"><div class="modal modal-sm"><div class="modal-header"><h3>开始出车 - 记录起始里程</h3><button class="close-btn" onclick="hideModal(\'modalDeparture\')">&times;</button></div><div class="modal-body">'
+  +'<input type="hidden" id="depDisId"><div class="form-group"><label>起始里程表读数 (km) <span class="req">*</span></label><input type="number" id="depStartOdo" placeholder="请输入当前里程表读数"><span class="err-msg"></span></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalDeparture\')">取消</button><button class="btn btn-primary" onclick="confirmDeparture()">确认出车</button></div></div></div>';
+}
+
+function buildModalReturn(){
+  return '<div class="modal-overlay hidden" id="modalReturn"><div class="modal modal-sm"><div class="modal-header"><h3>归库登记 - 记录结束里程</h3><button class="close-btn" onclick="hideModal(\'modalReturn\')">&times;</button></div><div class="modal-body">'
+  +'<input type="hidden" id="retDisId"><div class="form-group"><label>结束里程表读数 (km) <span class="req">*</span></label><input type="number" id="retEndOdo" placeholder="请输入当前里程表读数"><span class="err-msg"></span></div>'
+  +'<p id="retCalc" style="font-size:13px;color:#1890ff;margin-top:8px"></p>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalReturn\')">取消</button><button class="btn btn-primary" onclick="confirmReturn()">确认归库</button></div></div></div>';
+}
+
+function buildModalFee(){
+  var opts = D.vehicles.filter(function(v){return v.status!=="scrapped";}).map(function(v){return '<option>'+v.plate+'</option>';}).join("");
+  return '<div class="modal-overlay hidden" id="modalFee"><div class="modal" style="width:600px"><div class="modal-header"><h3>录入费用</h3><button class="close-btn" onclick="hideModal(\'modalFee\')">&times;</button></div><div class="modal-body">'
+  +'<div class="form-row"><div class="form-group"><label>日期 <span class="req">*</span></label><input type="date" id="feeDate"><span class="err-msg"></span></div><div class="form-group"><label>车牌号 <span class="req">*</span></label><select id="feePlate">'+opts+'</select></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>费用类型 <span class="req">*</span></label><select id="feeType"><option value="fuel">燃油费</option><option value="maintenance">维修费</option><option value="insurance">保险费</option><option value="inspection">年检费</option><option value="toll">过路费</option><option value="parking">停车费</option></select></div><div class="form-group"><label>金额(元) <span class="req">*</span></label><input type="number" id="feeAmount" placeholder="金额" step="0.01"><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>关联行程</label><input id="feeLinkedTrip" placeholder="选填"></div><div class="form-group"><label>备注</label><textarea id="feeNotes" rows="2"></textarea></div></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalFee\')">取消</button><button class="btn btn-primary" onclick="saveFee()">保存</button></div></div></div>';
+}
+
+function buildModalUser(){
+  return '<div class="modal-overlay hidden" id="modalUser"><div class="modal" style="width:600px"><div class="modal-header"><h3 id="modalUserTitle">新增用户</h3><button class="close-btn" onclick="hideModal(\'modalUser\')">&times;</button></div><div class="modal-body">'
+  +'<input type="hidden" id="userEditId">'
+  +'<div class="form-row"><div class="form-group"><label>用户名 <span class="req">*</span></label><input id="userUsername" placeholder="登录用户名"><span class="err-msg"></span></div><div class="form-group"><label>姓名 <span class="req">*</span></label><input id="userName" placeholder="真实姓名"><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>所属部门 <span class="req">*</span></label><select id="userDept">'+deptOptions()+'</select><span class="err-msg"></span></div><div class="form-group"><label>角色 <span class="req">*</span></label><select id="userRole"><option value="">请选择</option><option>系统管理员</option><option>车队管理员</option><option>调度员</option><option>审批人</option><option>驾驶员</option></select><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>手机号 <span class="req">*</span></label><input id="userPhone" placeholder="手机号码"><span class="err-msg"></span></div><div class="form-group"><label>状态</label><select id="userStatus"><option value="active">启用</option><option value="inactive">停用</option></select></div></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalUser\')">取消</button><button class="btn btn-primary" onclick="saveUser()">保存</button></div></div></div>';
+}
+
+function buildModalDriver(){
+  return '<div class="modal-overlay hidden" id="modalDriver"><div class="modal" style="width:640px"><div class="modal-header"><h3>新增驾驶员</h3><button class="close-btn" onclick="hideModal(\'modalDriver\')">&times;</button></div><div class="modal-body">'
+  +'<div class="form-row"><div class="form-group"><label>姓名 <span class="req">*</span></label><input id="drvName" placeholder="驾驶员姓名"><span class="err-msg"></span></div><div class="form-group"><label>性别 <span class="req">*</span></label><select id="drvGender"><option value="">请选择</option><option>男</option><option>女</option></select><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>驾驶证类型 <span class="req">*</span></label><select id="drvLicense"><option value="">请选择</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option></select><span class="err-msg"></span></div><div class="form-group"><label>驾龄(年) <span class="req">*</span></label><input type="number" id="drvDrivingYears" min="1" placeholder="驾驶年限"><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>手机号 <span class="req">*</span></label><input id="drvPhone" placeholder="联系电话"><span class="err-msg"></span></div><div class="form-group"><label>所属部门 <span class="req">*</span></label><select id="drvDept">'+deptOptions()+'</select><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>工龄(年)</label><input type="number" id="drvWorkYears" value="0" min="0"></div><div class="form-group"><label>年龄</label><input type="number" id="drvAge" value="30" min="18"></div></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalDriver\')">取消</button><button class="btn btn-primary" onclick="saveDriver()">保存</button></div></div></div>';
+}
+
+function buildModalWorkshop(){
+  var svcTypes = ["机电维修","钣金喷漆","轮胎服务","美容养护","四轮定位","空调维修","电路检修","变速箱维修"];
+  var checkboxes = svcTypes.map(function(s){ return '<label class="checkbox-item"><input type="checkbox" value="'+s+'" onchange="this.parentElement.classList.toggle(\'checked\',this.checked)">'+s+'</label>'; }).join("");
+  return '<div class="modal-overlay hidden" id="modalWorkshop"><div class="modal" style="width:700px"><div class="modal-header"><h3 id="modalWorkshopTitle">新增维修厂</h3><button class="close-btn" onclick="hideModal(\'modalWorkshop\')">&times;</button></div><div class="modal-body">'
+  +'<input type="hidden" id="wsEditId">'
+  +'<div class="form-row"><div class="form-group"><label>维修厂名称 <span class="req">*</span></label><input id="wsName" placeholder="请输入维修厂全称"><span class="err-msg"></span></div><div class="form-group"><label>统一社会信用代码 <span class="req">*</span></label><input id="wsCreditCode" placeholder="18位信用代码"><span class="err-msg"></span></div></div>'
+  +'<div class="form-row"><div class="form-group"><label>联系人姓名 <span class="req">*</span></label><input id="wsContact" placeholder="请输入联系人"><span class="err-msg"></span></div><div class="form-group"><label>联系电话 <span class="req">*</span></label><input id="wsPhone" placeholder="请输入联系电话"><span class="err-msg"></span></div></div>'
+  +'<div class="form-group"><label>经营地址 <span class="req">*</span></label><input id="wsAddress" placeholder="请输入详细地址"><span class="err-msg"></span></div>'
+  +'<div class="form-group"><label>经营范围描述</label><textarea id="wsScope" placeholder="描述维修厂主营业务和特色"></textarea></div>'
+  +'<div class="form-group"><label>服务类型</label><div class="checkbox-group">'+checkboxes+'</div></div>'
+  +'<div class="form-row"><div class="form-group"><label>综合评分</label><input type="number" id="wsRating" value="4.0" step="0.1" min="0" max="5"></div><div class="form-group"><label>合同到期日</label><input type="date" id="wsContractExpiry"></div></div>'
+  +'<div class="form-group"><label>资质文件</label><div class="upload-area" onclick="simulateUploadWS()">点击模拟上传资质文件 (营业执照、资质证书)</div><div class="file-list" id="wsFileList"></div></div>'
+  +'</div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalWorkshop\')">取消</button><button class="btn btn-primary" onclick="saveWorkshop()">保存</button></div></div></div>';
+}
+
+function buildModalWorkshopView(){
+  return '<div class="modal-overlay hidden" id="modalWorkshopView"><div class="modal modal-lg"><div class="modal-header"><h3>维修厂服务看板</h3><button class="close-btn" onclick="hideModal(\'modalWorkshopView\')">&times;</button></div><div class="modal-body" id="modalWorkshopViewBody"></div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalWorkshopView\')">关闭</button></div></div></div>';
+}
+
+function buildModalOperationDetail(){
+  return '<div class="modal-overlay hidden" id="modalOperationDetail"><div class="modal modal-lg"><div class="modal-header"><h3 id="modalOpTitle">车辆运营详情</h3><button class="close-btn" onclick="hideModal(\'modalOperationDetail\')">&times;</button></div><div class="modal-body" id="modalOpBody"></div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalOperationDetail\')">关闭</button></div></div></div>';
+}
+
+function buildModalConfirm(){
+  return '<div class="modal-overlay hidden" id="modalConfirm"><div class="modal modal-sm"><div class="modal-header"><h3 id="modalConfirmTitle">确认操作</h3><button class="close-btn" onclick="hideModal(\'modalConfirm\')">&times;</button></div><div class="modal-body" id="modalConfirmBody"></div><div class="modal-footer"><button class="btn" onclick="hideModal(\'modalConfirm\')">取消</button><button class="btn btn-primary" id="modalConfirmBtn">确认</button></div></div></div>';
+}
+
+function simulateUploadWS(){
+  var fl = document.getElementById("wsFileList");
+  var fname = "资质文件_" + (new Date().toISOString().slice(0,10)) + ".pdf";
+  var tag = document.createElement("span");
+  tag.className = "file-tag";
+  tag.innerHTML = fname + ' <span style="cursor:pointer;color:#999" onclick="this.parentElement.remove()">&times;</span>';
+  fl.appendChild(tag);
+  showToast("文件上传模拟完成: " + fname, "success");
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard(area){
+  var totalV = D.vehicles.length;
+  var inTransit = D.vehicles.filter(function(v){return v.status==="in-transit";}).length;
+  var pendingA = D.applications.filter(function(a){return a.status==="pending";}).length;
+  var dispCount = D.dispatches.length;
+  var unread = D.notifications.filter(function(n){return !n.read;}).length;
+
+  var now = new Date();
+  var alerts = [];
+  D.vehicles.forEach(function(v){
+    if(v.inspectionExpiry && new Date(v.inspectionExpiry) < now) alerts.push({type:"年检逾期",name:v.plate,date:v.inspectionExpiry,cls:"tag-danger"});
+    else if(v.inspectionExpiry && new Date(v.inspectionExpiry) < new Date(now.getTime()+30*86400000)) alerts.push({type:"年检即将到期",name:v.plate,date:v.inspectionExpiry,cls:"tag-warning"});
+    if(v.insuranceExpiry && new Date(v.insuranceExpiry) < now) alerts.push({type:"保险逾期",name:v.plate,date:v.insuranceExpiry,cls:"tag-danger"});
+    else if(v.insuranceExpiry && new Date(v.insuranceExpiry) < new Date(now.getTime()+30*86400000)) alerts.push({type:"保险即将到期",name:v.plate,date:v.insuranceExpiry,cls:"tag-warning"});
+  });
+  D.workshops.forEach(function(w){
+    if(w.status==="active" && w.contractExpiry && new Date(w.contractExpiry) < new Date(now.getTime()+30*86400000))
+      alerts.push({type:"合同即将到期",name:w.name,date:w.contractExpiry,cls:"tag-warning"});
+  });
+
+  var h = '<div class="page-title">系统仪表盘</div><div class="page-subtitle">车队运营核心指标概览</div>';
+  h += '<div class="stats-row cols5">'
+  +'<div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">'+totalV+'</div><div class="s-label">车辆总数</div></div></div>'
+  +'<div class="stat-card"><div class="s-icon s-green">&#x1F698;</div><div><div class="s-num">'+inTransit+'</div><div class="s-label">在途车辆</div></div></div>'
+  +'<div class="stat-card"><div class="s-icon s-orange">&#x1F4CB;</div><div><div class="s-num" style="color:#fa8c16">'+pendingA+'</div><div class="s-label">待审批申请</div></div></div>'
+  +'<div class="stat-card"><div class="s-icon s-blue">&#x1F3C1;</div><div><div class="s-num">'+dispCount+'</div><div class="s-label">派车单数</div></div></div>'
+  +'<div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">'+unread+'</div><div class="s-label">未读通知</div></div></div>'
+  +'</div>';
+
+  h += '<div class="dual-col"><div class="card" style="padding:16px"><div class="card-title">即将到期提醒</div>';
+  if(alerts.length===0){ h += '<div class="empty-state"><div class="empty-icon">&#x2705;</div><p>无即将到期提醒</p></div>'; }
+  else {
+    h += '<table><thead><tr><th>事项</th><th>车辆/维修厂</th><th>到期日</th></tr></thead>';
+    alerts.slice(0,10).forEach(function(a){ h += '<tr><td><span class="tag '+a.cls+'">'+a.type+'</span></td><td>'+a.name+'</td><td>'+a.date+'</td></tr>'; });
+    h += '</table>';
+  }
+  h += '</div><div class="card" style="padding:16px"><div class="card-title">部门车辆统计</div><table><thead><tr><th>部门</th><th>车辆数</th></tr></thead>';
+  var dc = {};
+  D.vehicles.forEach(function(v){ dc[v.dept] = (dc[v.dept]||0)+1; });
+  Object.keys(dc).forEach(function(k){ h += '<tr><td>'+k+'</td><td>'+dc[k]+'</td></tr>'; });
+  h += '</table></div></div>';
+  area.innerHTML = h;
+}
+
+// ==================== REQ-01 车辆档案管理 ====================
+function renderReq01(area){
+  var h = '<div class="page-title">车辆档案管理</div><div class="page-subtitle">建立车辆基础档案，支持车辆信息登记、查询、修改和状态变更</div>';
+  h += '<div class="toolbar"><input type="text" id="req01Search" placeholder="搜索车牌号 / 品牌 / VIN..." oninput="renderReq01Table()"><select id="req01StatusFilter" onchange="renderReq01Table()"><option value="">全部状态</option><option value="idle">空闲</option><option value="in-transit">出车中</option><option value="maintenance">维修中</option><option value="scrapped">报废</option></select><select id="req01TypeFilter" onchange="renderReq01Table()"><option value="">全部类型</option><option>轿车</option><option>SUV</option><option>商务车</option><option>货车</option><option>客车</option></select><span class="spacer"></span><button class="btn btn-primary" onclick="openVehicleForm()">+ 新增车辆</button></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>车牌号</th><th>品牌型号</th><th>VIN</th><th>所属部门</th><th>车辆类型</th><th>状态</th><th>购置日期</th><th>当前里程</th><th>操作</th></tr></thead><tbody id="req01TableBody"></tbody></table><div id="req01Empty" class="empty-state hidden"><div class="empty-icon">&#x1F697;</div><p>暂无车辆数据</p></div></div>';
+  area.innerHTML = h; renderReq01Table();
+}
+
+function renderReq01Table(){
+  var body = document.getElementById("req01TableBody"); if(!body) return;
+  var empty = document.getElementById("req01Empty");
+  var s = (document.getElementById("req01Search")||{}).value||"";
+  var sf = (document.getElementById("req01StatusFilter")||{}).value||"";
+  var tf = (document.getElementById("req01TypeFilter")||{}).value||"";
+  var list = D.vehicles.filter(function(v){
+    if(s && !(v.plate+v.brand+v.vin).toLowerCase().includes(s.toLowerCase())) return false;
+    if(sf && v.status!==sf) return false;
+    if(tf && v.type!==tf) return false;
+    return true;
+  });
+  if(list.length===0){ body.innerHTML=""; empty.classList.remove("hidden"); return; }
+  empty.classList.add("hidden");
+  body.innerHTML = list.map(function(v){
+    return '<tr><td>'+v.plate+'</td><td>'+v.brand+'</td><td>'+v.vin+'</td><td>'+v.dept+'</td><td>'+v.type+'</td><td>'+statusTag(v.status)+'</td><td>'+v.purchaseDate+'</td><td>'+v.mileage.toLocaleString()+' km</td><td><button class="btn btn-sm" onclick="viewVehicle(\''+v.id+'\')">查看</button> <button class="btn btn-sm" onclick="editVehicle(\''+v.id+'\')">编辑</button></td></tr>';
+  }).join("");
+}
+
+function openVehicleForm(){
+  document.getElementById("modalVehicleTitle").textContent = "新增车辆"; resetForm("veh");
+  document.getElementById("vehEditId").value = ""; document.getElementById("vehStatus").value = "idle";
+  showModal("modalVehicle");
+}
+function editVehicle(id){
+  var v = getVehicleById(id); if(!v) return;
+  document.getElementById("modalVehicleTitle").textContent = "编辑车辆";
+  document.getElementById("vehEditId").value=v.id; document.getElementById("vehPlate").value=v.plate;
+  document.getElementById("vehBrand").value=v.brand; document.getElementById("vehVin").value=v.vin;
+  document.getElementById("vehDept").value=v.deptId; document.getElementById("vehType").value=v.type;
+  document.getElementById("vehPurchase").value=v.purchaseDate;
+  document.getElementById("vehMileage").value=v.mileage; document.getElementById("vehStatus").value=v.status;
+  resetForm("veh"); showModal("modalVehicle");
+}
+function saveVehicle(){
+  var id = document.getElementById("vehEditId").value;
+  var plate = document.getElementById("vehPlate").value.trim();
+  var brand = document.getElementById("vehBrand").value.trim();
+  var vin = document.getElementById("vehVin").value.trim();
+  var deptId = document.getElementById("vehDept").value;
+  var type = document.getElementById("vehType").value;
+  var purchase = document.getElementById("vehPurchase").value;
+  var mileage = parseInt(document.getElementById("vehMileage").value)||0;
+  var status = document.getElementById("vehStatus").value;
+  var valid = true;
+  if(!plate){ setFormError("vehPlate","请输入车牌号"); valid=false; } else clearFormError("vehPlate");
+  if(!brand){ setFormError("vehBrand","请输入品牌型号"); valid=false; } else clearFormError("vehBrand");
+  if(!vin||vin.length<5){ setFormError("vehVin","请输入有效VIN码"); valid=false; } else clearFormError("vehVin");
+  if(!deptId){ setFormError("vehDept","请选择部门"); valid=false; } else clearFormError("vehDept");
+  if(!type){ setFormError("vehType","请选择类型"); valid=false; } else clearFormError("vehType");
+  if(!purchase){ setFormError("vehPurchase","请选择购置日期"); valid=false; } else clearFormError("vehPurchase");
+  if(!mileage){ setFormError("vehMileage","请输入初始里程"); valid=false; } else clearFormError("vehMileage");
+  if(!valid) return;
+  var dept = getDeptById(deptId);
+  if(id){
+    var v = getVehicleById(id);
+    v.plate=plate;v.brand=brand;v.vin=vin;v.dept=dept?dept.name:"";v.deptId=deptId;
+    v.type=type;v.purchaseDate=purchase;v.mileage=mileage;v.status=status;
+    showToast("车辆信息更新成功","success");
+  } else {
+    D.vehicles.push({id:genId("V"),plate:plate,brand:brand,vin:vin,dept:dept?dept.name:"",deptId:deptId,type:type,purchaseDate:purchase,mileage:mileage,status:status,inspectionExpiry:"",insuranceExpiry:"",insuranceCompany:"",insuranceNo:""});
+    showToast("车辆添加成功","success");
+  }
+  hideModal("modalVehicle"); renderReq01Table(); updateBadges();
+}
+function viewVehicle(id){
+  var v = getVehicleById(id); if(!v) return;
+  document.getElementById("modalVehicleViewBody").innerHTML =
+    '<table><tr><td style="font-weight:600;width:100px">车牌号</td><td>'+v.plate+'</td></tr>'
+    +'<tr><td style="font-weight:600">品牌型号</td><td>'+v.brand+'</td></tr>'
+    +'<tr><td style="font-weight:600">VIN码</td><td>'+v.vin+'</td></tr>'
+    +'<tr><td style="font-weight:600">所属部门</td><td>'+v.dept+'</td></tr>'
+    +'<tr><td style="font-weight:600">车辆类型</td><td>'+v.type+'</td></tr>'
+    +'<tr><td style="font-weight:600">购置日期</td><td>'+v.purchaseDate+'</td></tr>'
+    +'<tr><td style="font-weight:600">当前里程</td><td>'+v.mileage.toLocaleString()+' km</td></tr>'
+    +'<tr><td style="font-weight:600">状态</td><td>'+statusTag(v.status)+'</td></tr>'
+    +'<tr><td style="font-weight:600">年检到期</td><td>'+(v.inspectionExpiry||"-")+'</td></tr>'
+    +'<tr><td style="font-weight:600">保险到期</td><td>'+(v.insuranceExpiry||"-")+'</td></tr>'
+    +'</table>';
+  showModal("modalVehicleView");
+}
+
+// ==================== REQ-02 ====================
+function renderReq02(area){
+  var now = new Date();
+  var overInsp = D.vehicles.filter(function(v){return v.inspectionExpiry&&new Date(v.inspectionExpiry)<now;}).length;
+  var soon30 = D.vehicles.filter(function(v){var d=new Date(v.inspectionExpiry);return d>=now&&d<=new Date(now.getTime()+30*86400000);}).length;
+  var overIns = D.vehicles.filter(function(v){return v.insuranceExpiry&&new Date(v.insuranceExpiry)<now;}).length;
+  var h = '<div class="page-title">车辆年检与保险管理</div><div class="page-subtitle">记录年检和保险信息，支持到期提醒</div>';
+  h += '<div class="toolbar"><span class="spacer"></span><button class="btn btn-primary" onclick="openInspectionsForm()">+ 录入信息</button></div>';
+  h += '<div class="stats-row"><div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">'+overInsp+'</div><div class="s-label">年检逾期</div></div></div>';
+  h += '<div class="stat-card"><div class="s-icon s-orange">&#x23F3;</div><div><div class="s-num" style="color:#fa8c16">'+soon30+'</div><div class="s-label">30天内到期</div></div></div>';
+  h += '<div class="stat-card"><div class="s-icon s-red">&#x26A0;</div><div><div class="s-num" style="color:#ff4d4f">'+overIns+'</div><div class="s-label">保险逾期</div></div></div>';
+  h += '<div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">'+D.vehicles.length+'</div><div class="s-label">车辆总数</div></div></div></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>车牌号</th><th>年检到期日</th><th>年检状态</th><th>保险到期日</th><th>保险状态</th><th>保险公司</th><th>保单号</th><th>操作</th></tr></thead><tbody>';
+  D.vehicles.forEach(function(v){
+    var iS = !v.inspectionExpiry?"normal":new Date(v.inspectionExpiry)<now?"overdue":new Date(v.inspectionExpiry)<=new Date(now.getTime()+30*86400000)?"soon":"normal";
+    var insS = !v.insuranceExpiry?"normal":new Date(v.insuranceExpiry)<now?"overdue":new Date(v.insuranceExpiry)<=new Date(now.getTime()+30*86400000)?"soon":"normal";
+    var il = iS==="overdue"?"已逾期":iS==="soon"?"即将到期":"正常";
+    var ic = iS==="overdue"?"tag-danger":iS==="soon"?"tag-warning":"tag-success";
+    var insl = insS==="overdue"?"已逾期":insS==="soon"?"即将到期":"正常";
+    var insc = insS==="overdue"?"tag-danger":insS==="soon"?"tag-warning":"tag-success";
+    h += '<tr><td>'+v.plate+'</td><td>'+(v.inspectionExpiry||"-")+'</td><td><span class="tag '+ic+'">'+il+'</span></td><td>'+(v.insuranceExpiry||"-")+'</td><td><span class="tag '+insc+'">'+insl+'</span></td><td>'+(v.insuranceCompany||"-")+'</td><td>'+(v.insuranceNo||"-")+'</td><td><button class="btn btn-sm" onclick="openInspectionsFormFor(\''+v.id+'\')">录入</button></td></tr>';
+  });
+  h += '</tbody></table></div>';
+  area.innerHTML = h;
+}
+
+function openInspectionsForm(){ resetForm("insp"); document.getElementById("inspEditId").value=""; showModal("modalInspections"); }
+function openInspectionsFormFor(id){
+  var v = getVehicleById(id); if(!v) return;
+  document.getElementById("inspEditId").value = id; document.getElementById("inspPlate").value = id;
+  document.getElementById("inspInspection").value = v.inspectionExpiry||"";
+  document.getElementById("inspInsurance").value = v.insuranceExpiry||"";
+  document.getElementById("inspCompany").value = v.insuranceCompany||"";
+  document.getElementById("inspPolicyNo").value = v.insuranceNo||"";
+  resetForm("insp"); showModal("modalInspections");
+}
+function saveInspection(){
+  var vid = document.getElementById("inspEditId").value || document.getElementById("inspPlate").value;
+  var inspD = document.getElementById("inspInspection").value;
+  var insD = document.getElementById("inspInsurance").value;
+  var company = document.getElementById("inspCompany").value.trim();
+  var policy = document.getElementById("inspPolicyNo").value.trim();
+  var v = getVehicleById(vid); if(!v){ showToast("请选择车辆","error"); return; }
+  if(inspD) v.inspectionExpiry = inspD; if(insD) v.insuranceExpiry = insD;
+  if(company) v.insuranceCompany = company; if(policy) v.insuranceNo = policy;
+  hideModal("modalInspections"); renderReq02(document.getElementById("contentArea"));
+  showToast("年检/保险信息保存成功","success");
+}
+
+// ==================== REQ-03 ====================
+function renderReq03(area){
+  var h = '<div class="page-title">用车申请</div><div class="page-subtitle">提交用车申请，填写出行需求信息</div>';
+  h += '<div class="toolbar"><button class="btn btn-primary" onclick="openApplicationForm()">+ 新建申请</button><span class="spacer"></span></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>申请编号</th><th>申请人</th><th>用车事由</th><th>出发地点</th><th>目的地点</th><th>出发时间</th><th>乘车人数</th><th>需要司机</th><th>状态</th><th>操作</th></tr></thead><tbody>';
+  D.applications.forEach(function(a){
+    h += '<tr><td>'+a.id+'</td><td>'+a.applicant+'</td><td>'+a.reason+'</td><td>'+a.from+'</td><td>'+a.to+'</td><td>'+a.departureTime+'</td><td>'+a.passengers+'</td><td>'+(a.needDriver?"是":"否")+'</td><td>'+statusTag(a.status)+'</td><td>';
+    if(a.status==="pending") h += '<button class="btn btn-sm">查看</button>';
+    else if(a.status==="rejected") h += '<span style="font-size:11px;color:#ff4d4f">驳回原因: '+a.rejectReason+'</span>';
+    else h += '<span style="color:#52c41a">已通过</span>';
+    h += '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  area.innerHTML = h;
+}
+
+function openApplicationForm(){ resetForm("app"); showModal("modalApplication"); }
+function saveApplication(){
+  var applicant = document.getElementById("appApplicant").value.trim();
+  var reason = document.getElementById("appReason").value.trim();
+  var from = document.getElementById("appFrom").value.trim();
+  var to = document.getElementById("appTo").value.trim();
+  var time = document.getElementById("appTime").value;
+  var passengers = parseInt(document.getElementById("appPassengers").value)||1;
+  var needDriver = document.getElementById("appNeedDriver").value==="true";
+  var valid = true;
+  if(!applicant){ setFormError("appApplicant","请输入申请人"); valid=false; } else clearFormError("appApplicant");
+  if(!reason){ setFormError("appReason","请输入用车事由"); valid=false; } else clearFormError("appReason");
+  if(!from){ setFormError("appFrom","请输入出发地点"); valid=false; } else clearFormError("appFrom");
+  if(!to){ setFormError("appTo","请输入目的地点"); valid=false; } else clearFormError("appTo");
+  if(!time){ setFormError("appTime","请选择出发时间"); valid=false; } else clearFormError("appTime");
+  if(!valid) return;
+  var now = new Date();
+  var app = {
+    id: "AP"+now.getFullYear()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+String(D.applications.length+1).padStart(3,"0"),
+    applicant:applicant,reason:reason,from:from,to:to,departureTime:time,passengers:passengers,needDriver:needDriver,
+    status:"pending",submitTime:now.toISOString().slice(0,16).replace("T"," "),dept:"",rejectReason:""
+  };
+  D.applications.push(app);
+  D.notifications.unshift({id:"N"+Date.now(),type:"todo",content:app.applicant+"提交的用车申请待您审批",businessRef:app.id,time:app.submitTime,read:false});
+  hideModal("modalApplication"); renderReq03(document.getElementById("contentArea")); updateBadges();
+  showToast("申请提交成功","success");
+}
+
+// ==================== REQ-04 ====================
+function renderReq04(area){
+  var pending = D.applications.filter(function(a){return a.status==="pending";});
+  var h = '<div class="page-title">用车审批</div><div class="page-subtitle">审批人对用车申请进行审核</div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>申请编号</th><th>申请人</th><th>用车事由</th><th>出发时间</th><th>乘车人数</th><th>提交时间</th><th>操作</th></tr></thead><tbody>';
+  if(pending.length===0){ h += '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">&#x2705;</div><p>暂无待审批申请</p></div></td></tr>'; }
+  else {
+    pending.forEach(function(a){
+      h += '<tr class="highlight"><td>'+a.id+'</td><td>'+a.applicant+'</td><td>'+a.reason+'</td><td>'+a.departureTime+'</td><td>'+a.passengers+'</td><td>'+a.submitTime+'</td><td><button class="btn btn-sm btn-primary" onclick="approveApp(\''+a.id+'\')">通过</button> <button class="btn btn-sm btn-danger" onclick="rejectApp(\''+a.id+'\')">驳回</button></td></tr>';
+    });
+  }
+  h += '</tbody></table></div>';
+  area.innerHTML = h;
+}
+
+function approveApp(id){
+  var a = D.applications.find(function(x){return x.id===id;}); if(!a) return;
+  document.getElementById("modalConfirmTitle").textContent = "确认通过";
+  document.getElementById("modalConfirmBody").innerHTML = '<p>确认通过 <strong>'+a.applicant+'</strong> 的用车申请？<br>编号: '+id+'</p>';
+  document.getElementById("modalConfirmBtn").onclick = function(){
+    a.status = "approved";
+    D.notifications.unshift({id:"N"+Date.now(),type:"system",content:"您的用车申请("+id+")已通过审批",businessRef:id,time:new Date().toISOString().slice(0,16).replace("T"," "),read:false});
+    hideModal("modalConfirm"); renderReq04(document.getElementById("contentArea")); updateBadges();
+    showToast("申请已通过","success");
+  };
+  showModal("modalConfirm");
+}
+
+function rejectApp(id){
+  document.getElementById("rejectAppId").value = id;
+  document.getElementById("rejectReason").value = "";
+  clearFormError("rejectReason"); showModal("modalReject");
+}
+function confirmReject(){
+  var id = document.getElementById("rejectAppId").value;
+  var reason = document.getElementById("rejectReason").value.trim();
+  if(!reason){ setFormError("rejectReason","请输入驳回原因"); return; }
+  var a = D.applications.find(function(x){return x.id===id;});
+  if(a){ a.status="rejected"; a.rejectReason=reason; }
+  D.notifications.unshift({id:"N"+Date.now(),type:"system",content:"您的用车申请("+id+")已被驳回，原因: "+reason,businessRef:id,time:new Date().toISOString().slice(0,16).replace("T"," "),read:false});
+  hideModal("modalReject"); renderReq04(document.getElementById("contentArea")); updateBadges();
+  showToast("申请已驳回","error");
+}
+
+// ==================== REQ-05 车辆调度 ====================
+function renderReq05(area){
+  var approved = D.applications.filter(function(a){return a.status==="approved" && !D.dispatches.find(function(d){return d.applicationId===a.id;});});
+  var h = '<div class="page-title">车辆调度</div><div class="page-subtitle">为审批通过的用车申请分配车辆和驾驶员</div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>申请编号</th><th>申请人</th><th>出发时间</th><th>用车事由</th><th>分配车辆</th><th>分配驾驶员</th><th>操作</th></tr></thead><tbody>';
+  if(approved.length===0){ h += '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">&#x2705;</div><p>暂无需要调度的申请</p></div></td></tr>'; }
+  else {
+    approved.forEach(function(a){
+      var vid = D.vehicles.filter(function(v){return v.status==="idle";}).map(function(v){return '<option value="'+v.id+'">'+v.plate+' - '+v.brand+'</option>';}).join("");
+      var did = D.drivers.filter(function(d){return d.status==="idle";}).map(function(d){return '<option value="'+d.id+'">'+d.name+' ('+d.licenseType+')</option>';}).join("");
+      h += '<tr><td>'+a.id+'</td><td>'+a.applicant+'</td><td>'+a.departureTime+'</td><td>'+a.reason+'</td><td><select id="dsV_'+a.id+'"><option value="">请选择车辆</option>'+vid+'</select></td><td><select id="dsD_'+a.id+'"><option value="">请选择驾驶员</option>'+did+'</select></td><td><button class="btn btn-sm btn-primary" onclick="doDispatch(\''+a.id+'\')">生成派车单</button></td></tr>';
+    });
+  }
+  h += '</tbody></table></div>';
+  h += '<div class="card" style="margin-top:16px"><div class="card-title">已派车记录</div><table><thead><tr><th>派车单号</th><th>申请编号</th><th>车牌号</th><th>驾驶员</th><th>路线</th><th>状态</th></tr></thead><tbody>';
+  D.dispatches.forEach(function(d){
+    h += '<tr><td>'+d.id+'</td><td>'+d.applicationId+'</td><td>'+d.plate+'</td><td>'+d.driver+'</td><td>'+d.origin+' → '+d.destination+'</td><td>'+statusTag(d.status)+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  area.innerHTML = h;
+}
+
+function doDispatch(appId){
+  var app = D.applications.find(function(a){return a.id===appId;}); if(!app) return;
+  var vEl = document.getElementById("dsV_"+appId); var dEl = document.getElementById("dsD_"+appId);
+  var vid = vEl? vEl.value : ""; var did = dEl? dEl.value : "";
+  if(!vid){ showToast("请选择车辆","error"); return; }
+  if(!did){ showToast("请选择驾驶员","error"); return; }
+  var v = getVehicleById(vid); var d = getDriverById(did);
+  if(!v||!d){ showToast("车辆或驾驶员不存在","error"); return; }
+
+  document.getElementById("modalConfirmTitle").textContent = "确认生成派车单";
+  document.getElementById("modalConfirmBody").innerHTML = '<p>确认生成派车单：</p><p>车辆: <strong>'+v.plate+'</strong> ('+v.brand+') | 驾驶员: <strong>'+d.name+'</strong></p><p>路线: '+app.from+' → '+app.to+'</p>';
+  document.getElementById("modalConfirmBtn").onclick = function(){
+    var didStr = "DP"+new Date().toISOString().slice(0,10).replace(/-/g,"")+String(D.dispatches.length+1).padStart(3,"0");
+    D.dispatches.push({id:didStr,applicationId:appId,vehicleId:vid,driverId:did,plate:v.plate,driver:d.name,origin:app.from,destination:app.to,departureTime:app.departureTime,status:"dispatched",startOdometer:0,endOdometer:0,distance:0});
+    v.status = "in-transit"; d.status = "in-transit";
+    hideModal("modalConfirm"); renderReq05(document.getElementById("contentArea")); updateBadges();
+    showToast("派车单生成成功","success");
+  };
+  showModal("modalConfirm");
+}
+
+// ==================== REQ-06 出车与归库 ====================
+function renderReq06(area){
+  var h = '<div class="page-title">出车与归库</div><div class="page-subtitle">驾驶员执行出车任务，记录出车和归库信息</div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>派车单号</th><th>车牌号</th><th>路线</th><th>计划时间</th><th>出车状态</th><th>起始里程</th><th>结束里程</th><th>行程里程</th><th>操作</th></tr></thead><tbody>';
+  if(D.dispatches.length===0){ h += '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#x1F3C1;</div><p>暂无派车记录</p></div></td></tr>'; }
+  else {
+    D.dispatches.forEach(function(d){
+      var stL = d.status==="dispatched"?"待出车":d.status==="in-transit"?"出车中":"已归库";
+      var stC = d.status==="dispatched"?"tag-info":d.status==="in-transit"?"tag-success":"tag-default";
+      h += '<tr'+(d.status==="dispatched"?' class="highlight"':'')+'><td>'+d.id+'</td><td>'+d.plate+'</td><td>'+d.origin+' → '+d.destination+'</td><td>'+d.departureTime+'</td><td><span class="tag '+stC+'">'+stL+'</span></td><td>'+(d.startOdometer||"-")+' km</td><td>'+(d.endOdometer||"-")+' km</td><td>'+(d.distance||"-")+' km</td><td>';
+      if(d.status==="dispatched") h += '<button class="btn btn-sm btn-primary" onclick="startDeparture(\''+d.id+'\')">开始出车</button>';
+      else if(d.status==="in-transit") h += '<button class="btn btn-sm btn-primary" onclick="startReturn(\''+d.id+'\')">归库登记</button>';
+      else h += '-';
+      h += '</td></tr>';
+    });
+  }
+  h += '</tbody></table></div>';
+  area.innerHTML = h;
+}
+
+function startDeparture(disId){
+  document.getElementById("depDisId").value = disId; resetForm("dep");
+  document.getElementById("depStartOdo").value = ""; showModal("modalDeparture");
+}
+function confirmDeparture(){
+  var disId = document.getElementById("depDisId").value;
+  var startOdo = parseInt(document.getElementById("depStartOdo").value);
+  if(!startOdo&&startOdo!==0){ setFormError("depStartOdo","请输入起始里程"); return; }
+  var d = D.dispatches.find(function(x){return x.id===disId;});
+  if(d){ d.startOdometer = startOdo; d.status = "in-transit"; }
+  hideModal("modalDeparture"); renderReq06(document.getElementById("contentArea"));
+  showToast("出车登记成功","success");
+}
+function startReturn(disId){
+  var d = D.dispatches.find(function(x){return x.id===disId;}); if(!d) return;
+  document.getElementById("retDisId").value = disId;
+  document.getElementById("retEndOdo").value = ""; resetForm("ret");
+  document.getElementById("retCalc").textContent = d.startOdometer ? "起始里程: "+d.startOdometer.toLocaleString()+" km" : "";
+  var endEl = document.getElementById("retEndOdo");
+  endEl.oninput = function(){
+    var ev = parseInt(endEl.value);
+    if(ev && d.startOdometer) document.getElementById("retCalc").textContent = "起始里程: "+d.startOdometer.toLocaleString()+" km | 预计行程: "+(ev-d.startOdometer).toLocaleString()+" km";
+  };
+  showModal("modalReturn");
+}
+function confirmReturn(){
+  var disId = document.getElementById("retDisId").value;
+  var endOdo = parseInt(document.getElementById("retEndOdo").value);
+  if(!endOdo&&endOdo!==0){ setFormError("retEndOdo","请输入结束里程"); return; }
+  var d = D.dispatches.find(function(x){return x.id===disId;}); if(!d) return;
+  d.endOdometer = endOdo; d.distance = endOdo - d.startOdometer; d.status = "returned";
+  var v = getVehicleById(d.vehicleId); if(v){ v.status = "idle"; v.mileage = endOdo; }
+  var dr = getDriverById(d.driverId); if(dr) dr.status = "idle";
+  hideModal("modalReturn"); renderReq06(document.getElementById("contentArea")); updateBadges();
+  showToast("归库登记成功，行程: "+d.distance+" km","success");
+}
+
+// ==================== REQ-07 GPS轨迹监控 ====================
+function renderReq07(area){
+  var online = D.simGPS.length;
+  var totalDist = D.simGPS.reduce(function(s,g){return s+g.gpsDist;},0);
+  var h = '<div class="page-title">GPS轨迹监控</div><div class="page-subtitle">实时监控出车车辆的位置、速度和轨迹</div>';
+  h += '<div class="stats-row cols2"><div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">'+online+'</div><div class="s-label">在线车辆</div></div></div><div class="stat-card"><div class="s-icon s-green">&#x1F4CD;</div><div><div class="s-num">'+totalDist+'</div><div class="s-label">GPS总里程(km)</div></div></div></div>';
+  h += '<div class="card"><div class="card-title">在途车辆实时列表</div><table><thead><tr><th>车牌号</th><th>驾驶员</th><th>当前位置(坐标)</th><th>速度</th><th>行程方向</th><th>GPS里程</th><th>里程表里程</th><th>偏差</th></tr></thead><tbody>';
+  if(D.simGPS.length===0){ h += '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">&#x1F4CD;</div><p>当前无在途车辆</p></div></td></tr>'; }
+  else {
+    D.simGPS.forEach(function(g){
+      var dev = g.odoDist>0 ? Math.abs(g.gpsDist-g.odoDist)/g.odoDist*100 : 0;
+      var devHtml = dev>10?'<span class="tag tag-danger">'+dev.toFixed(1)+'%</span>':dev>5?'<span class="tag tag-warning">'+dev.toFixed(1)+'%</span>':dev.toFixed(1)+'%';
+      h += '<tr'+(dev>10?' style="background:#fff2f0"':'')+'><td>'+g.plate+'</td><td>'+g.driver+'</td><td>('+g.lat.toFixed(4)+', '+g.lng.toFixed(4)+')</td><td>'+g.speed+' km/h</td><td>'+g.direction+'</td><td>'+g.gpsDist+' km</td><td>'+g.odoDist+' km</td><td>'+devHtml+'</td></tr>';
+    });
+  }
+  h += '</tbody></table></div>';
+  area.innerHTML = h;
+}
+
+// ==================== REQ-08 费用管理 ====================
+function renderReq08(area){
+  var totalCount = D.fees.length;
+  var now = new Date();
+  var monthTotal = D.fees.reduce(function(s,f){ var d=new Date(f.date); return (d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear())?s+f.amount:s; },0);
+  var h = '<div class="page-title">费用管理</div><div class="page-subtitle">记录车辆各类费用，支持费用查询和审核</div>';
+  h += '<div class="toolbar"><input type="text" id="feeSearch" placeholder="搜索车牌号..." oninput="renderReq08Table()"><select id="feeTypeFilter" onchange="renderReq08Table()"><option value="">全部类型</option><option value="fuel">燃油费</option><option value="maintenance">维修费</option><option value="insurance">保险费</option><option value="inspection">年检费</option><option value="toll">过路费</option><option value="parking">停车费</option></select><select id="feeAuditFilter" onchange="renderReq08Table()"><option value="">全部状态</option><option value="pending">待审核</option><option value="approved">已审核</option><option value="rejected">已驳回</option></select><span class="spacer"></span><button class="btn btn-primary" onclick="openFeeForm()">+ 录入费用</button></div>';
+  h += '<div class="stats-row cols2"><div class="stat-card"><div class="s-icon s-blue">&#x1F4B5;</div><div><div class="s-num">'+totalCount+'</div><div class="s-label">总记录数</div></div></div><div class="stat-card"><div class="s-icon s-green">&#x1F4B0;</div><div><div class="s-num">&yen;'+monthTotal.toLocaleString()+'</div><div class="s-label">本月总费用</div></div></div></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>日期</th><th>车牌号</th><th>费用类型</th><th>金额</th><th>关联行程</th><th>审核状态</th><th>操作</th></tr></thead><tbody id="req08TableBody"></tbody></table></div>';
+  area.innerHTML = h; renderReq08Table();
+}
+
+function renderReq08Table(){
+  var body = document.getElementById("req08TableBody"); if(!body) return;
+  var s = (document.getElementById("feeSearch")||{}).value||"";
+  var tf = (document.getElementById("feeTypeFilter")||{}).value||"";
+  var af = (document.getElementById("feeAuditFilter")||{}).value||"";
+  var list = D.fees.filter(function(f){
+    if(s && !f.plate.toLowerCase().includes(s.toLowerCase())) return false;
+    if(tf && f.type!==tf) return false;
+    if(af && f.auditStatus!==af) return false;
+    return true;
+  });
+  body.innerHTML = list.map(function(f){
+    var act = f.auditStatus==="pending"?'<button class="btn btn-sm btn-success" onclick="auditFee(\''+f.id+'\')">审核通过</button>':
+      f.auditStatus==="rejected"?'<button class="btn btn-sm" onclick="auditFee(\''+f.id+'\')">重新审核</button>':'<button class="btn btn-sm">查看</button>';
+    return '<tr><td>'+f.date+'</td><td>'+f.plate+'</td><td>'+statusTag(f.type)+'</td><td>&yen;'+f.amount.toLocaleString()+'</td><td>'+(f.linkedTrip||"-")+'</td><td>'+statusTagAudit(f.auditStatus)+'</td><td>'+act+'</td></tr>';
+  }).join("");
+}
+
+function openFeeForm(){ resetForm("fee"); showModal("modalFee"); }
+function saveFee(){
+  var date = document.getElementById("feeDate").value;
+  var plate = document.getElementById("feePlate").value;
+  var type = document.getElementById("feeType").value;
+  var amount = parseFloat(document.getElementById("feeAmount").value);
+  var linked = document.getElementById("feeLinkedTrip").value.trim();
+  var notes = document.getElementById("feeNotes").value.trim();
+  if(!date){ showToast("请选择日期","error"); return; }
+  if(!amount||isNaN(amount)){ showToast("请输入有效金额","error"); return; }
+  D.fees.push({id:"F"+Date.now().toString(36).toUpperCase(),date:date,plate:plate,type:type,amount:amount,linkedTrip:linked||"",notes:notes||"",auditStatus:"pending"});
+  hideModal("modalFee"); renderReq08Table(); showToast("费用录入成功","success");
+}
+function auditFee(id){
+  var f = D.fees.find(function(x){return x.id===id;}); if(!f) return;
+  document.getElementById("modalConfirmTitle").textContent = "费用审核";
+  document.getElementById("modalConfirmBody").innerHTML = '<p><strong>'+f.plate+'</strong> - '+statusTag(f.type)+' - &yen;'+f.amount.toLocaleString()+'</p><p>备注: '+(f.notes||"-")+'</p>';
+  document.getElementById("modalConfirmBtn").onclick = function(){
+    f.auditStatus = "approved"; hideModal("modalConfirm"); renderReq08Table();
+    showToast("审核完成","success");
+  };
+  showModal("modalConfirm");
+}
+
+// ==================== REQ-09 统计分析报表 ====================
+function renderReq09(area){
+  var monthlyData = [3.2,2.8,3.5,4.1,3.6,3.9,4.5,3.3,3.8,4.2,3.7,5.1];
+  var maxVal = Math.max.apply(null, monthlyData);
+  var h = '<div class="page-title">统计分析报表</div><div class="page-subtitle">车队运营数据统计与分析</div>';
+  h += '<div class="toolbar"><select id="reportYear"><option>2026年</option><option>2025年</option></select><span class="spacer"></span><button class="btn btn-primary" onclick="showToast(\'Excel报表导出功能开发中\')">导出Excel</button></div>';
+  h += '<div class="stats-row"><div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">'+D.vehicles.length+'</div><div class="s-label">车辆总数</div></div></div><div class="stat-card"><div class="s-icon s-green">&#x26FD;</div><div><div class="s-num">12,580L</div><div class="s-label">月加油量</div></div></div><div class="stat-card"><div class="s-icon s-orange">&#x1F527;</div><div><div class="s-num">&yen;52,300</div><div class="s-label">月维修费用</div></div></div><div class="stat-card"><div class="s-icon s-blue">&#x1F4C8;</div><div><div class="s-num">86%</div><div class="s-label">车辆利用率</div></div></div></div>';
+  h += '<div class="card"><div class="card-title">月度费用趋势 (万元)</div><div class="chart-bars" style="height:200px">';
+  monthlyData.forEach(function(v,i){ h += '<div class="bar-col"><div class="bar-val">'+v.toFixed(1)+'</div><div class="bar" style="height:'+(v/maxVal*160)+'px"></div><div class="bar-label">'+(i+1)+'月</div></div>'; });
+  h += '</div></div>';
+  h += '<div class="dual-col"><div class="card"><div class="card-title">费用类型分布</div><table><thead><tr><th>类费用型</th><th>金额</th><th>占比</th></tr></thead><tbody>';
+  var tm = {fuel:"燃油费",maintenance:"维修费",insurance:"保险费",inspection:"年检费",toll:"过路费",parking:"停车费"};
+  var totals = {}; D.fees.forEach(function(f){ totals[f.type] = (totals[f.type]||0)+f.amount; });
+  var totalAll = Object.values(totals).reduce(function(s,v){return s+v;},0);
+  Object.keys(totals).forEach(function(k){ h += '<tr><td>'+tm[k]+'</td><td>&yen;'+totals[k].toLocaleString()+'</td><td>'+(totalAll>0?(totals[k]/totalAll*100).toFixed(1):0)+'%</td></tr>'; });
+  h += '</tbody></table></div><div class="card"><div class="card-title">部门费用排行</div><table><thead><tr><th>部门</th><th>费用总额</th></tr></thead><tbody><tr><td>总公司/行政部</td><td>&yen;156,800</td></tr><tr><td>上海分公司</td><td>&yen;98,500</td></tr><tr><td>北京分公司</td><td>&yen;72,300</td></tr><tr><td>深圳分公司</td><td>&yen;58,000</td></tr></tbody></table></div></div>';
+  area.innerHTML = h;
+}
+
+// ==================== REQ-10 权限与角色管理 ====================
+function renderReq10(area){
+  var h = '<div class="page-title">权限与角色管理</div><div class="page-subtitle">用户账号体系，通过角色控制功能访问权限</div>';
+  h += '<div class="card"><div class="card-title">用户列表</div><div class="toolbar"><button class="btn btn-primary" onclick="openUserForm()">+ 新增用户</button></div><table><thead><tr><th>用户名</th><th>姓名</th><th>所属部门</th><th>角色</th><th>手机号</th><th>状态</th><th>操作</th></tr></thead><tbody>';
+  D.users.forEach(function(u){
+    var rC = u.role==="系统管理员"?"tag-info":u.role==="车队管理员"?"tag-default":u.role==="调度员"?"tag-warning":"tag-default";
+    h += '<tr><td>'+u.username+'</td><td>'+u.name+'</td><td>'+u.dept+'</td><td><span class="tag '+rC+'">'+u.role+'</span></td><td>'+u.phone+'</td><td>'+statusTag(u.status)+'</td><td><button class="btn btn-sm" onclick="editUser(\''+u.id+'\')">编辑</button> <button class="btn btn-sm '+(u.status==="active"?"btn-danger":"btn-success")+'" onclick="toggleUserStatus(\''+u.id+'\')">'+(u.status==="active"?"停用":"启用")+'</button></td></tr>';
+  });
+  h += '</tbody></table></div>';
+  h += '<div class="card"><div class="card-title">角色权限矩阵</div><table><thead><tr><th>功能模块</th><th>系统管理员</th><th>车队管理员</th><th>调度员</th><th>审批人</th><th>驾驶员</th></tr></thead><tbody><tr><td>车辆档案管理</td><td style="color:#52c41a">全部</td><td style="color:#1890ff">本部门</td><td style="color:#1890ff">查看</td><td>-</td><td style="color:#1890ff">查看</td></tr><tr><td>用车申请</td><td style="color:#52c41a">&#x2705;</td><td style="color:#52c41a">&#x2705;</td><td style="color:#52c41a">&#x2705;</td><td style="color:#52c41a">&#x2705;</td><td>-</td></tr><tr><td>用车审批</td><td style="color:#52c41a">&#x2705;</td><td>-</td><td>-</td><td style="color:#1890ff">本部门</td><td>-</td></tr><tr><td>车辆调度</td><td style="color:#52c41a">&#x2705;</td><td style="color:#1890ff">本部门</td><td style="color:#52c41a">&#x2705;</td><td>-</td><td>-</td></tr><tr><td>费用管理</td><td style="color:#52c41a">&#x2705;</td><td style="color:#1890ff">本部门</td><td>-</td><td>-</td><td style="color:#1890ff">录入</td></tr><tr><td>GPS监控</td><td style="color:#52c41a">&#x2705;</td><td style="color:#52c41a">&#x2705;</td><td style="color:#52c41a">&#x2705;</td><td>-</td><td>-</td></tr></tbody></table></div>';
+  area.innerHTML = h;
+}
+
+function openUserForm(){ resetForm("user"); document.getElementById("modalUserTitle").textContent="新增用户"; document.getElementById("userEditId").value=""; showModal("modalUser"); }
+function editUser(id){
+  var u = D.users.find(function(x){return x.id===id;}); if(!u) return;
+  document.getElementById("modalUserTitle").textContent="编辑用户"; document.getElementById("userEditId").value=u.id;
+  document.getElementById("userUsername").value=u.username; document.getElementById("userName").value=u.name;
+  var dept = D.depts.find(function(d){return d.name===u.dept;});
+  document.getElementById("userDept").value=dept?dept.id:""; document.getElementById("userRole").value=u.role;
+  document.getElementById("userPhone").value=u.phone; document.getElementById("userStatus").value=u.status;
+  resetForm("user"); showModal("modalUser");
+}
+function saveUser(){
+  var id = document.getElementById("userEditId").value;
+  var username = document.getElementById("userUsername").value.trim();
+  var name = document.getElementById("userName").value.trim();
+  var deptId = document.getElementById("userDept").value;
+  var role = document.getElementById("userRole").value;
+  var phone = document.getElementById("userPhone").value.trim();
+  var status = document.getElementById("userStatus").value;
+  var valid = true;
+  if(!username){ setFormError("userUsername","请输入用户名"); valid=false; } else clearFormError("userUsername");
+  if(!name){ setFormError("userName","请输入姓名"); valid=false; } else clearFormError("userName");
+  if(!deptId){ setFormError("userDept","请选择部门"); valid=false; } else clearFormError("userDept");
+  if(!role){ setFormError("userRole","请选择角色"); valid=false; } else clearFormError("userRole");
+  if(!phone){ setFormError("userPhone","请输入手机号"); valid=false; } else clearFormError("userPhone");
+  if(!valid) return;
+  var dept = getDeptById(deptId);
+  if(id){
+    var u = D.users.find(function(x){return x.id===id;});
+    u.username=username;u.name=name;u.dept=dept?dept.name:"";u.role=role;u.phone=phone;u.status=status;
+    showToast("用户更新成功","success");
+  } else {
+    D.users.push({id:"U"+Date.now().toString(36).toUpperCase(),username:username,name:name,dept:dept?dept.name:"",role:role,phone:phone,status:"active"});
+    showToast("用户添加成功","success");
+  }
+  hideModal("modalUser"); renderReq10(document.getElementById("contentArea"));
+}
+function toggleUserStatus(id){
+  var u = D.users.find(function(x){return x.id===id;}); if(!u) return;
+  var ns = u.status==="active"?"inactive":"active";
+  document.getElementById("modalConfirmTitle").textContent = ns==="active"?"启用用户":"停用用户";
+  document.getElementById("modalConfirmBody").innerHTML = '<p>确认'+(ns==="active"?"启用":"停用")+'用户 <strong>'+u.name+'</strong> ('+u.username+')？</p>';
+  document.getElementById("modalConfirmBtn").onclick = function(){
+    u.status = ns; hideModal("modalConfirm"); renderReq10(document.getElementById("contentArea"));
+    showToast(ns==="active"?"用户已启用":"用户已停用","success");
+  };
+  showModal("modalConfirm");
+}
+
+// ==================== REQ-11 通知与消息 ====================
+function renderReq11(area){
+  var h = '<div class="page-title">通知与消息</div><div class="page-subtitle">关键业务节点通知推送</div>';
+  h += '<div class="toolbar"><select id="notifTypeFilter" onchange="renderReq11Table()"><option value="">全部类型</option><option value="todo">待办通知</option><option value="reminder">提醒通知</option><option value="system">系统通知</option></select><button class="btn" onclick="markAllRead()">全部标记为已读</button></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>类型</th><th>消息内容</th><th>关联业务</th><th>时间</th><th>状态</th></tr></thead><tbody id="req11TableBody"></tbody></table></div>';
+  area.innerHTML = h; renderReq11Table();
+}
+
+function renderReq11Table(){
+  var body = document.getElementById("req11TableBody"); if(!body) return;
+  var tf = (document.getElementById("notifTypeFilter")||{}).value||"";
+  var list = D.notifications.filter(function(n){ return tf?n.type===tf:true; });
+  body.innerHTML = list.map(function(n){
+    var icon = n.type==="todo"?"&#x1F4CB;":n.type==="reminder"?"&#x26A0;":"&#x1F4E2;";
+    return '<tr class="'+(n.read?"":"unread")+'" onclick="markRead(\''+n.id+'\')" style="cursor:pointer"><td><span class="tag '+(n.type==="todo"?"tag-info":n.type==="reminder"?"tag-warning":"tag-default")+'">'+icon+' '+(n.type==="todo"?"待办":n.type==="reminder"?"提醒":"系统")+'</span></td><td>'+n.content+'</td><td>'+(n.businessRef||"-")+'</td><td>'+n.time+'</td><td>'+(n.read?'<span class="tag tag-success">已读</span>':'<span class="tag tag-danger">未读</span>')+'</td></tr>';
+  }).join("");
+}
+function markRead(id){
+  var n = D.notifications.find(function(x){return x.id===id;}); if(!n) return;
+  n.read = true; renderReq11Table(); updateBadges();
+}
+function markAllRead(){
+  D.notifications.forEach(function(n){n.read=true;});
+  renderReq11Table(); updateBadges(); showToast("全部标记为已读","success");
+}
+
+// ==================== REQ-12 驾驶员信息管理 ====================
+function renderReq12(area){
+  var h = '<div class="page-title">驾驶员信息管理</div><div class="page-subtitle">建立驾驶员基础档案，管理驾驶证和从业资格信息</div>';
+  h += '<div class="toolbar"><input type="text" id="drvSearch" placeholder="搜索姓名/工号..." oninput="renderReq12Table()"><select id="drvStatusFilter" onchange="renderReq12Table()"><option value="">全部状态</option><option value="idle">空闲</option><option value="in-transit">出车中</option><option value="suspended">暂停出车</option><option value="focus">重点关注</option><option value="resigned">离职</option></select><span class="spacer"></span><button class="btn btn-primary" onclick="openDriverForm()">+ 新增驾驶员</button></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>工号</th><th>姓名</th><th>性别</th><th>三龄(驾/工/年)</th><th>驾驶证</th><th>联系电话</th><th>所属部门</th><th>状态</th><th>操作</th></tr></thead><tbody id="req12TableBody"></tbody></table></div>';
+  area.innerHTML = h; renderReq12Table();
+}
+
+function renderReq12Table(){
+  var body = document.getElementById("req12TableBody"); if(!body) return;
+  var s = (document.getElementById("drvSearch")||{}).value||"";
+  var sf = (document.getElementById("drvStatusFilter")||{}).value||"";
+  var list = D.drivers.filter(function(d){
+    if(s && !(d.name+d.id).toLowerCase().includes(s.toLowerCase())) return false;
+    if(sf && d.status!==sf) return false;
+    return true;
+  });
+  body.innerHTML = list.map(function(d){
+    return '<tr><td>'+d.id+'</td><td>'+d.name+'</td><td>'+d.gender+'</td><td><span class="tag tag-info">'+d.drivingYears+'年(驾)</span> / <span class="tag tag-default">'+d.workYears+'年(工)</span> / <span class="tag tag-default">'+d.age+'岁</span></td><td>'+d.licenseType+'</td><td>'+d.phone+'</td><td>'+d.dept+'</td><td>'+statusTagDriver(d.status)+'</td><td><button class="btn btn-sm" onclick="viewDriver(\''+d.id+'\')">查看</button></td></tr>';
+  }).join("");
+}
+
+function openDriverForm(){ resetForm("drv"); showModal("modalDriver"); }
+function saveDriver(){
+  var name = document.getElementById("drvName").value.trim();
+  var gender = document.getElementById("drvGender").value;
+  var license = document.getElementById("drvLicense").value;
+  var drivingYears = parseInt(document.getElementById("drvDrivingYears").value)||0;
+  var phone = document.getElementById("drvPhone").value.trim();
+  var deptId = document.getElementById("drvDept").value;
+  var workYears = parseInt(document.getElementById("drvWorkYears").value)||0;
+  var age = parseInt(document.getElementById("drvAge").value)||0;
+  var valid = true;
+  if(!name){ setFormError("drvName","请输入姓名"); valid=false; } else clearFormError("drvName");
+  if(!gender){ setFormError("drvGender","请选择性别"); valid=false; } else clearFormError("drvGender");
+  if(!license){ setFormError("drvLicense","请选择驾驶证"); valid=false; } else clearFormError("drvLicense");
+  if(!drivingYears){ setFormError("drvDrivingYears","请输入驾龄"); valid=false; } else clearFormError("drvDrivingYears");
+  if(!phone){ setFormError("drvPhone","请输入手机号"); valid=false; } else clearFormError("drvPhone");
+  if(!deptId){ setFormError("drvDept","请选择部门"); valid=false; } else clearFormError("drvDept");
+  if(!valid) return;
+  var dept = getDeptById(deptId);
+  D.drivers.push({id:genDrvId(),name:name,gender:gender,licenseType:license,phone:phone,dept:dept?dept.name:"",deptId:deptId,drivingYears:drivingYears,workYears:workYears,age:age,status:"idle"});
+  hideModal("modalDriver"); renderReq12Table(); showToast("驾驶员添加成功","success");
+}
+
+function viewDriver(id){
+  var d = getDriverById(id); if(!d) return;
+  document.getElementById("modalVehicleViewBody").innerHTML =
+    '<table><tr><td style="font-weight:600;width:120px">工号</td><td>'+d.id+'</td></tr>'
+    +'<tr><td style="font-weight:600">姓名</td><td>'+d.name+'</td></tr>'
+    +'<tr><td style="font-weight:600">性别</td><td>'+d.gender+'</td></tr>'
+    +'<tr><td style="font-weight:600">驾驶证</td><td>'+d.licenseType+'</td></tr>'
+    +'<tr><td style="font-weight:600">驾龄/工龄/年龄</td><td>'+d.drivingYears+'年 / '+d.workYears+'年 / '+d.age+'岁</td></tr>'
+    +'<tr><td style="font-weight:600">电话</td><td>'+d.phone+'</td></tr>'
+    +'<tr><td style="font-weight:600">所属部门</td><td>'+d.dept+'</td></tr>'
+    +'<tr><td style="font-weight:600">状态</td><td>'+statusTagDriver(d.status)+'</td></tr></table>';
+  showModal("modalVehicleView");
+}
+
+// ==================== REQ-12T 驾驶员培训管理 ====================
+function renderReq12t(area){
+  var coverage = D.trainings.length>0? Math.round(D.trainings.filter(function(t){return t.status==="completed";}).length/D.trainings.length*100) : 94;
+  var passAvg = D.trainings.filter(function(t){return t.status==="completed"&&t.passRate>0;}).reduce(function(s,t){return s+t.passRate;},0);
+  passAvg = passAvg > 0 ? Math.round(passAvg/D.trainings.filter(function(t){return t.status==="completed"&&t.passRate>0;}).length) : 88;
+  var overdueCt = D.trainingsOverdue.length;
+  var h = '<div class="page-title">驾驶员培训管理</div><div class="page-subtitle">培训计划制定、执行记录、考核评估</div>';
+  h += '<div class="stats-row"><div class="stat-card"><div class="s-icon s-blue">&#x1F4DA;</div><div><div class="s-num">'+D.trainings.length+'</div><div class="s-label">培训计划</div></div></div><div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num">'+coverage+'%</div><div class="s-label">培训覆盖率</div></div></div><div class="stat-card"><div class="s-icon s-orange">&#x26A0;</div><div><div class="s-num" style="color:#fa8c16">'+overdueCt+'</div><div class="s-label">培训逾期</div></div></div><div class="stat-card"><div class="s-icon s-blue">&#x1F3C6;</div><div><div class="s-num">'+passAvg+'%</div><div class="s-label">考核合格率</div></div></div></div>';
+  h += '<div class="card" style="padding:0"><div class="card-title" style="padding:12px 16px;margin:0">培训记录</div><table><thead><tr><th>培训编号</th><th>培训主题</th><th>培训类型</th><th>培训日期</th><th>参训人数</th><th>合格率</th><th>状态</th></tr></thead><tbody>';
+  D.trainings.forEach(function(t){
+    var tCls = t.type==="安全培训"?"tag-warning":t.type==="技能培训"?"tag-info":"tag-default";
+    h += '<tr><td>'+t.code+'</td><td>'+t.title+'</td><td><span class="tag '+tCls+'">'+t.type+'</span></td><td>'+t.date+'</td><td>'+t.participants+'</td><td>'+(t.passRate||"-")+(t.status==="completed"?"%":"")+'</td><td>'+statusTag(t.status)+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  h += '<div class="card"><div class="card-title">培训逾期驾驶员</div><table><thead><tr><th>工号</th><th>姓名</th><th>未完成培训</th><th>逾期天数</th><th>催办级别</th></tr></thead><tbody>';
+  D.trainingsOverdue.forEach(function(o){
+    var lvl = o.level===3?'<span class="tag tag-danger">三级催办</span>':o.level===2?'<span class="tag tag-warning">二级催办</span>':'<span class="tag tag-info">一级催办</span>';
+    h += '<tr><td>'+o.driverId+'</td><td>'+o.name+'</td><td>'+o.training+'</td><td style="color:#ff4d4f">'+o.days+'天</td><td>'+lvl+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  area.innerHTML = h;
+}
+
+// ==================== REQ-13 车辆运营管理 ====================
+function renderReq13(area){
+  var h = '<div class="page-title">车辆运营管理</div><div class="page-subtitle">车队日常运营核心工作台，以组织树导航管理车辆业务</div>';
+  h += '<div class="dual-col"><div class="org-panel"><div class="card-title" style="padding-bottom:8px;margin-bottom:0">组织架构</div><div class="org-tree">';
+  
+  D.depts.filter(function(d){return d.parentId==="";}).forEach(function(root){
+    var active = root.id === D.selectedDept || root.id === D.selectedDept.split("/")[0];
+    var vehs = D.vehicles.filter(function(v){return v.deptId===root.id || v.deptId.startsWith(root.id);}).length;
+    h += '<div class="org-node level1'+(active?' active':'')+'" onclick="selectOrg(\''+root.id+'\')">&#x25B6; '+root.name+' ('+vehs+')</div>';
+    
+    D.depts.filter(function(d){return d.parentId===root.id;}).forEach(function(l2){
+      var l2Vehs = D.vehicles.filter(function(v){return v.deptId===l2.id;}).length;
+      h += '<div class="org-node level2" onclick="selectOrg(\''+l2.id+'\')">&#x25B6; '+l2.name+' ('+l2Vehs+')</div>';
+      
+      D.depts.filter(function(d){return d.parentId===l2.id;}).forEach(function(l3){
+        var l3Vehs = D.vehicles.filter(function(v){return v.deptId===l3.id;}).length;
+        h += '<div class="org-node level3'+(l3.id===D.selectedDept?' active':'')+'" onclick="selectOrg(\''+l3.id+'\')">'+l3.name+' ('+l3Vehs+')</div>';
+      });
+    });
+  });
+  h += '</div></div><div>';
+  
+  var filtered = D.vehicles.filter(function(v){return v.deptId===D.selectedDept;});
+  var filteredAll = D.vehicles.filter(function(v){return v.deptId===D.selectedDept || v.deptId.startsWith(D.selectedDept+"/");});
+  if (filtered.length===0) filtered = filteredAll;
+  
+  h += '<div class="stats-row cols3" style="margin-bottom:12px"><div class="stat-card"><div class="s-icon s-blue">&#x1F697;</div><div><div class="s-num">'+filtered.length+'</div><div class="s-label">当前车辆数</div></div></div><div class="stat-card"><div class="s-icon s-green">&#x26FD;</div><div><div class="s-num">2,580L</div><div class="s-label">本月加油量</div></div></div><div class="stat-card"><div class="s-icon s-orange">&#x1F527;</div><div><div class="s-num">&yen;8,200</div><div class="s-label">维修费用</div></div></div></div>';
+  h += '<div class="toolbar"><input type="text" id="req13Search" placeholder="搜索车牌..." style="width:180px" oninput="renderReq13Table()"><span class="spacer"></span></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>车牌号</th><th>品牌型号</th><th>里程</th><th>保险到期</th><th>年检到期</th><th>违章</th><th>操作</th></tr></thead><tbody id="req13TableBody"></tbody></table></div>';
+  h += '</div></div>';
+  area.innerHTML = h;
+  renderReq13Table();
+}
+
+function selectOrg(deptId){
+  D.selectedDept = deptId;
+  renderReq13(document.getElementById("contentArea"));
+}
+
+function renderReq13Table(){
+  var body = document.getElementById("req13TableBody"); if(!body) return;
+  var s = (document.getElementById("req13Search")||{}).value||"";
+  var now = new Date();
+  var filtered = D.vehicles.filter(function(v){return v.deptId===D.selectedDept;});
+  if (filtered.length===0) filtered = D.vehicles.filter(function(v){return v.deptId===D.selectedDept || v.deptId.startsWith(D.selectedDept+"/");});
+  var list = s ? filtered.filter(function(v){return (v.plate+v.brand).toLowerCase().includes(s.toLowerCase());}) : filtered;
+  body.innerHTML = list.map(function(v){
+    var insExp = v.insuranceExpiry ? (new Date(v.insuranceExpiry)<now?'<span class="tag tag-danger">已逾期</span>':new Date(v.insuranceExpiry)<=new Date(now.getTime()+30*86400000)?'<span class="tag tag-warning">30天内</span>':'<span class="tag tag-success">'+v.insuranceExpiry+'</span>') : '-';
+    var inspExp = v.inspectionExpiry ? (new Date(v.inspectionExpiry)<now?'<span class="tag tag-danger">已逾期</span>':new Date(v.inspectionExpiry)<=new Date(now.getTime()+30*86400000)?'<span class="tag tag-warning">即将到期</span>':'<span class="tag tag-success">'+v.inspectionExpiry+'</span>') : '-';
+    return '<tr><td>'+v.plate+'</td><td>'+v.brand+'</td><td>'+v.mileage.toLocaleString()+' km</td><td>'+insExp+'</td><td>'+inspExp+'</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-sm btn-primary" onclick="openOperationDetail(\''+v.id+'\')">查看详情</button></td></tr>';
+  }).join("");
+}
+
+function openOperationDetail(vehicleId){
+  var v = getVehicleById(vehicleId); if(!v) return;
+  document.getElementById("modalOpTitle").textContent = '车辆运营详情 - '+v.plate+' '+v.brand;
+  
+  var relatedFees = D.fees.filter(function(f){return f.plate===v.plate;});
+  var refuel = relatedFees.filter(function(f){return f.type==="fuel";});
+  var maint = relatedFees.filter(function(f){return f.type==="maintenance";});
+  
+  var h = '<div class="tab-row">'
+    +'<div class="tab-item active" onclick="switchOpTab(event,\'opFuel\')">加油管理</div>'
+    +'<div class="tab-item" onclick="switchOpTab(event,\'opMaint\')">维修保养</div>'
+    +'<div class="tab-item" onclick="switchOpTab(event,\'opIns\')">保险管理</div>'
+    +'<div class="tab-item" onclick="switchOpTab(event,\'opInsp\')">年检管理</div></div>';
+  
+  h += '<div class="tab-content active" id="tab-opFuel"><table><thead><tr><th>日期</th><th>金额</th><th>备注</th></tr></thead><tbody>';
+  if(refuel.length===0) h += '<tr><td colspan="3"><div class="empty-state"><p>暂无加油记录</p></div></td></tr>';
+  else refuel.forEach(function(f){ h += '<tr><td>'+f.date+'</td><td>&yen;'+f.amount.toLocaleString()+'</td><td>'+f.notes+'</td></tr>'; });
+  h += '</tbody></table></div>';
+  
+  h += '<div class="tab-content" id="tab-opMaint"><table><thead><tr><th>日期</th><th>金额</th><th>备注</th></tr></thead><tbody>';
+  if(maint.length===0) h += '<tr><td colspan="3"><div class="empty-state"><p>暂无维修记录</p></div></td></tr>';
+  else maint.forEach(function(f){ h += '<tr><td>'+f.date+'</td><td>&yen;'+f.amount.toLocaleString()+'</td><td>'+f.notes+'</td></tr>'; });
+  h += '</tbody></table></div>';
+  
+  var insFees = relatedFees.filter(function(f){return f.type==="insurance";});
+  h += '<div class="tab-content" id="tab-opIns"><table><thead><tr><th>保险公司</th><th>保单号</th><th>保险到期日</th><th>费用</th></tr></thead><tbody>';
+  h += '<tr><td>'+(v.insuranceCompany||"-")+'</td><td>'+(v.insuranceNo||"-")+'</td><td>'+(v.insuranceExpiry||"-")+'</td><td>&yen;'+(insFees.length>0?insFees.reduce(function(s,f){return s+f.amount;},0).toLocaleString():"0")+'</td></tr>';
+  h += '</tbody></table></div>';
+  
+  h += '<div class="tab-content" id="tab-opInsp"><table><thead><tr><th>年检到期日</th><th>状态</th><th>费用</th></tr></thead><tbody>';
+  var inspFees = relatedFees.filter(function(f){return f.type==="inspection";});
+  var iStatus = !v.inspectionExpiry ? "normal" : new Date(v.inspectionExpiry)<new Date() ? "overdue" : new Date(v.inspectionExpiry)<=new Date(Date.now()+30*86400000) ? "soon" : "normal";
+  h += '<tr><td>'+(v.inspectionExpiry||"-")+'</td><td>'+statusTag(iStatus)+'</td><td>&yen;'+(inspFees.length>0?inspFees.reduce(function(s,f){return s+f.amount;},0).toLocaleString():"0")+'</td></tr>';
+  h += '</tbody></table></div>';
+  
+  document.getElementById("modalOpBody").innerHTML = h;
+  showModal("modalOperationDetail");
+}
+
+function switchOpTab(e, tabId){
+  e.target.parentElement.querySelectorAll(".tab-item").forEach(function(t){t.classList.remove("active");});
+  e.target.classList.add("active");
+  document.querySelectorAll("#modalOpBody .tab-content").forEach(function(t){t.classList.remove("active");});
+  document.getElementById("tab-"+tabId).classList.add("active");
+}
+
+// ==================== REQ-14 定点维修车厂管理 ====================
+function renderReq14(area){
+  var h = '<div class="page-title">定点维修车厂管理</div><div class="page-subtitle">管理合作维修厂档案、服务能力及合作状态</div>';
+  h += '<div class="stats-row"><div class="stat-card"><div class="s-icon s-blue">&#x1F527;</div><div><div class="s-num" id="wsTotal">'+D.workshops.length+'</div><div class="s-label">维修厂总数</div></div></div><div class="stat-card"><div class="s-icon s-green">&#x2705;</div><div><div class="s-num" id="wsActive">'+D.workshops.filter(function(w){return w.status==="active";}).length+'</div><div class="s-label">合作中</div></div></div><div class="stat-card"><div class="s-icon s-orange">&#x23F8;</div><div><div class="s-num" id="wsSuspended">'+D.workshops.filter(function(w){return w.status==="suspended";}).length+'</div><div class="s-label">暂停合作</div></div></div><div class="stat-card"><div class="s-icon s-red">&#x2716;</div><div><div class="s-num" id="wsTerminated">'+D.workshops.filter(function(w){return w.status==="terminated";}).length+'</div><div class="s-label">已终止</div></div></div></div>';
+  h += '<div class="toolbar"><input type="text" id="wsSearch" placeholder="搜索维修厂名称/地址..." oninput="renderReq14Table()"><select id="wsStatusFilter" onchange="renderReq14Table()"><option value="">全部状态</option><option value="active">合作中</option><option value="suspended">暂停合作</option><option value="terminated">已终止</option></select><span class="spacer"></span><button class="btn btn-primary" onclick="openWorkshopForm()">+ 新增维修厂</button></div>';
+  h += '<div class="card" style="padding:0"><table><thead><tr><th>维修厂名称</th><th>联系人</th><th>服务类型</th><th>综合评分</th><th>累计工单</th><th>定点状态</th><th>合同到期</th><th>操作</th></tr></thead><tbody id="req14TableBody"></tbody></table></div>';
+  area.innerHTML = h; renderReq14Table();
+}
+
+function renderReq14Table(){
+  var body = document.getElementById("req14TableBody"); if(!body) return;
+  var s = (document.getElementById("wsSearch")||{}).value||"";
+  var sf = (document.getElementById("wsStatusFilter")||{}).value||"";
+  var list = D.workshops.filter(function(w){
+    if(s && !(w.name+w.address+w.contact).toLowerCase().includes(s.toLowerCase())) return false;
+    if(sf && w.status!==sf) return false;
+    return true;
+  });
+  
+  body.innerHTML = list.map(function(w){
+    var stars = [1,2,3,4,5].map(function(i){return i<=Math.round(w.rating)?'&#9733;':'&#9734;';}).join("");
+    var sTagHtml = w.status==="active"?'<span class="tag tag-success">合作中</span>':w.status==="suspended"?'<span class="tag tag-warning">暂停合作</span>':'<span class="tag tag-danger">已终止</span>';
+    var types = w.serviceTypes.slice(0,3).map(function(t){return '<span class="tag tag-default" style="margin:1px">'+t+'</span>';}).join(" ");
+    var actions = '<button class="btn btn-sm" onclick="editWorkshop(\''+w.id+'\')">编辑</button> <button class="btn btn-sm" onclick="viewWorkshopDashboard(\''+w.id+'\')">看板</button>';
+    if(w.status==="active") actions += ' <button class="btn btn-sm btn-warning" onclick="changeWSStatus(\''+w.id+'\',\'suspended\')">暂停</button>';
+    if(w.status==="suspended") actions += ' <button class="btn btn-sm btn-success" onclick="changeWSStatus(\''+w.id+'\',\'active\')">恢复</button>';
+    if(w.status!=="terminated") actions += ' <button class="btn btn-sm btn-danger" onclick="changeWSStatus(\''+w.id+'\',\'terminated\')">终止</button>';
+    return '<tr><td>'+w.name+'</td><td>'+w.contact+'<br><span style="font-size:11px;color:#999">'+w.phone+'</span></td><td>'+types+'</td><td><span class="stars">'+stars+'</span> '+w.rating+'</td><td>'+w.orders+'</td><td>'+sTagHtml+'</td><td>'+(w.contractExpiry||"-")+'</td><td style="white-space:nowrap">'+actions+'</td></tr>';
+  }).join("");
+  
+  document.getElementById("wsTotal").textContent = D.workshops.length;
+  document.getElementById("wsActive").textContent = D.workshops.filter(function(w){return w.status==="active";}).length;
+  document.getElementById("wsSuspended").textContent = D.workshops.filter(function(w){return w.status==="suspended";}).length;
+  document.getElementById("wsTerminated").textContent = D.workshops.filter(function(w){return w.status==="terminated";}).length;
+}
+
+function openWorkshopForm(editId){
+  var ws = editId ? D.workshops.find(function(w){return w.id===editId;}) : null;
+  if(ws){
+    document.getElementById("modalWorkshopTitle").textContent = "编辑维修厂";
+    document.getElementById("wsEditId").value = ws.id;
+    document.getElementById("wsName").value = ws.name;
+    document.getElementById("wsCreditCode").value = ws.creditCode;
+    document.getElementById("wsContact").value = ws.contact;
+    document.getElementById("wsPhone").value = ws.phone;
+    document.getElementById("wsAddress").value = ws.address;
+    document.getElementById("wsScope").value = ws.scope||"";
+    document.getElementById("wsRating").value = ws.rating;
+    document.getElementById("wsContractExpiry").value = ws.contractExpiry||"";
+    
+    document.querySelectorAll("#modalWorkshop .checkbox-item").forEach(function(el){
+      el.classList.remove("checked");
+      var cb = el.querySelector("input");
+      cb.checked = ws.serviceTypes.includes(cb.value);
+      if(cb.checked) el.classList.add("checked");
+    });
+    
+    document.getElementById("wsFileList").innerHTML = ws.files.map(function(f){return '<span class="file-tag">'+f+' <span style="cursor:pointer;color:#999" onclick="this.parentElement.remove()">&times;</span></span>';}).join("");
+  } else {
+    document.getElementById("modalWorkshopTitle").textContent = "新增维修厂";
+    document.getElementById("wsEditId").value = "";
+    resetForm("ws");
+    document.querySelectorAll("#modalWorkshop .checkbox-item").forEach(function(el){ el.classList.remove("checked"); });
+    document.getElementById("wsFileList").innerHTML = "";
+  }
+  showModal("modalWorkshop");
+}
+function editWorkshop(id){ openWorkshopForm(id); }
+function saveWorkshop(){
+  var id = document.getElementById("wsEditId").value;
+  var name = document.getElementById("wsName").value.trim();
+  var creditCode = document.getElementById("wsCreditCode").value.trim();
+  var contact = document.getElementById("wsContact").value.trim();
+  var phone = document.getElementById("wsPhone").value.trim();
+  var address = document.getElementById("wsAddress").value.trim();
+  var scope = document.getElementById("wsScope").value.trim();
+  var rating = parseFloat(document.getElementById("wsRating").value)||4.0;
+  var contractExpiry = document.getElementById("wsContractExpiry").value;
+  var valid = true;
+  if(!name){ setFormError("wsName","请输入名称"); valid=false; } else clearFormError("wsName");
+  if(!creditCode||creditCode.length<10){ setFormError("wsCreditCode","请输入有效信用代码"); valid=false; } else clearFormError("wsCreditCode");
+  if(!contact){ setFormError("wsContact","请输入联系人"); valid=false; } else clearFormError("wsContact");
+  if(!phone){ setFormError("wsPhone","请输入电话"); valid=false; } else clearFormError("wsPhone");
+  if(!address){ setFormError("wsAddress","请输入地址"); valid=false; } else clearFormError("wsAddress");
+  if(!valid) return;
+  
+  var serviceTypes = [];
+  document.querySelectorAll("#modalWorkshop .checkbox-item input:checked").forEach(function(cb){ serviceTypes.push(cb.value); });
+  
+  var fileTags = document.querySelectorAll("#wsFileList .file-tag");
+  var files = Array.from(fileTags).map(function(t){return t.childNodes[0].textContent;});
+  
+  if(id){
+    var ws = D.workshops.find(function(w){return w.id===id;});
+    if(ws){ ws.name=name;ws.creditCode=creditCode;ws.contact=contact;ws.phone=phone;ws.address=address;ws.scope=scope;ws.rating=rating;ws.serviceTypes=serviceTypes;ws.contractExpiry=contractExpiry;ws.files=files; }
+    showToast("维修厂信息更新成功","success");
+  } else {
+    D.workshops.push({id:"WS"+Date.now().toString(36).toUpperCase(),name:name,creditCode:creditCode,contact:contact,phone:phone,address:address,scope:scope,serviceTypes:serviceTypes,rating:rating,orders:0,status:"active",contractExpiry:contractExpiry,files:files});
+    showToast("维修厂添加成功","success");
+  }
+  hideModal("modalWorkshop"); renderReq14Table();
+}
+
+function changeWSStatus(id, newStatus){
+  var ws = D.workshops.find(function(w){return w.id===id;}); if(!ws) return;
+  var titles = {suspended:"暂停合作",active:"恢复合作",terminated:"终止合作"};
+  var msgs = {suspended:'确认将 <strong>'+ws.name+'</strong> 设为<strong>暂停合作</strong>？新工单将不再分配。',
+              active:'确认将 <strong>'+ws.name+'</strong> 恢复为<strong>合作中</strong>？',
+              terminated:'确认将 <strong>'+ws.name+'</strong> <strong style="color:#ff4d4f">终止合作</strong>？将从可选列表移除。'};
+  document.getElementById("modalConfirmTitle").textContent = titles[newStatus];
+  document.getElementById("modalConfirmBody").innerHTML = '<p>'+msgs[newStatus]+'</p>';
+  document.getElementById("modalConfirmBtn").onclick = function(){
+    ws.status = newStatus;
+    hideModal("modalConfirm"); renderReq14Table(); updateBadges();
+    showToast(titles[newStatus]+"完成","success");
+  };
+  showModal("modalConfirm");
+}
+
+function viewWorkshopDashboard(id){
+  var ws = D.workshops.find(function(w){return w.id===id;}); if(!ws) return;
+  var mockMonthly = [12,8,15,10,18,14,20,16,11,13,9,17];
+  var maxM = Math.max.apply(null,mockMonthly);
+  var stars = [1,2,3,4,5].map(function(i){return i<=Math.round(ws.rating)?'&#9733;':'&#9734;';}).join("");
+  
+  var h = '<div class="stats-row cols2" style="margin-bottom:16px"><div class="stat-card"><div class="s-icon s-blue">&#x1F4CB;</div><div><div class="s-num">'+ws.orders+'</div><div class="s-label">累计工单数</div></div></div><div class="stat-card"><div class="s-icon s-orange">&#x2B50;</div><div><div class="s-num">'+ws.rating+'</div><div class="s-label">综合评分</div></div></div></div>';
+  h += '<p style="margin-bottom:8px"><strong>服务类型:</strong> '+ws.serviceTypes.join(" / ")+'</p>';
+  h += '<p>'+stars+'</p>';
+  h += '<div class="card-title">月度工单统计</div><div class="chart-bars" style="height:180px">';
+  mockMonthly.forEach(function(v,i){
+    h += '<div class="bar-col"><div class="bar-val">'+v+'</div><div class="bar" style="height:'+(v/maxM*140)+'px"></div><div class="bar-label">'+(i+1)+'月</div></div>';
+  });
+  h += '</div>';
+  
+  document.getElementById("modalWorkshopViewBody").innerHTML = h;
+  showModal("modalWorkshopView");
+}
+
+// ==================== INIT ====================
+document.getElementById("topbarDate").textContent = new Date().toISOString().slice(0,10) + " " + ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"][new Date().getDay()];
+
+var styleSheet = document.createElement("style");
+styleSheet.textContent = "@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}";
+document.head.appendChild(styleSheet);
+
+buildAllModals();
+renderView("dashboard");
+
+// ==================== VOID UTILS (for unused references) ====================
+window._noop = function(){};
 </script>
 </body>
 </html>
