@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>定点加油站信息维护</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+a { color: #1890ff; text-decoration: none; }
+
+.page { max-width: 1440px; margin: 0 auto; padding: 24px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.header h2 { font-size: 22px; font-weight: 600; }
+.header .subtitle { font-size: 13px; color: #999; margin-top: 4px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; cursor: pointer; transition: all .2s; background: #fff; color: #333; }
+.btn:hover { border-color: #1890ff; color: #1890ff; }
+.btn-primary { background: #1890ff; color: #fff; border-color: #1890ff; }
+.btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+.btn-danger { color: #ff4d4f; border-color: #ff4d4f; }
+.btn-danger:hover { background: #fff2f0; }
+.btn-success { color: #52c41a; border-color: #52c41a; }
+.btn-success:hover { background: #f6ffed; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-xs { padding: 2px 8px; font-size: 12px; border-radius: 3px; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+.stat-card { background: #fff; border-radius: 8px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); display: flex; align-items: center; gap: 16px; }
+.stat-card .icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.stat-card .info .num { font-size: 28px; font-weight: 700; line-height: 1.2; }
+.stat-card .info .label { font-size: 13px; color: #999; margin-top: 2px; }
+.icon-blue { background: #e6f7ff; color: #1890ff; }
+.icon-green { background: #f6ffed; color: #52c41a; }
+.icon-orange { background: #fff7e6; color: #fa8c16; }
+.icon-red { background: #fff2f0; color: #ff4d4f; }
+
+.toolbar { background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.toolbar input, .toolbar select { height: 36px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; outline: none; transition: border-color .2s; background: #fff; }
+.toolbar input:focus, .toolbar select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.1); }
+.toolbar input { width: 260px; }
+.toolbar select { min-width: 140px; }
+.toolbar .spacer { flex: 1; }
+
+.table-wrap { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #fafafa; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; color: #666; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+tr:nth-child(even) td { background: #fafbfc; }
+tr:hover td { background: #f0f5ff; }
+tr:last-child td { border-bottom: none; }
+
+.tag { display: inline-block; padding: 2px 10px; border-radius: 3px; font-size: 12px; font-weight: 500; }
+.tag-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.tag-warning { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+.tag-danger { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+.tag-default { background: #f5f5f5; color: #999; border: 1px solid #e8e8e8; }
+.tag-brand-zhongshihua { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+.tag-brand-zhongshiyou { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+.tag-brand-shell { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+.tag-brand-minying { background: #f5f5f5; color: #666; border: 1px solid #d9d9d9; }
+.tag-brand-other { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 16px 20px; }
+.pagination .pg-btn { width: 32px; height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; background: #fff; transition: all .2s; }
+.pagination .pg-btn:hover { border-color: #1890ff; color: #1890ff; }
+.pagination .pg-btn.active { background: #1890ff; color: #fff; border-color: #1890ff; }
+.pagination .pg-btn:disabled { color: #ccc; cursor: not-allowed; border-color: #e8e8e8; }
+.pagination .pg-info { font-size: 13px; color: #999; margin: 0 8px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; display: flex; align-items: flex-start; justify-content: center; padding-top: 60px; }
+.modal { background: #fff; border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.15); width: 720px; max-height: 85vh; display: flex; flex-direction: column; animation: modalIn .25s ease; }
+.modal-lg { width: 940px; }
+.modal-sm { width: 480px; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(-20px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid #f0f0f0; }
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-header .close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-size: 18px; color: #999; transition: all .2s; border: none; background: none; }
+.modal-header .close:hover { background: #f5f5f5; color: #333; }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0f0f0; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #333; }
+.form-group label .required { color: #ff4d4f; margin-left: 2px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; outline: none; transition: border-color .2s; font-family: inherit; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.1); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group .input-err { border-color: #ff4d4f !important; }
+.form-group .err-msg { color: #ff4d4f; font-size: 12px; margin-top: 4px; display: none; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 16px; }
+.form-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0 16px; }
+
+.tabs { display: flex; gap: 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px; }
+.tab { padding: 10px 20px; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .2s; }
+.tab:hover { color: #1890ff; }
+.tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 600; }
+
+.chart-bar { display: flex; align-items: flex-end; gap: 8px; height: 200px; padding: 0 20px 30px; border-bottom: 2px solid #e8e8e8; border-left: 2px solid #e8e8e8; margin: 20px 0 10px 40px; }
+.chart-bar .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.chart-bar .bar { width: 100%; max-width: 50px; background: linear-gradient(to top, #1890ff, #69c0ff); border-radius: 4px 4px 0 0; transition: height .4s; min-width: 24px; }
+.chart-bar .bar-val { font-size: 11px; color: #999; }
+.chart-bar .bar-label { font-size: 11px; color: #666; position: relative; top: 28px; }
+
+.donut-chart { display: flex; align-items: center; gap: 30px; margin: 16px 0; }
+.donut-chart .legend { display: flex; flex-direction: column; gap: 10px; }
+.donut-chart .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.donut-chart .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+.donut-chart .legend-pct { color: #999; margin-left: 4px; }
+
+.upload-area { border: 2px dashed #d9d9d9; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all .2s; }
+.upload-area:hover { border-color: #1890ff; background: #fafafa; }
+.upload-area .upload-icon { font-size: 32px; color: #999; margin-bottom: 8px; }
+.upload-area p { color: #999; font-size: 13px; }
+.file-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.file-tag { display: flex; align-items: center; gap: 6px; padding: 4px 12px; background: #f5f5f5; border-radius: 4px; font-size: 13px; }
+.file-tag .remove { cursor: pointer; color: #999; font-weight: bold; }
+
+.stars { color: #faad14; font-size: 14px; letter-spacing: 2px; }
+
+.confirm-text { font-size: 15px; line-height: 1.6; color: #555; }
+.confirm-text strong { color: #ff4d4f; }
+.confirm-text .reason-wrap { margin-top: 14px; }
+.confirm-text .reason-wrap textarea { width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 60px; outline: none; }
+.confirm-text .reason-wrap textarea:focus { border-color: #1890ff; }
+
+.hidden { display: none !important; }
+.actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.price-inline { font-size: 12px; color: #666; line-height: 1.6; }
+.price-inline span { margin-right: 8px; white-space: nowrap; }
+
+.toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); padding: 10px 24px; border-radius: 6px; font-size: 14px; z-index: 9999; animation: fadeIn .3s; pointer-events: none; }
+.toast-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.toast-error { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+.toast-warning { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
+@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+.review-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.review-item:last-child { border-bottom: none; }
+.review-item .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.review-item .review-date { font-size: 12px; color: #999; }
+
+.detail-section { margin-bottom: 24px; }
+.detail-section h4 { font-size: 15px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
+
+.dist-bar { display: flex; flex-direction: column; gap: 10px; }
+.dist-bar .dist-row { display: flex; align-items: center; gap: 10px; }
+.dist-bar .dist-name { width: 120px; font-size: 13px; flex-shrink: 0; }
+.dist-bar .dist-track { flex: 1; height: 20px; background: #f5f5f5; border-radius: 4px; overflow: hidden; }
+.dist-bar .dist-fill { height: 100%; background: #1890ff; border-radius: 4px; transition: width .4s; }
+.dist-bar .dist-val { width: 50px; font-size: 12px; color: #999; text-align: right; flex-shrink: 0; }
+
+.dashboard-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+
+.rating-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 13px; }
+.rating-row .rating-label { width: 100px; }
+
+.price-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.price-card { background: #fafafa; border-radius: 8px; padding: 16px; border: 1px solid #f0f0f0; }
+.price-card .fuel-name { font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+.price-card .fuel-current { font-size: 24px; font-weight: 700; color: #1890ff; margin-bottom: 12px; }
+.price-card .fuel-input-row { display: flex; gap: 8px; }
+.price-card .fuel-input-row input { flex: 1; padding: 6px 10px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; outline: none; }
+.price-card .fuel-input-row input:focus { border-color: #1890ff; }
+.price-card .fuel-input-row button { padding: 6px 14px; }
+
+@media (max-width: 768px) {
+  .stats, .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
+  .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
+  .modal { width: 95%; }
+  .price-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="page" id="app">
+  <div class="header">
+    <div>
+      <h2>定点加油站信息维护</h2>
+      <p class="subtitle">管理合作加油站档案、油价信息及合作状态</p>
+    </div>
+    <button class="btn btn-primary" onclick="openStationForm()">+ 新增加油站</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="icon icon-blue">&#9981;</div>
+      <div class="info"><div class="num" id="totalCount">8</div><div class="label">加油站总数</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon icon-green">&#10003;</div>
+      <div class="info"><div class="num" id="activeCount">5</div><div class="label">合作中</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon icon-orange">&#9888;</div>
+      <div class="info"><div class="num" id="suspendedCount">1</div><div class="label">暂停合作</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="icon icon-red">&#9202;</div>
+      <div class="info"><div class="num" id="expiringCount">2</div><div class="label">30天内到期</div></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="搜索名称/地址/联系人..." oninput="debounceRender()">
+    <select id="brandFilter" onchange="renderTable()">
+      <option value="">全部品牌</option>
+      <option value="中石化">中石化</option>
+      <option value="中石油">中石油</option>
+      <option value="中海油">中海油</option>
+      <option value="壳牌">壳牌</option>
+      <option value="民营">民营</option>
+      <option value="其他">其他</option>
+    </select>
+    <select id="statusFilter" onchange="renderTable()">
+      <option value="">全部状态</option>
+      <option value="active">合作中</option>
+      <option value="suspended">暂停合作</option>
+      <option value="terminated">已终止</option>
+    </select>
+    <select id="cityFilter" onchange="renderTable()">
+      <option value="">全部城市</option>
+      <option value="北京">北京</option>
+      <option value="上海">上海</option>
+      <option value="广州">广州</option>
+      <option value="深圳">深圳</option>
+      <option value="成都">成都</option>
+      <option value="杭州">杭州</option>
+    </select>
+    <span class="spacer"></span>
+    <span style="font-size:13px;color:#999;" id="resultCount">共 8 条记录</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>加油站名称</th>
+          <th>品牌</th>
+          <th>所在城市</th>
+          <th>联系人</th>
+          <th>当前油价</th>
+          <th>协议到期</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="pagination" id="paginationWrap"></div>
+  </div>
+</div>
+
+<!-- 新增/编辑弹窗 -->
+<div class="modal-overlay hidden" id="stationModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="stationModalTitle">新增加油站</h3>
+      <button class="close" onclick="closeModal('stationModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>加油站名称 <span class="required">*</span></label>
+          <input type="text" id="stName" placeholder="请输入加油站全称">
+          <span class="err-msg" id="errName"></span>
+        </div>
+        <div class="form-group">
+          <label>统一社会信用代码</label>
+          <input type="text" id="stCreditCode" placeholder="18位信用代码（选填）" maxlength="18">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>品牌 <span class="required">*</span></label>
+          <select id="stBrand">
+            <option value="">请选择品牌</option>
+            <option value="中石化">中石化</option>
+            <option value="中石油">中石油</option>
+            <option value="中海油">中海油</option>
+            <option value="壳牌">壳牌</option>
+            <option value="民营">民营</option>
+            <option value="其他">其他</option>
+          </select>
+          <span class="err-msg" id="errBrand"></span>
+        </div>
+        <div class="form-group">
+          <label>站点类型</label>
+          <select id="stType">
+            <option value="直营站">直营站</option>
+            <option value="加盟站">加盟站</option>
+            <option value="自有站">自有站</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>省份</label>
+          <input type="text" id="stProvince" placeholder="省份">
+        </div>
+        <div class="form-group">
+          <label>城市</label>
+          <input type="text" id="stCity" placeholder="城市">
+        </div>
+        <div class="form-group">
+          <label>区/县</label>
+          <input type="text" id="stDistrict" placeholder="区/县">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>详细地址 <span class="required">*</span></label>
+        <input type="text" id="stAddress" placeholder="请输入详细地址">
+        <span class="err-msg" id="errAddress"></span>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>经度</label>
+          <input type="text" id="stLongitude" placeholder="经度（选填）">
+        </div>
+        <div class="form-group">
+          <label>纬度</label>
+          <input type="text" id="stLatitude" placeholder="纬度（选填）">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>联系人 <span class="required">*</span></label>
+          <input type="text" id="stContact" placeholder="请输入联系人姓名">
+          <span class="err-msg" id="errContact"></span>
+        </div>
+        <div class="form-group">
+          <label>联系电话 <span class="required">*</span></label>
+          <input type="text" id="stPhone" placeholder="请输入联系电话">
+          <span class="err-msg" id="errPhone"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>营业时间</label>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;">
+            <input type="checkbox" id="stOpen24h" onchange="toggleBusinessHours()"> 24小时营业
+          </label>
+          <div id="scheduledHours" style="display:flex;align-items:center;gap:10px;">
+            <input type="time" id="stOpenTime" value="06:00" style="width:130px;">
+            <span>至</span>
+            <input type="time" id="stCloseTime" value="22:00" style="width:130px;">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>合作协议</label>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>协议类型</label>
+          <select id="stAgreementType">
+            <option value="长期协议">长期协议</option>
+            <option value="年度协议">年度协议</option>
+            <option value="一次性协议">一次性协议</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>开始日期</label>
+          <input type="date" id="stAgreementStart">
+        </div>
+        <div class="form-group">
+          <label>结束日期</label>
+          <input type="date" id="stAgreementEnd">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>附件资料</label>
+        <div class="upload-area" onclick="simulateUpload('station')">
+          <div class="upload-icon">&#128206;</div>
+          <p>点击上传合作协议、资质文件等</p>
+          <p style="font-size:12px;">支持 JPG、PNG、PDF 格式</p>
+        </div>
+        <div class="file-list" id="stFileList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('stationModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveStation()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 油价管理弹窗 -->
+<div class="modal-overlay hidden" id="priceModal">
+  <div class="modal" style="width:620px;">
+    <div class="modal-header">
+      <h3>油价管理 - <span id="priceStationName"></span></h3>
+      <button class="close" onclick="closeModal('priceModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="price-grid" id="priceGrid"></div>
+      <div class="form-group hidden" id="priceHistoryWrap" style="margin-top:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-weight:600;font-size:14px;">价格历史</span>
+          <button class="btn btn-sm" onclick="closePriceHistory()">收起</button>
+        </div>
+        <div id="priceHistoryContent"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm" onclick="showPriceHistory()" id="btnPriceHistory">价格历史</button>
+      <button class="btn" onclick="closeModal('priceModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 状态变更弹窗 -->
+<div class="modal-overlay hidden" id="statusModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>变更合作状态</h3>
+      <button class="close" onclick="closeModal('statusModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-text" id="statusConfirmText"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('statusModal')">取消</button>
+      <button class="btn btn-primary" id="statusConfirmBtn" onclick="confirmStatusChange()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- 详情看板弹窗 -->
+<div class="modal-overlay hidden" id="dashboardModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>加油站详情 - <span id="dbName"></span></h3>
+      <button class="close" onclick="closeModal('dashboardModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-section">
+        <h4>基本信息</h4>
+        <div class="form-row-4">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:12px;color:#999;">加油站名称</label>
+            <div style="font-size:14px;font-weight:500;" id="dbInfoName"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:12px;color:#999;">品牌</label>
+            <div id="dbInfoBrand"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:12px;color:#999;">站点类型</label>
+            <div style="font-size:14px;" id="dbInfoType"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:12px;color:#999;">状态</label>
+            <div id="dbInfoStatus"></div>
+          </div>
+        </div>
+        <div class="form-row-3" style="margin-top:16px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:12px;color:#999;">地址</label>
+            <div style="font-size:14px;" id="dbInfoAddress"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:12px;color:#999;">联系人</label>
+            <div style="font-size:14px;" id="dbInfoContact"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:12px;color:#999;">协议信息</label>
+            <div style="font-size:14px;" id="dbInfoAgreement"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4>运营数据</h4>
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="icon icon-blue">&#9981;</div>
+            <div class="info"><div class="num" id="dbRefuelCount">0</div><div class="label">累计加油次数</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="icon icon-green">&#128230;</div>
+            <div class="info"><div class="num" id="dbTotalLiters">0</div><div class="label">累计加油量(升)</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="icon icon-orange">&#128176;</div>
+            <div class="info"><div class="num" id="dbTotalAmount">0</div><div class="label">累计金额(元)</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="icon icon-red">&#128663;</div>
+            <div class="info"><div class="num" id="dbVehicleCount">0</div><div class="label">服务车辆数</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4>近12个月加油量统计(吨)</h4>
+        <div class="chart-bar" id="chartBar"></div>
+      </div>
+
+      <div class="detail-section">
+        <h4>油品类型分布</h4>
+        <div class="dist-bar" id="fuelDist"></div>
+      </div>
+
+      <div class="detail-section">
+        <h4>部门加油占比</h4>
+        <div class="dist-bar" id="deptDist"></div>
+      </div>
+
+      <div class="detail-section">
+        <h4>综合评分</h4>
+        <div id="dbRatings"></div>
+      </div>
+
+      <div class="detail-section">
+        <h4>附件资料</h4>
+        <div id="dbFiles"></div>
+      </div>
+
+      <div class="detail-section">
+        <h4>近期评价</h4>
+        <div id="dbReviews"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('dashboardModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const BRAND_TAG_MAP = {
+  '中石化': 'tag-brand-zhongshihua',
+  '中石油': 'tag-brand-zhongshiyou',
+  '中海油': 'tag-brand-other',
+  '壳牌': 'tag-brand-shell',
+  '民营': 'tag-brand-minying',
+  '其他': 'tag-brand-other'
+};
+
+const FUEL_TYPES = [
+  { key: '92#', label: '92#汽油' },
+  { key: '95#', label: '95#汽油' },
+  { key: '98#', label: '98#汽油' },
+  { key: '0#柴油', label: '0#柴油' },
+  { key: '-10#柴油', label: '-10#柴油' }
+];
+
+const FUEL_COLORS = ['#1890ff', '#52c41a', '#722ed1', '#fa8c16', '#13c2c2'];
+
+function makeStation(id, opts) {
+  return {
+    id,
+    name: opts.name,
+    creditCode: opts.creditCode || '',
+    brand: opts.brand,
+    stationType: opts.stationType || '直营站',
+    province: opts.province || '',
+    city: opts.city || '',
+    district: opts.district || '',
+    address: opts.address || '',
+    longitude: opts.longitude || '',
+    latitude: opts.latitude || '',
+    contactPerson: opts.contactPerson || '',
+    contactPhone: opts.contactPhone || '',
+    open24h: opts.open24h !== undefined ? opts.open24h : true,
+    openTime: opts.openTime || '06:00',
+    closeTime: opts.closeTime || '22:00',
+    agreementType: opts.agreementType || '长期协议',
+    agreementStart: opts.agreementStart || '2024-01-01',
+    agreementEnd: opts.agreementEnd || '2027-01-01',
+    files: opts.files || [],
+    status: opts.status || 'active',
+    fuelPrices: opts.fuelPrices || { '92#': 7.45, '95#': 7.92, '98#': 8.65, '0#柴油': 7.10, '-10#柴油': 7.55 },
+    priceHistory: opts.priceHistory || {},
+    stats: opts.stats || { refuelCount: 0, totalLiters: 0, totalAmount: 0, vehicleCount: 0 },
+    monthlyVolume: opts.monthlyVolume || [],
+    fuelDistribution: opts.fuelDistribution || { '92#汽油': 42, '95#汽油': 28, '98#汽油': 8, '0#柴油': 18, '-10#柴油': 4 },
+    departmentDistribution: opts.departmentDistribution || [],
+    ratings: opts.ratings || { fuelQuality: 4.2, serviceAttitude: 4.0, invoiceEfficiency: 3.8, waitTime: 4.5 },
+    reviews: opts.reviews || []
+  };
+}
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function randomHistory(basePrice) {
+  const months = ['2024-01','2024-03','2024-05','2024-07','2024-09','2024-11','2025-01','2025-03','2025-05','2025-07','2025-09','2025-11','2026-01','2026-03','2026-05'];
+  const hist = {};
+  FUEL_TYPES.forEach(ft => {
+    let p = ft.key === '92#' ? 7.20 : (ft.key === '95#' ? 7.70 : (ft.key === '98#' ? 8.40 : (ft.key === '0#柴油' ? 6.80 : 7.30)));
+    hist[ft.key] = months.map(m => {
+      p += (Math.random() - 0.45) * 0.30;
+      return { month: m, price: Math.round(p * 100) / 100 };
+    });
+  });
+  return hist;
+}
+
+const initialData = [
+  makeStation(1, {
+    name: '中石化朝阳路加油站', brand: '中石化', city: '北京', district: '朝阳区',
+    address: '北京市朝阳区朝阳路128号', contactPerson: '张建国', contactPhone: '13801001111',
+    agreementEnd: '2026-07-15',
+    fuelPrices: { '92#': 7.45, '95#': 7.92, '98#': 8.65, '0#柴油': 7.10, '-10#柴油': 7.55 },
+    priceHistory: randomHistory(7.45),
+    stats: { refuelCount: 12850, totalLiters: 185600, totalAmount: 1385000, vehicleCount: 320 },
+    monthlyVolume: [34,28,36,42,38,45,40,48,44,39,42,35],
+    fuelDistribution: { '92#汽油': 42, '95#汽油': 28, '98#汽油': 8, '0#柴油': 18, '-10#柴油': 4 },
+    departmentDistribution: [
+      { name: '后勤保障部', percentage: 35 }, { name: '运输车队', percentage: 28 },
+      { name: '工程部', percentage: 18 }, { name: '行政办公室', percentage: 12 }, { name: '其他部门', percentage: 7 }
+    ],
+    ratings: { fuelQuality: 4.5, serviceAttitude: 4.2, invoiceEfficiency: 4.0, waitTime: 4.3 },
+    reviews: [
+      { text: '加油服务规范，油品质量稳定', rating: 5, date: '2026-06-20' },
+      { text: '高峰期等待时间偏长，整体服务不错', rating: 4, date: '2026-06-15' },
+      { text: '发票开具快捷，工作人员态度好', rating: 5, date: '2026-06-10' }
+    ],
+    files: ['合作协议-中石化朝阳路.pdf', '营业执照.jpg', '危化品经营许可证.pdf']
+  }),
+  makeStation(2, {
+    name: '壳牌望京加油站', brand: '壳牌', city: '北京', district: '朝阳区',
+    address: '北京市朝阳区望京西路56号', contactPerson: '李明辉', contactPhone: '13901002222',
+    agreementEnd: '2029-03-20',
+    fuelPrices: { '92#': 7.48, '95#': 7.95, '98#': 8.70, '0#柴油': 7.15, '-10#柴油': 7.60 },
+    priceHistory: randomHistory(7.48),
+    stats: { refuelCount: 9600, totalLiters: 142300, totalAmount: 1068000, vehicleCount: 245 },
+    monthlyVolume: [28,25,30,35,32,38,34,41,37,33,36,30],
+    fuelDistribution: { '92#汽油': 38, '95#汽油': 32, '98#汽油': 10, '0#柴油': 15, '-10#柴油': 5 },
+    departmentDistribution: [
+      { name: '运输车队', percentage: 40 }, { name: '后勤保障部', percentage: 25 },
+      { name: '工程部', percentage: 20 }, { name: '行政办公室', percentage: 10 }, { name: '其他部门', percentage: 5 }
+    ],
+    ratings: { fuelQuality: 4.3, serviceAttitude: 4.5, invoiceEfficiency: 3.9, waitTime: 4.0 },
+    reviews: [
+      { text: '壳牌油品品质好，发动机运行更顺畅', rating: 5, date: '2026-06-18' },
+      { text: '服务态度很好，环境整洁', rating: 4, date: '2026-06-12' }
+    ],
+    files: ['合作协议-壳牌望京.pdf', '营业执照.jpg']
+  }),
+  makeStation(3, {
+    name: '中石油浦东大道加油站', brand: '中石油', city: '上海', district: '浦东新区',
+    address: '上海市浦东新区浦东大道1888号', contactPerson: '王伟强', contactPhone: '13701003333',
+    agreementEnd: '2026-08-05',
+    fuelPrices: { '92#': 7.43, '95#': 7.89, '98#': 8.62, '0#柴油': 7.08, '-10#柴油': 7.52 },
+    priceHistory: randomHistory(7.43),
+    stats: { refuelCount: 7600, totalLiters: 112500, totalAmount: 838000, vehicleCount: 195 },
+    monthlyVolume: [22,20,24,28,26,30,27,32,29,25,28,24],
+    fuelDistribution: { '92#汽油': 45, '95#汽油': 25, '98#汽油': 6, '0#柴油': 20, '-10#柴油': 4 },
+    departmentDistribution: [
+      { name: '后勤保障部', percentage: 38 }, { name: '运输车队', percentage: 30 },
+      { name: '工程部', percentage: 18 }, { name: '行政办公室', percentage: 10 }, { name: '其他部门', percentage: 4 }
+    ],
+    ratings: { fuelQuality: 4.0, serviceAttitude: 3.8, invoiceEfficiency: 4.2, waitTime: 4.5 },
+    reviews: [
+      { text: '位置方便，加油不用排队太久', rating: 4, date: '2026-06-16' }
+    ],
+    files: ['合作协议-中石油浦东.pdf', '营业执照.jpg', '成品油零售许可证.pdf']
+  }),
+  makeStation(4, {
+    name: '中海油深圳南山加油站', brand: '中海油', city: '深圳', district: '南山区',
+    address: '深圳市南山区科技园南路18号', contactPerson: '陈志明', contactPhone: '13602004444',
+    agreementEnd: '2027-05-18',
+    fuelPrices: { '92#': 7.40, '95#': 7.87, '98#': 8.58, '0#柴油': 7.05, '-10#柴油': 7.48 },
+    priceHistory: randomHistory(7.40),
+    stats: { refuelCount: 5400, totalLiters: 82100, totalAmount: 612000, vehicleCount: 148 },
+    monthlyVolume: [18,16,20,22,19,24,21,26,23,20,22,19],
+    fuelDistribution: { '92#汽油': 40, '95#汽油': 30, '98#汽油': 5, '0#柴油': 22, '-10#柴油': 3 },
+    departmentDistribution: [
+      { name: '运输车队', percentage: 42 }, { name: '后勤保障部', percentage: 28 },
+      { name: '工程部', percentage: 16 }, { name: '行政办公室', percentage: 10 }, { name: '其他部门', percentage: 4 }
+    ],
+    ratings: { fuelQuality: 4.1, serviceAttitude: 4.3, invoiceEfficiency: 3.7, waitTime: 3.9 },
+    reviews: [
+      { text: '新开的站，设施很新，体验不错', rating: 4, date: '2026-06-08' }
+    ],
+    files: ['合作协议-中海油南山.pdf', '营业执照.jpg']
+  }),
+  makeStation(5, {
+    name: '中石油天府大道加油站', brand: '中石油', city: '成都', district: '武侯区',
+    address: '成都市武侯区天府大道中段666号', contactPerson: '刘建华', contactPhone: '13501005555',
+    agreementEnd: '2026-07-30',
+    fuelPrices: { '92#': 7.42, '95#': 7.88, '98#': 8.60, '0#柴油': 7.06, '-10#柴油': 7.50 },
+    priceHistory: randomHistory(7.42),
+    stats: { refuelCount: 8900, totalLiters: 134200, totalAmount: 998000, vehicleCount: 275 },
+    monthlyVolume: [30,27,32,36,33,38,35,42,39,34,37,32],
+    fuelDistribution: { '92#汽油': 44, '95#汽油': 26, '98#汽油': 7, '0#柴油': 19, '-10#柴油': 4 },
+    departmentDistribution: [
+      { name: '后勤保障部', percentage: 32 }, { name: '运输车队', percentage: 33 },
+      { name: '工程部', percentage: 20 }, { name: '行政办公室', percentage: 10 }, { name: '其他部门', percentage: 5 }
+    ],
+    ratings: { fuelQuality: 4.4, serviceAttitude: 4.1, invoiceEfficiency: 4.3, waitTime: 4.2 },
+    reviews: [
+      { text: '长期合作的站点，油品质量可靠', rating: 5, date: '2026-06-22' },
+      { text: '加油员服务热情周到', rating: 4, date: '2026-06-14' },
+      { text: '发票系统有时反应慢', rating: 3, date: '2026-06-05' }
+    ],
+    files: ['合作协议-中石油天府.pdf', '营业执照.jpg', '危化品经营许可证.pdf', '成品油零售许可证.pdf']
+  }),
+  makeStation(6, {
+    name: '民营顺达加油站', brand: '民营', city: '杭州', district: '余杭区',
+    address: '杭州市余杭区文一西路998号', contactPerson: '赵文斌', contactPhone: '13301006666',
+    agreementEnd: '2025-12-31', status: 'suspended',
+    fuelPrices: { '92#': 7.35, '95#': 7.80, '98#': 8.45, '0#柴油': 6.98, '-10#柴油': 7.40 },
+    priceHistory: randomHistory(7.35),
+    stats: { refuelCount: 3200, totalLiters: 48600, totalAmount: 358000, vehicleCount: 86 },
+    monthlyVolume: [12,10,14,16,13,18,15,12,9,11,8,7],
+    fuelDistribution: { '92#汽油': 50, '95#汽油': 20, '98#汽油': 3, '0#柴油': 25, '-10#柴油': 2 },
+    departmentDistribution: [
+      { name: '运输车队', percentage: 45 }, { name: '后勤保障部', percentage: 30 },
+      { name: '工程部', percentage: 15 }, { name: '其他部门', percentage: 10 }
+    ],
+    ratings: { fuelQuality: 3.5, serviceAttitude: 3.8, invoiceEfficiency: 3.2, waitTime: 3.5 },
+    reviews: [
+      { text: '价格实惠但油品质量一般', rating: 3, date: '2026-04-20'}
+    ],
+    files: ['合作协议-顺达加油站.pdf']
+  }),
+  makeStation(7, {
+    name: '中石化广州天河路加油站', brand: '中石化', city: '广州', district: '天河区',
+    address: '广州市天河区天河路528号', contactPerson: '孙晓明', contactPhone: '13102007777',
+    agreementEnd: '2026-09-28',
+    fuelPrices: { '92#': 7.46, '95#': 7.93, '98#': 8.68, '0#柴油': 7.12, '-10#柴油': 7.58 },
+    priceHistory: randomHistory(7.46),
+    stats: { refuelCount: 11200, totalLiters: 168900, totalAmount: 1258000, vehicleCount: 290 },
+    monthlyVolume: [36,32,38,44,40,48,43,52,46,41,44,38],
+    fuelDistribution: { '92#汽油': 40, '95#汽油': 30, '98#汽油': 9, '0#柴油': 17, '-10#柴油': 4 },
+    departmentDistribution: [
+      { name: '后勤保障部', percentage: 33 }, { name: '运输车队', percentage: 30 },
+      { name: '工程部', percentage: 22 }, { name: '行政办公室', percentage: 10 }, { name: '其他部门', percentage: 5 }
+    ],
+    ratings: { fuelQuality: 4.6, serviceAttitude: 4.4, invoiceEfficiency: 4.1, waitTime: 4.0 },
+    reviews: [
+      { text: '中石化品牌值得信赖，油品质量最好', rating: 5, date: '2026-06-19' },
+      { text: '加油速度快，服务和设施一流', rating: 5, date: '2026-06-17' },
+      { text: '地理位置优越，进出方便', rating: 4, date: '2026-06-11' }
+    ],
+    files: ['合作协议-中石化天河.pdf', '营业执照.jpg', '危化品经营许可证.pdf']
+  }),
+  makeStation(8, {
+    name: '壳牌成都高新区加油站', brand: '壳牌', city: '成都', district: '高新区',
+    address: '成都市高新区天府软件园E区旁', contactPerson: '周国强', contactPhone: '13001008888',
+    agreementEnd: '2025-06-15', status: 'terminated',
+    fuelPrices: { '92#': 7.38, '95#': 7.85, '98#': 8.50, '0#柴油': 7.00, '-10#柴油': 7.42 },
+    priceHistory: randomHistory(7.38),
+    stats: { refuelCount: 1800, totalLiters: 27800, totalAmount: 205000, vehicleCount: 52 },
+    monthlyVolume: [8,6,9,11,7,5,4,3,0,0,0,0],
+    fuelDistribution: { '92#汽油': 48, '95#汽油': 22, '98#汽油': 4, '0#柴油': 24, '-10#柴油': 2 },
+    departmentDistribution: [
+      { name: '运输车队', percentage: 50 }, { name: '后勤保障部', percentage: 30 }, { name: '其他部门', percentage: 20 }
+    ],
+    ratings: { fuelQuality: 3.8, serviceAttitude: 4.0, invoiceEfficiency: 3.5, waitTime: 4.2 },
+    reviews: [
+      { text: '站点已终止合作，不推荐', rating: 2, date: '2025-12-01' }
+    ],
+    files: ['合作协议-壳牌高新(已终止).pdf']
+  }),
+];
+
+let stations = JSON.parse(JSON.stringify(initialData));
+let currentStationId = null;
+let currentStatusId = null;
+let currentStatusTarget = null;
+let currentPriceStationId = null;
+let pageSize = 20;
+let currentPage = 1;
+let searchTimer = null;
+
+function renderStats() {
+  const total = stations.length;
+  const active = stations.filter(s => s.status === 'active').length;
+  const suspended = stations.filter(s => s.status === 'suspended').length;
+  const expiring = stations.filter(s => {
+    if (s.status !== 'active') return false;
+    const days = daysRemaining(s.agreementEnd);
+    return days >= 0 && days <= 30;
+  }).length;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('activeCount').textContent = active;
+  document.getElementById('suspendedCount').textContent = suspended;
+  document.getElementById('expiringCount').textContent = expiring;
+}
+
+function daysRemaining(date) {
+  return Math.ceil((new Date(date) - new Date()) / (1000 * 60 * 60 * 24));
+}
+
+function debounceRender() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(renderTable, 300);
+}
+
+function getFilteredStations() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const brand = document.getElementById('brandFilter').value;
+  const status = document.getElementById('statusFilter').value;
+  const city = document.getElementById('cityFilter').value;
+
+  return stations.filter(s => {
+    const matchSearch = !search ||
+      s.name.toLowerCase().includes(search) ||
+      s.address.toLowerCase().includes(search) ||
+      s.contactPerson.toLowerCase().includes(search);
+    const matchBrand = !brand || s.brand === brand;
+    const matchStatus = !status || s.status === status;
+    const matchCity = !city || s.city === city;
+    return matchSearch && matchBrand && matchStatus && matchCity;
+  });
+}
+
+function renderTable() {
+  const list = getFilteredStations();
+  list.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+
+  document.getElementById('resultCount').textContent = `共 ${list.length} 条记录`;
+
+  const statusLabels = { active: '合作中', suspended: '暂停合作', terminated: '已终止' };
+  const statusClasses = { active: 'tag-success', suspended: 'tag-warning', terminated: 'tag-default' };
+
+  const totalPages = Math.ceil(list.length / pageSize);
+  if (currentPage > totalPages) currentPage = totalPages || 1;
+  const start = (currentPage - 1) * pageSize;
+  const pageList = list.slice(start, start + pageSize);
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = pageList.map(s => {
+    const brandClass = BRAND_TAG_MAP[s.brand] || 'tag-default';
+    const expDays = daysRemaining(s.agreementEnd);
+    const expClass = expDays >= 0 && expDays <= 30 ? ' style="color:#ff4d4f;font-weight:600;"' : '';
+    const expText = expDays < 0 ? '<span style="color:#999;">已过期</span>' : `${expDays}天后`;
+
+    const prices = s.fuelPrices;
+    const priceLines = [
+      `<span>92#: &yen;${prices['92#']?.toFixed(2) || '-'}</span>`,
+      `<span>95#: &yen;${prices['95#']?.toFixed(2) || '-'}</span>`,
+      `<span>0#柴油: &yen;${prices['0#柴油']?.toFixed(2) || '-'}</span>`
+    ];
+
+    return `
+    <tr>
+      <td><a href="javascript:void(0)" onclick="openDashboard(${s.id})" style="font-weight:500;">${s.name}</a></td>
+      <td><span class="tag ${brandClass}">${s.brand}</span></td>
+      <td>${s.city} ${s.district}</td>
+      <td>${s.contactPerson}<br><span style="font-size:12px;color:#999;">${s.contactPhone}</span></td>
+      <td><div class="price-inline">${priceLines.join('')}</div></td>
+      <td${expClass}>${s.agreementEnd} <br><span style="font-size:11px;">${expText}</span></td>
+      <td><span class="tag ${statusClasses[s.status]}">${statusLabels[s.status]}</span></td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn btn-sm" onclick="openDashboard(${s.id})">&#128203; 详情</button>
+          <button class="btn btn-sm" onclick="openStationForm(${s.id})">&#9998; 编辑</button>
+          <button class="btn btn-sm" onclick="openPriceModal(${s.id})">&#128178; 油价</button>
+          ${statusActions(s)}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  renderPagination(totalPages);
+  renderStats();
+}
+
+function renderPagination(totalPages) {
+  const wrap = document.getElementById('paginationWrap');
+  if (totalPages <= 1) {
+    wrap.innerHTML = `<span class="pg-info">共 ${getFilteredStations().length} 条记录</span>`;
+    return;
+  }
+  let html = '';
+  html += `<button class="pg-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&#9664;</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="pg-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="pg-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&#9654;</button>`;
+  html += `<span class="pg-info">第 ${currentPage}/${totalPages} 页</span>`;
+  wrap.innerHTML = html;
+}
+
+function goPage(page) {
+  const totalPages = Math.ceil(getFilteredStations().length / pageSize);
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  renderTable();
+}
+
+function statusActions(s) {
+  if (s.status === 'active') {
+    return `<button class="btn btn-sm" style="color:#fa8c16;border-color:#fa8c16;" onclick="openStatusChange(${s.id},'suspended')">暂停</button>
+    <button class="btn btn-sm btn-danger" onclick="openStatusChange(${s.id},'terminated')">终止</button>`;
+  }
+  if (s.status === 'suspended') {
+    return `<button class="btn btn-sm btn-success" onclick="openStatusChange(${s.id},'active')">恢复</button>
+    <button class="btn btn-sm btn-danger" onclick="openStatusChange(${s.id},'terminated')">终止</button>`;
+  }
+  return '';
+}
+
+function openStationForm(id) {
+  currentStationId = id || null;
+  document.getElementById('stationModalTitle').textContent = id ? '编辑加油站' : '新增加油站';
+  document.getElementById('stFileList').innerHTML = '';
+  clearValidation();
+
+  if (id) {
+    const s = stations.find(x => x.id === id);
+    document.getElementById('stName').value = s.name;
+    document.getElementById('stCreditCode').value = s.creditCode;
+    document.getElementById('stBrand').value = s.brand;
+    document.getElementById('stType').value = s.stationType;
+    document.getElementById('stProvince').value = s.province;
+    document.getElementById('stCity').value = s.city;
+    document.getElementById('stDistrict').value = s.district;
+    document.getElementById('stAddress').value = s.address;
+    document.getElementById('stLongitude').value = s.longitude;
+    document.getElementById('stLatitude').value = s.latitude;
+    document.getElementById('stContact').value = s.contactPerson;
+    document.getElementById('stPhone').value = s.contactPhone;
+    document.getElementById('stOpen24h').checked = s.open24h;
+    document.getElementById('stOpenTime').value = s.openTime;
+    document.getElementById('stCloseTime').value = s.closeTime;
+    toggleBusinessHours();
+    document.getElementById('stAgreementType').value = s.agreementType;
+    document.getElementById('stAgreementStart').value = s.agreementStart;
+    document.getElementById('stAgreementEnd').value = s.agreementEnd;
+    if (s.files.length > 0) {
+      document.getElementById('stFileList').innerHTML = s.files.map(f =>
+        `<span class="file-tag"><span>&#128196; ${f}</span><span class="remove" onclick="this.parentElement.remove()">&times;</span></span>`
+      ).join('');
+    }
+  } else {
+    ['stName','stCreditCode','stProvince','stCity','stDistrict','stAddress','stLongitude','stLatitude','stContact','stPhone'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('stBrand').value = '';
+    document.getElementById('stType').value = '直营站';
+    document.getElementById('stOpen24h').checked = true;
+    document.getElementById('stOpenTime').value = '06:00';
+    document.getElementById('stCloseTime').value = '22:00';
+    toggleBusinessHours();
+    document.getElementById('stAgreementType').value = '长期协议';
+    document.getElementById('stAgreementStart').value = new Date().toISOString().slice(0, 10);
+    const endDate = new Date();
+    endDate.setFullYear(endDate.getFullYear() + 3);
+    document.getElementById('stAgreementEnd').value = endDate.toISOString().slice(0, 10);
+  }
+  document.getElementById('stationModal').classList.remove('hidden');
+}
+
+function toggleBusinessHours() {
+  const is24h = document.getElementById('stOpen24h').checked;
+  document.getElementById('scheduledHours').style.display = is24h ? 'none' : 'flex';
+}
+
+function clearValidation() {
+  ['stName','stBrand','stAddress','stContact','stPhone'].forEach(id => {
+    document.getElementById(id).classList.remove('input-err');
+  });
+  ['errName','errBrand','errAddress','errContact','errPhone'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.display = 'none';
+    el.textContent = '';
+  });
+}
+
+function showFieldError(fieldId, errId, msg) {
+  document.getElementById(fieldId).classList.add('input-err');
+  const errEl = document.getElementById(errId);
+  errEl.textContent = msg;
+  errEl.style.display = 'block';
+}
+
+function saveStation() {
+  clearValidation();
+  let valid = true;
+
+  const name = document.getElementById('stName').value.trim();
+  const brand = document.getElementById('stBrand').value;
+  const address = document.getElementById('stAddress').value.trim();
+  const contact = document.getElementById('stContact').value.trim();
+  const phone = document.getElementById('stPhone').value.trim();
+
+  if (!name) { showFieldError('stName', 'errName', '请输入加油站名称'); valid = false; }
+  if (!brand) { showFieldError('stBrand', 'errBrand', '请选择品牌'); valid = false; }
+  if (!address) { showFieldError('stAddress', 'errAddress', '请输入详细地址'); valid = false; }
+  if (!contact) { showFieldError('stContact', 'errContact', '请输入联系人姓名'); valid = false; }
+  if (!phone) { showFieldError('stPhone', 'errPhone', '请输入联系电话'); valid = false; }
+  else if (!/^1\d{10}$/.test(phone)) { showFieldError('stPhone', 'errPhone', '请输入正确的手机号码'); valid = false; }
+
+  if (!valid) return;
+
+  const fileTags = document.querySelectorAll('#stFileList .file-tag span:first-child');
+  const files = Array.from(fileTags).map(el => el.textContent || el.innerText);
+
+  const data = {
+    id: currentStationId || Date.now(),
+    name,
+    creditCode: document.getElementById('stCreditCode').value.trim(),
+    brand,
+    stationType: document.getElementById('stType').value,
+    province: document.getElementById('stProvince').value.trim(),
+    city: document.getElementById('stCity').value.trim(),
+    district: document.getElementById('stDistrict').value.trim(),
+    address,
+    longitude: document.getElementById('stLongitude').value.trim(),
+    latitude: document.getElementById('stLatitude').value.trim(),
+    contactPerson: contact,
+    contactPhone: phone,
+    open24h: document.getElementById('stOpen24h').checked,
+    openTime: document.getElementById('stOpenTime').value,
+    closeTime: document.getElementById('stCloseTime').value,
+    agreementType: document.getElementById('stAgreementType').value,
+    agreementStart: document.getElementById('stAgreementStart').value,
+    agreementEnd: document.getElementById('stAgreementEnd').value,
+    files,
+  };
+
+  if (currentStationId) {
+    const idx = stations.findIndex(s => s.id === currentStationId);
+    if (idx >= 0) {
+      Object.assign(stations[idx], data);
+    }
+  } else {
+    const newStation = makeStation(data.id, {
+      name: data.name, creditCode: data.creditCode, brand: data.brand,
+      stationType: data.stationType, province: data.province, city: data.city,
+      district: data.district, address: data.address, longitude: data.longitude,
+      latitude: data.latitude, contactPerson: data.contactPerson,
+      contactPhone: data.contactPhone, open24h: data.open24h, openTime: data.openTime,
+      closeTime: data.closeTime, agreementType: data.agreementType,
+      agreementStart: data.agreementStart, agreementEnd: data.agreementEnd,
+      files: data.files, status: 'active'
+    });
+    stations.push(newStation);
+  }
+
+  closeModal('stationModal');
+  renderTable();
+  showToast('保存成功', 'success');
+}
+
+function simulateUpload(scope) {
+  const mockFiles = ['营业执照.jpg', '危化品经营许可证.pdf', '合作协议扫描件.pdf'];
+  const fileListId = scope === 'station' ? 'stFileList' : 'dbFiles';
+  const fileList = document.getElementById(fileListId);
+  const existing = new Set(Array.from(fileList.querySelectorAll('.file-tag span:first-child')).map(el => el.textContent || el.innerText));
+  const newFiles = mockFiles.filter(f => !existing.has(f));
+  if (newFiles.length === 0) { showToast('文件已存在', 'warning'); return; }
+  const html = newFiles.map(f =>
+    `<span class="file-tag"><span>&#128196; ${f}</span><span class="remove" onclick="this.parentElement.remove()">&times;</span></span>`
+  ).join('');
+  fileList.insertAdjacentHTML('beforeend', html);
+  showToast('文件上传成功', 'success');
+}
+
+function openPriceModal(id) {
+  currentPriceStationId = id;
+  const s = stations.find(x => x.id === id);
+  document.getElementById('priceStationName').textContent = s.name;
+  document.getElementById('priceHistoryWrap').classList.add('hidden');
+  document.getElementById('btnPriceHistory').style.display = '';
+
+  const grid = document.getElementById('priceGrid');
+  grid.innerHTML = FUEL_TYPES.map((ft, i) => {
+    const price = s.fuelPrices[ft.key] || 0;
+    return `
+    <div class="price-card">
+      <div class="fuel-name" style="color:${FUEL_COLORS[i]};">${ft.label}</div>
+      <div class="fuel-current">&yen;${price.toFixed(2)}</div>
+      <div class="fuel-input-row">
+        <input type="number" id="fuelInput_${ft.key}" value="${price.toFixed(2)}" step="0.01" min="0" placeholder="新价格">
+        <button class="btn btn-sm btn-primary" onclick="updatePrice('${ft.key}','${ft.label}')">更新</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('priceModal').classList.remove('hidden');
+}
+
+function updatePrice(fuelKey, fuelLabel) {
+  const s = stations.find(x => x.id === currentPriceStationId);
+  if (!s) return;
+  const input = document.getElementById('fuelInput_' + fuelKey);
+  const newPrice = parseFloat(input.value);
+  if (isNaN(newPrice) || newPrice <= 0) {
+    showToast('请输入有效的价格', 'error');
+    return;
+  }
+
+  s.fuelPrices[fuelKey] = Math.round(newPrice * 100) / 100;
+
+  if (!s.priceHistory[fuelKey]) {
+    s.priceHistory[fuelKey] = [];
+  }
+  const now = new Date();
+  const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const existing = s.priceHistory[fuelKey].find(h => h.month === month);
+  if (existing) {
+    existing.price = s.fuelPrices[fuelKey];
+  } else {
+    s.priceHistory[fuelKey].push({ month, price: s.fuelPrices[fuelKey] });
+  }
+
+  const grid = document.getElementById('priceGrid');
+  const card = input.closest('.price-card');
+  card.querySelector('.fuel-current').textContent = `¥${s.fuelPrices[fuelKey].toFixed(2)}`;
+  input.value = s.fuelPrices[fuelKey].toFixed(2);
+
+  renderTable();
+  showToast(`${fuelLabel}价格已更新为 ¥${s.fuelPrices[fuelKey].toFixed(2)}`, 'success');
+}
+
+function showPriceHistory() {
+  const s = stations.find(x => x.id === currentPriceStationId);
+  if (!s) return;
+  document.getElementById('priceHistoryWrap').classList.remove('hidden');
+  document.getElementById('btnPriceHistory').style.display = 'none';
+
+  const content = document.getElementById('priceHistoryContent');
+  const allKeys = FUEL_TYPES.map(ft => ft.key).filter(k => s.priceHistory[k] && s.priceHistory[k].length > 0);
+  if (allKeys.length === 0) {
+    content.innerHTML = '<p style="color:#999;font-size:13px;">暂无价格历史记录</p>';
+    return;
+  }
+
+  content.innerHTML = allKeys.map(key => {
+    const label = FUEL_TYPES.find(ft => ft.key === key).label;
+    const history = s.priceHistory[key].sort((a, b) => b.month.localeCompare(a.month));
+    return `
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${label} 历史价格</div>
+      <table style="font-size:13px;">
+        <thead><tr><th>月份</th><th>价格</th></tr></thead>
+        <tbody>
+          ${history.map(h => `<tr><td>${h.month}</td><td>&yen;${h.price.toFixed(2)}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function closePriceHistory() {
+  document.getElementById('priceHistoryWrap').classList.add('hidden');
+  document.getElementById('btnPriceHistory').style.display = '';
+}
+
+function openStatusChange(id, target) {
+  currentStatusId = id;
+  currentStatusTarget = target;
+  const s = stations.find(x => x.id === id);
+
+  const labels = { active: '恢复合作', suspended: '暂停合作', terminated: '终止合作' };
+  const needReason = target === 'suspended' || target === 'terminated';
+
+  let html = '';
+  if (target === 'active') {
+    html = `<p>确认将 <strong>${s.name}</strong> 恢复为合作中状态？</p><p style="color:#999;font-size:13px;">恢复后可正常使用该加油站。</p>`;
+  } else if (target === 'suspended') {
+    html = `<p>确认将 <strong>${s.name}</strong> 设为暂停合作？</p><p style="color:#999;font-size:13px;">暂停后该加油站将无法接收新的加油任务。</p>`;
+    html += `<div class="reason-wrap"><textarea id="statusReason" placeholder="请输入暂停原因"></textarea></div>`;
+  } else if (target === 'terminated') {
+    html = `<p>确认终止与 <strong>${s.name}</strong> 的合作？</p><p style="color:#999;font-size:13px;">终止后该加油站将从可选列表中移除，已分配的待加油任务需手动转派。</p>`;
+    html += `<div class="reason-wrap"><textarea id="statusReason" placeholder="请输入终止原因"></textarea></div>`;
+  }
+
+  document.getElementById('statusConfirmText').innerHTML = html;
+  document.getElementById('statusConfirmBtn').textContent = labels[target];
+  document.getElementById('statusConfirmBtn').className = target === 'terminated' ? 'btn btn-danger' : 'btn btn-primary';
+  document.getElementById('statusModal').classList.remove('hidden');
+}
+
+function confirmStatusChange() {
+  const s = stations.find(x => x.id === currentStatusId);
+  if (!s) return;
+
+  if (currentStatusTarget === 'suspended' || currentStatusTarget === 'terminated') {
+    const reasonEl = document.getElementById('statusReason');
+    if (reasonEl && !reasonEl.value.trim()) {
+      showToast('请输入原因', 'warning');
+      return;
+    }
+  }
+
+  s.status = currentStatusTarget;
+  if (currentStatusTarget === 'terminated') {
+    s.agreementEnd = new Date().toISOString().slice(0, 10);
+  }
+
+  closeModal('statusModal');
+  renderTable();
+  const labels = { active: '合作中', suspended: '暂停合作', terminated: '已终止' };
+  showToast(`加油站状态已变更为"${labels[currentStatusTarget]}"`, 'success');
+}
+
+function openDashboard(id) {
+  const s = stations.find(x => x.id === id);
+  document.getElementById('dbName').textContent = s.name;
+  document.getElementById('dbInfoName').textContent = s.name;
+  document.getElementById('dbInfoBrand').innerHTML = `<span class="tag ${BRAND_TAG_MAP[s.brand]}">${s.brand}</span>`;
+  document.getElementById('dbInfoType').textContent = s.stationType;
+  const statusLabels = { active: '合作中', suspended: '暂停合作', terminated: '已终止' };
+  const statusClasses = { active: 'tag-success', suspended: 'tag-warning', terminated: 'tag-default' };
+  document.getElementById('dbInfoStatus').innerHTML = `<span class="tag ${statusClasses[s.status]}">${statusLabels[s.status]}</span>`;
+  document.getElementById('dbInfoAddress').textContent = s.address;
+  document.getElementById('dbInfoContact').textContent = `${s.contactPerson} / ${s.contactPhone}`;
+  document.getElementById('dbInfoAgreement').textContent = `${s.agreementType} | ${s.agreementStart} ~ ${s.agreementEnd}`;
+
+  document.getElementById('dbRefuelCount').textContent = s.stats.refuelCount.toLocaleString();
+  document.getElementById('dbTotalLiters').textContent = s.stats.totalLiters.toLocaleString();
+  document.getElementById('dbTotalAmount').textContent = s.stats.totalAmount.toLocaleString();
+  document.getElementById('dbVehicleCount').textContent = s.stats.vehicleCount.toLocaleString();
+
+  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const chartBar = document.getElementById('chartBar');
+  const maxVal = Math.max(...s.monthlyVolume, 1);
+  chartBar.innerHTML = months.map((m, i) => {
+    const val = s.monthlyVolume[i] || 0;
+    const height = (val / maxVal) * 160;
+    return `<div class="bar-col"><div class="bar-val">${val}</div><div class="bar" style="height:${height}px;"></div><div class="bar-label">${m}</div></div>`;
+  }).join('');
+
+  const fuelDist = document.getElementById('fuelDist');
+  const colors = ['#1890ff','#52c41a','#722ed1','#fa8c16','#13c2c2'];
+  fuelDist.innerHTML = Object.entries(s.fuelDistribution).map(([name, pct], i) => `
+    <div class="dist-row">
+      <span class="dist-name">${name}</span>
+      <div class="dist-track"><div class="dist-fill" style="width:${pct}%;background:${colors[i]};"></div></div>
+      <span class="dist-val">${pct}%</span>
+    </div>
+  `).join('');
+
+  const deptDist = document.getElementById('deptDist');
+  deptDist.innerHTML = s.departmentDistribution.map(d => `
+    <div class="dist-row">
+      <span class="dist-name">${d.name}</span>
+      <div class="dist-track"><div class="dist-fill" style="width:${d.percentage}%;"></div></div>
+      <span class="dist-val">${d.percentage}%</span>
+    </div>
+  `).join('');
+
+  const ratings = s.ratings;
+  const ratingLabels = { fuelQuality: '油品质量', serviceAttitude: '服务态度', invoiceEfficiency: '开票效率', waitTime: '等待时间' };
+  document.getElementById('dbRatings').innerHTML = Object.entries(ratings).map(([key, val]) => {
+    const full = Math.floor(val);
+    const half = val - full >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    const stars = '&#9733;'.repeat(full) + (half ? '&#9733;' : '') + '&#9734;'.repeat(empty);
+    return `<div class="rating-row"><span class="rating-label">${ratingLabels[key]}</span><span class="stars">${stars}</span><span style="color:#999;margin-left:4px;">${val.toFixed(1)}</span></div>`;
+  }).join('');
+
+  document.getElementById('dbFiles').innerHTML = s.files.length > 0
+    ? s.files.map(f => `<span class="file-tag"><span>&#128196; ${f}</span><span class="remove" onclick="showToast('模拟下载: ${f}', 'warning')">&#128229;</span></span>`).join('')
+    : '<span style="color:#999;">暂无附件</span>';
+
+  document.getElementById('dbReviews').innerHTML = s.reviews.length > 0
+    ? s.reviews.map(r => {
+      const stars = '&#9733;'.repeat(r.rating) + '&#9734;'.repeat(5 - r.rating);
+      return `<div class="review-item"><div class="review-header"><span class="stars">${stars}</span><span class="review-date">${r.date}</span></div><div style="font-size:14px;">${r.text}</div></div>`;
+    }).join('')
+    : '<span style="color:#999;">暂无评价</span>';
+
+  document.getElementById('dashboardModal').classList.remove('hidden');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+function showToast(msg, type) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type || 'success'}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity .3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    ['stationModal','priceModal','statusModal','dashboardModal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.classList.contains('hidden')) closeModal(id);
+    });
+  }
+});
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay') && e.target.id) {
+    closeModal(e.target.id);
+  }
+});
+
+renderTable();
+
+</script>
+</body>
+</html>
