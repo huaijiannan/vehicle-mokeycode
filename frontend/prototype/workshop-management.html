@@ -128,10 +128,8 @@ tr:last-child td { border-bottom: none; }
 .hidden { display: none !important; }
 .actions-cell { display: flex; gap: 6px; }
 
-/* 操作员列表 */
-.operator-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-.operator-table th, .operator-table td { padding: 10px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
-.operator-table th { background: #fafafa; font-weight: 600; color: #666; }
+/* 操作列 */
+.actions-cell { display: flex; gap: 6px; }
 
 /* 响应式 */
 @media (max-width: 768px) {
@@ -148,7 +146,7 @@ tr:last-child td { border-bottom: none; }
   <div class="header">
     <div>
       <h2>定点维修车厂管理</h2>
-      <p class="subtitle">管理合作维修厂档案、服务能力、操作员及合作状态</p>
+       <p class="subtitle">管理合作维修厂档案、服务能力及合作状态</p>
     </div>
     <button class="btn btn-primary" onclick="openWorkshopForm()">+ 新增维修厂</button>
   </div>
@@ -315,42 +313,6 @@ tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
-<!-- 操作员管理弹窗 -->
-<div class="modal-overlay hidden" id="operatorModal">
-  <div class="modal" style="width:560px;">
-    <div class="modal-header">
-      <h3>操作员管理 - <span id="operatorModalTitle"></span></h3>
-      <button class="close" onclick="closeModal('operatorModal')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div style="margin-bottom:16px;">
-        <div class="form-row" style="align-items:flex-end;">
-          <div class="form-group" style="margin-bottom:0;">
-            <label>操作员姓名</label>
-            <input type="text" id="opName" placeholder="请输入姓名">
-          </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label>登录账号</label>
-            <input type="text" id="opAccount" placeholder="请输入登录账号">
-          </div>
-          <div style="padding-bottom:8px;">
-            <button class="btn btn-primary btn-sm" onclick="addOperator()">+ 添加</button>
-          </div>
-        </div>
-      </div>
-      <table class="operator-table">
-        <thead>
-          <tr><th>姓名</th><th>登录账号</th><th>状态</th><th>操作</th></tr>
-        </thead>
-        <tbody id="operatorTableBody"></tbody>
-      </table>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('operatorModal')">关闭</button>
-    </div>
-  </div>
-</div>
-
 <!-- 服务看板弹窗 -->
 <div class="modal-overlay hidden" id="dashboardModal">
   <div class="modal modal-lg">
@@ -434,14 +396,14 @@ tr:last-child td { border-bottom: none; }
 const SERVICE_TYPES = ['机电维修','钣金喷漆','轮胎服务','美容养护','四轮定位','空调维修','电路检修','变速箱维修'];
 
 const initialData = [
-  { id:1, name:'顺达汽车维修中心', creditCode:'91110108MA0012345X', contact:'王建国', phone:'13801001234', address:'北京市朝阳区望京西路18号', scope:'专业维修各类乘用车，擅长德系车维修', services:['机电维修','轮胎服务','四轮定位','空调维修'], openTime:'08:00', closeTime:'18:00', stationCount:8, towService:true, replacementCar:true, status:'active', contractNo:'HT-2024001', signDate:'2024-01-15', expireDate:'2027-01-14', rating:4.5, totalOrders:156, operators:[{name:'王建国',account:'wjg',status:'active'},{name:'刘敏',account:'lium',status:'active'}] },
-  { id:2, name:'安信4S店', creditCode:'91310115MA0056789Y', contact:'张伟', phone:'13902005678', address:'上海市浦东新区金桥路288号', scope:'品牌授权4S店，提供原厂配件和专业维修服务', services:['机电维修','钣金喷漆','美容养护','电路检修','变速箱维修'], openTime:'08:30', closeTime:'17:30', stationCount:15, towService:true, replacementCar:true, status:'active', contractNo:'HT-2024002', signDate:'2024-02-20', expireDate:'2027-02-19', rating:4.8, totalOrders:312, operators:[{name:'张伟',account:'zw',status:'active'}] },
-  { id:3, name:'快捷汽修连锁', creditCode:'91440101MA0090123W', contact:'李明', phone:'13701009876', address:'广州市天河区中山大道西108号', scope:'连锁品牌，覆盖常规保养和快速维修', services:['机电维修','轮胎服务','美容养护','空调维修'], openTime:'07:30', closeTime:'20:00', stationCount:6, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024003', signDate:'2024-03-10', expireDate:'2027-03-09', rating:4.0, totalOrders:89, operators:[{name:'李明',account:'lim',status:'active'}] },
-  { id:4, name:'宏达轮胎专修', creditCode:'91440300MA0112345P', contact:'赵强', phone:'13602003456', address:'深圳市南山区科技园南路8号', scope:'轮胎销售、更换、修补、动平衡专业服务', services:['轮胎服务','四轮定位'], openTime:'09:00', closeTime:'18:00', stationCount:3, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024004', signDate:'2024-04-01', expireDate:'2027-03-31', rating:4.3, totalHours:45, expireDate:'2027-03-31', totalOrders:45, operators:[{name:'赵强',account:'zhaoq',status:'active'}] },
-  { id:5, name:'鑫源汽车养护中心', creditCode:'91510100MA0123456Q', contact:'陈芳', phone:'13501004567', address:'成都市武侯区人民南路四段12号', scope:'汽车美容、养护、常规保养一站式服务', services:['美容养护','机电维修','空调维修'], openTime:'08:00', closeTime:'19:00', stationCount:5, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024005', signDate:'2024-05-15', expireDate:'2027-05-14', rating:3.8, totalOrders:72, operators:[{name:'陈芳',account:'cf',status:'active'}] },
-  { id:6, name:'永利汽修厂', creditCode:'91320100MA0078901R', contact:'孙志强', phone:'13301005678', address:'南京市江宁区将军大道32号', scope:'综合维修，可承接中小型车辆维修保养', services:['机电维修','钣金喷漆','变速箱维修'], openTime:'08:00', closeTime:'18:00', stationCount:4, towService:true, replacementCar:false, status:'suspended', contractNo:'HT-2024006', signDate:'2024-01-20', expireDate:'2026-01-19', rating:3.5, totalOrders:28, operators:[{name:'孙志强',account:'szq',status:'disabled'}] },
-  { id:7, name:'博世汽车服务', creditCode:'91330100MA0098765K', contact:'刘洋', phone:'13102008901', address:'杭州市西湖区文三路98号', scope:'博世授权服务网点，专业德系车维修检测', services:['机电维修','电路检修','变速箱维修','空调维修'], openTime:'08:30', closeTime:'17:00', stationCount:10, towService:true, replacementCar:true, status:'suspended', contractNo:'HT-2024007', signDate:'2024-06-01', expireDate:'2025-12-31', rating:4.6, totalOrders:198, operators:[{name:'刘洋',account:'ly',status:'disabled'},{name:'周华',account:'zhouh',status:'disabled'}] },
-  { id:8, name:'盛达汽配维修', creditCode:'91350200MA0045678X', contact:'黄建国', phone:'13001006789', address:'厦门市思明区湖滨北路56号', scope:'配件销售兼维修，可自带配件到店安装', services:['机电维修','轮胎服务','美容养护'], openTime:'09:00', closeTime:'18:30', stationCount:3, towService:false, replacementCar:false, status:'terminated', contractNo:'HT-2023008', signDate:'2023-01-01', expireDate:'2024-12-31', rating:3.2, totalOrders:18, operators:[{name:'黄建国',account:'hjg',status:'disabled'}] },
+  { id:1, name:'顺达汽车维修中心', creditCode:'91110108MA0012345X', contact:'王建国', phone:'13801001234', address:'北京市朝阳区望京西路18号', scope:'专业维修各类乘用车，擅长德系车维修', services:['机电维修','轮胎服务','四轮定位','空调维修'], openTime:'08:00', closeTime:'18:00', stationCount:8, towService:true, replacementCar:true, status:'active', contractNo:'HT-2024001', signDate:'2024-01-15', expireDate:'2027-01-14', rating:4.5, totalOrders:156 },
+  { id:2, name:'安信4S店', creditCode:'91310115MA0056789Y', contact:'张伟', phone:'13902005678', address:'上海市浦东新区金桥路288号', scope:'品牌授权4S店，提供原厂配件和专业维修服务', services:['机电维修','钣金喷漆','美容养护','电路检修','变速箱维修'], openTime:'08:30', closeTime:'17:30', stationCount:15, towService:true, replacementCar:true, status:'active', contractNo:'HT-2024002', signDate:'2024-02-20', expireDate:'2027-02-19', rating:4.8, totalOrders:312 },
+  { id:3, name:'快捷汽修连锁', creditCode:'91440101MA0090123W', contact:'李明', phone:'13701009876', address:'广州市天河区中山大道西108号', scope:'连锁品牌，覆盖常规保养和快速维修', services:['机电维修','轮胎服务','美容养护','空调维修'], openTime:'07:30', closeTime:'20:00', stationCount:6, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024003', signDate:'2024-03-10', expireDate:'2027-03-09', rating:4.0, totalOrders:89 },
+  { id:4, name:'宏达轮胎专修', creditCode:'91440300MA0112345P', contact:'赵强', phone:'13602003456', address:'深圳市南山区科技园南路8号', scope:'轮胎销售、更换、修补、动平衡专业服务', services:['轮胎服务','四轮定位'], openTime:'09:00', closeTime:'18:00', stationCount:3, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024004', signDate:'2024-04-01', expireDate:'2027-03-31', rating:4.3, totalOrders:45 },
+  { id:5, name:'鑫源汽车养护中心', creditCode:'91510100MA0123456Q', contact:'陈芳', phone:'13501004567', address:'成都市武侯区人民南路四段12号', scope:'汽车美容、养护、常规保养一站式服务', services:['美容养护','机电维修','空调维修'], openTime:'08:00', closeTime:'19:00', stationCount:5, towService:false, replacementCar:false, status:'active', contractNo:'HT-2024005', signDate:'2024-05-15', expireDate:'2027-05-14', rating:3.8, totalOrders:72 },
+  { id:6, name:'永利汽修厂', creditCode:'91320100MA0078901R', contact:'孙志强', phone:'13301005678', address:'南京市江宁区将军大道32号', scope:'综合维修，可承接中小型车辆维修保养', services:['机电维修','钣金喷漆','变速箱维修'], openTime:'08:00', closeTime:'18:00', stationCount:4, towService:true, replacementCar:false, status:'suspended', contractNo:'HT-2024006', signDate:'2024-01-20', expireDate:'2026-01-19', rating:3.5, totalOrders:28 },
+  { id:7, name:'博世汽车服务', creditCode:'91330100MA0098765K', contact:'刘洋', phone:'13102008901', address:'杭州市西湖区文三路98号', scope:'博世授权服务网点，专业德系车维修检测', services:['机电维修','电路检修','变速箱维修','空调维修'], openTime:'08:30', closeTime:'17:00', stationCount:10, towService:true, replacementCar:true, status:'suspended', contractNo:'HT-2024007', signDate:'2024-06-01', expireDate:'2025-12-31', rating:4.6, totalOrders:198 },
+  { id:8, name:'盛达汽配维修', creditCode:'91350200MA0045678X', contact:'黄建国', phone:'13001006789', address:'厦门市思明区湖滨北路56号', scope:'配件销售兼维修，可自带配件到店安装', services:['机电维修','轮胎服务','美容养护'], openTime:'09:00', closeTime:'18:30', stationCount:3, towService:false, replacementCar:false, status:'terminated', contractNo:'HT-2023008', signDate:'2023-01-01', expireDate:'2024-12-31', rating:3.2, totalOrders:18 },
 ];
 
 let workshops = JSON.parse(JSON.stringify(initialData));
@@ -496,9 +458,8 @@ function renderTable() {
       <td>
         <div class="actions-cell">
           <button class="btn btn-sm" onclick="openWorkshopForm(${w.id})" title="编辑">&#9998;</button>
-          <button class="btn btn-sm" onclick="openServiceConfig(${w.id})" title="服务能力">&#9881;</button>
-          <button class="btn btn-sm" onclick="openOperatorMgmt(${w.id})" title="操作员">&#128101;</button>
-          <button class="btn btn-sm" onclick="openDashboard(${w.id})" title="看板">&#128202;</button>
+           <button class="btn btn-sm" onclick="openServiceConfig(${w.id})" title="服务能力">&#9881;</button>
+           <button class="btn btn-sm" onclick="openDashboard(${w.id})" title="看板">&#128202;</button>
           ${statusActions(w)}
         </div>
       </td>
@@ -570,7 +531,7 @@ function saveWorkshop() {
     if (workshops.some(w => w.creditCode === data.creditCode)) {
       alert('该统一社会信用代码已存在'); return;
     }
-    workshops.push({ ...data, services:[], openTime:'08:00', closeTime:'18:00', stationCount:1, towService:false, replacementCar:false, status:'active', contractNo:'', signDate:new Date().toISOString().slice(0,10), expireDate:'', rating:0, totalOrders:0, operators:[] });
+    workshops.push({ ...data, services:[], openTime:'08:00', closeTime:'18:00', stationCount:1, towService:false, replacementCar:false, status:'active', contractNo:'', signDate:new Date().toISOString().slice(0,10), expireDate:'', rating:0, totalOrders:0 });
   }
   closeModal('workshopModal');
   renderTable();
@@ -610,55 +571,6 @@ function saveServiceConfig() {
   showToast('服务能力配置已保存');
 }
 
-function openOperatorMgmt(id) {
-  currentWorkshopId = id;
-  const w = workshops.find(x => x.id === id);
-  document.getElementById('operatorModalTitle').textContent = w.name;
-  document.getElementById('opName').value = '';
-  document.getElementById('opAccount').value = '';
-  renderOperators(w);
-  document.getElementById('operatorModal').classList.remove('hidden');
-}
-
-function renderOperators(w) {
-  document.getElementById('operatorTableBody').innerHTML = (w.operators || []).map((op, i) => `
-    <tr>
-      <td>${op.name}</td>
-      <td>${op.account}</td>
-      <td><span class="tag ${op.status === 'active' ? 'tag-success' : 'tag-danger'}">${op.status === 'active' ? '正常' : '已禁用'}</span></td>
-      <td>
-        <button class="btn btn-xs btn-danger" onclick="removeOperator(${currentWorkshopId},${i})">删除</button>
-        ${op.status === 'active' ? `<button class="btn btn-xs" onclick="resetPassword('${op.account}')">重置密码</button>` : ''}
-      </td>
-    </tr>
-  `).join('');
-}
-
-function addOperator() {
-  const name = document.getElementById('opName').value.trim();
-  const account = document.getElementById('opAccount').value.trim();
-  if (!name || !account) { alert('请填写操作员姓名和账号'); return; }
-  const w = workshops.find(x => x.id === currentWorkshopId);
-  if (!w) return;
-  if (w.operators.some(op => op.account === account)) { alert('该账号已存在'); return; }
-  w.operators.push({ name, account, status: 'active' });
-  document.getElementById('opName').value = '';
-  document.getElementById('opAccount').value = '';
-  renderOperators(w);
-  showToast('操作员添加成功');
-}
-
-function removeOperator(wsId, opIdx) {
-  const w = workshops.find(x => x.id === wsId);
-  if (!w) return;
-  w.operators.splice(opIdx, 1);
-  renderOperators(w);
-}
-
-function resetPassword(account) {
-  showToast(`操作员 ${account} 的密码已重置，新密码已发送至绑定手机`);
-}
-
 function openDashboard(id) {
   const w = workshops.find(x => x.id === id);
   document.getElementById('dashboardTitle').textContent = w.name;
@@ -689,7 +601,7 @@ function changeStatus(id, target) {
   const descs = {
     active: `确认将 <strong>${w.name}</strong> 恢复为合作中状态？恢复后可重新分配维修工单。`,
     suspended: `确认将 <strong>${w.name}</strong> 设为暂停合作？暂停后该维修厂将无法接收新的维修工单。`,
-    terminated: `确认终止与 <strong>${w.name}</strong> 的合作？<br>终止后：<br>1. 维修厂将从可选列表中移除<br>2. 该维修厂下的所有操作员账号将被自动禁用<br>3. 已分配的未完成工单需手动转派`
+    terminated: `确认终止与 <strong>${w.name}</strong> 的合作？<br>终止后：<br>1. 维修厂将从可选列表中移除<br>2. 已分配的未完成工单需手动转派`
   };
   document.getElementById('statusConfirmText').innerHTML = descs[target];
   document.getElementById('statusConfirmBtn').textContent = labels[target];
@@ -719,7 +631,6 @@ function confirmStatusChange() {
     w.expireDate = expireDate.toISOString().slice(0,10);
   }
   if (currentStatusTarget === 'terminated') {
-    w.operators.forEach(op => op.status = 'disabled');
   }
   closeModal('statusModal');
   renderTable();
