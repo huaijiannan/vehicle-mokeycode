@@ -289,6 +289,107 @@ function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_driver_trainings ON driver_trainings(driver_id);
     CREATE INDEX IF NOT EXISTS idx_driver_violations ON driver_violations(driver_id);
     CREATE INDEX IF NOT EXISTS idx_driver_health_checks ON driver_health_checks(driver_id);
+
+    CREATE TABLE IF NOT EXISTS refuels (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      vehicle_id      INTEGER NOT NULL REFERENCES vehicles(id),
+      refuel_date     TEXT NOT NULL,
+      station_name    TEXT NOT NULL,
+      fuel_type       TEXT NOT NULL,
+      fuel_amount     REAL NOT NULL,
+      unit_price      REAL NOT NULL,
+      total_amount    REAL NOT NULL,
+      current_odometer REAL NOT NULL,
+      fuel_card_number TEXT,
+      operator        TEXT NOT NULL,
+      created_at      TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_refuels_vehicle ON refuels(vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_refuels_date ON refuels(refuel_date);
+    CREATE INDEX IF NOT EXISTS idx_refuels_vehicle_month ON refuels(vehicle_id, refuel_date);
+
+    CREATE TABLE IF NOT EXISTS maintenances (
+      id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+      vehicle_id              INTEGER NOT NULL REFERENCES vehicles(id),
+      record_type             TEXT NOT NULL,
+      date                    TEXT NOT NULL,
+      repair_type             TEXT,
+      maintenance_type        TEXT,
+      items                   TEXT NOT NULL,
+      cost                    REAL,
+      shop_id                 INTEGER REFERENCES repair_shops(id),
+      status                  TEXT,
+      current_odometer        REAL,
+      next_maintenance_odometer REAL,
+      next_maintenance_date   TEXT,
+      operator                TEXT NOT NULL,
+      created_at              TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_maintenances_vehicle ON maintenances(vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_maintenances_type ON maintenances(record_type);
+    CREATE INDEX IF NOT EXISTS idx_maintenances_date ON maintenances(date);
+
+    CREATE TABLE IF NOT EXISTS repair_shops (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      name            TEXT NOT NULL,
+      contact_person  TEXT,
+      contact_phone   TEXT,
+      address         TEXT,
+      status          TEXT NOT NULL DEFAULT 'active',
+      created_at      TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE TABLE IF NOT EXISTS vehicle_insurance (
+      id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+      vehicle_id          INTEGER NOT NULL REFERENCES vehicles(id),
+      insurance_company   TEXT NOT NULL,
+      insurance_type      TEXT NOT NULL,
+      policy_number       TEXT NOT NULL,
+      coverage_amount     REAL,
+      premium             REAL,
+      effective_date      TEXT NOT NULL,
+      expiry_date         TEXT NOT NULL,
+      status              TEXT NOT NULL DEFAULT 'active',
+      document_url        TEXT,
+      created_at          TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_insurance_vehicle ON vehicle_insurance(vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_insurance_expiry ON vehicle_insurance(expiry_date);
+
+    CREATE TABLE IF NOT EXISTS vehicle_inspections (
+      id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+      vehicle_id              INTEGER NOT NULL REFERENCES vehicles(id),
+      inspection_date         TEXT NOT NULL,
+      next_inspection_date    TEXT NOT NULL,
+      inspection_org          TEXT NOT NULL,
+      result                  TEXT NOT NULL,
+      cost                    REAL,
+      report_url              TEXT,
+      created_at              TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_inspections_vehicle ON vehicle_inspections(vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_inspections_next ON vehicle_inspections(next_inspection_date);
+
+    CREATE TABLE IF NOT EXISTS vehicle_violations (
+      id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+      vehicle_id          INTEGER NOT NULL REFERENCES vehicles(id),
+      violation_date      TEXT NOT NULL,
+      location            TEXT NOT NULL,
+      behavior            TEXT NOT NULL,
+      points_deducted     INTEGER NOT NULL DEFAULT 0,
+      penalty_amount      REAL NOT NULL DEFAULT 0,
+      status              TEXT NOT NULL DEFAULT '待处理',
+      processed_date      TEXT,
+      processed_result    TEXT,
+      created_at          TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_violations_vehicle ON vehicle_violations(vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_violations_status ON vehicle_violations(status);
   `)
 
   console.log('Database tables initialized.')

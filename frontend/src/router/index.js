@@ -23,7 +23,8 @@ const routes = [
       { path: 'expense/list', name: 'ExpenseList', component: () => import('@/views/expense/ExpenseListView.vue') },
       { path: 'report/dashboard', name: 'Report', component: () => import('@/views/report/ReportView.vue') },
       { path: 'system/users', name: 'UserManage', component: () => import('@/views/system/UserManageView.vue') },
-      { path: 'system/roles', name: 'RoleManage', component: () => import('@/views/system/RoleManageView.vue') }
+      { path: 'system/roles', name: 'RoleManage', component: () => import('@/views/system/RoleManageView.vue') },
+      { path: 'operations/vehicles', name: 'OperationsVehicles', component: () => import('@/views/operations/OperationsView.vue') }
     ]
   }
 ]

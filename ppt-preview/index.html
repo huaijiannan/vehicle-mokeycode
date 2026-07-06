@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公务用车管理信息系统 - 项目建设方案汇报</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#0a1628;color:#fff;overflow:hidden}
+.slides{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 70px;opacity:0;transition:opacity .4s;pointer-events:none}
+.slide.active{opacity:1;pointer-events:auto}
+.slide-cover{background:linear-gradient(135deg,#1a3a6b 0%,#0d2447 50%,#0a1628 100%)}
+.slide-content{background:#f5f6fa;color:#303030;justify-content:flex-start}
+.slide-content .page-title{width:100%;height:68px;background:#1a3a6b;display:flex;align-items:center;padding:0 36px;color:#fff;font-size:22px;font-weight:700;margin-bottom:16px;flex-shrink:0}
+.slide-content .page-body{flex:1;width:100%;overflow-y:auto;padding:0 36px 20px}
+.nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:100}
+.nav-btn{width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s}
+.nav-btn:hover{background:rgba(255,255,255,.25);border-color:#fff}
+.nav-dots{display:flex;align-items:center;gap:6px}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;transition:all .2s}
+.nav-dot.active{background:#c99a2e;width:22px;border-radius:4px}
+.page-num{position:fixed;top:18px;right:28px;font-size:13px;color:rgba(255,255,255,.5);z-index:100}
+.cover-title{font-size:44px;font-weight:800;letter-spacing:4px;margin-bottom:20px}
+.cover-sub{font-size:22px;color:#a0c4ff;margin-bottom:8px}
+.cover-desc{font-size:15px;color:#6688aa;margin-top:10px}
+.cover-line{width:70px;height:3px;background:#c99a2e;margin:22px auto}
+.cover-date{font-size:14px;color:#5577aa;margin-top:50px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;width:100%}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;width:100%}
+.bg-card{background:#fff;border-radius:8px;padding:18px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.section-title{font-size:16px;font-weight:700;color:#1a3a6b;margin-bottom:10px;display:flex;align-items:center;gap:8px;border-left:4px solid #1a3a6b;padding-left:10px}
+.dot{width:6px;height:6px;border-radius:50%;margin-right:8px}
+ul.item-list{list-style:none;padding-left:0}
+ul.item-list li{font-size:13px;color:#555;padding:4px 0;padding-left:14px;position:relative;line-height:1.7}
+ul.item-list li::before{content:'';position:absolute;left:0;top:10px;width:5px;height:5px;border-radius:50%;background:#409eff}
+.flow-row{display:flex;gap:10px;align-items:stretch;width:100%}
+.flow-step{flex:1;text-align:center;background:#fff;border-radius:8px;padding:14px 6px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.flow-step .step-num{font-size:11px;font-weight:700;margin-bottom:6px}
+.flow-step .step-title{font-size:14px;font-weight:700;color:#1a3a6b;margin-bottom:6px;white-space:pre-line}
+.flow-step .step-desc{font-size:11px;color:#888;line-height:1.6;white-space:pre-line}
+.module-card{background:#fff;border-radius:6px;padding:12px 10px;border-top:3px solid #409eff;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.module-card .m-name{font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px}
+.module-card .m-desc{font-size:11px;color:#888;line-height:1.5;white-space:pre-line}
+.role-card{background:#fff;border-radius:8px;padding:14px;text-align:center;border-top:4px solid #409eff;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.role-avatar{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;margin-bottom:8px}
+.role-name{font-size:14px;font-weight:700;color:#1a3a6b;margin-bottom:4px}
+.role-desc{font-size:11px;color:#888;white-space:pre-line;line-height:1.5}
+.problem-card{background:#fff;border-radius:8px;padding:16px;border-top:4px solid #409eff;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.problem-title{font-size:15px;font-weight:700;color:#c02828;margin-bottom:6px}
+.problem-sub{font-size:11px;color:#666;margin-bottom:10px}
+.problem-hint{font-size:10px;color:#999}
+.phase-card{background:rgba(255,255,255,.08);border-radius:8px;padding:20px 16px}
+.phase-title{font-size:15px;font-weight:700;margin-bottom:12px;padding:10px;border-radius:4px;text-align:center}
+.phase-item{font-size:12px;line-height:1.8;opacity:.85;padding:4px 0}
+.effect-card{background:rgba(255,255,255,.08);border-radius:8px;padding:16px 10px;text-align:center}
+.effect-name{font-size:15px;color:#c99a2e;font-weight:700;margin-bottom:8px}
+.effect-desc{font-size:12px;color:rgba(255,255,255,.65);line-height:1.7;white-space:pre-line}
+.priority-tag{display:inline-block;padding:1px 8px;border-radius:8px;font-size:10px;color:#fff;font-weight:600}
+.arch-layer{background:linear-gradient(135deg,#1e4a8a,#163a6b);border-radius:8px;padding:20px 28px;color:#fff;margin-bottom:12px;text-align:center}
+.arch-layer .al-title{font-size:15px;font-weight:700}
+.arch-layer .al-desc{font-size:12px;opacity:.8;margin-top:4px}
+.hl-card{background:#fff;border-radius:8px;padding:16px;border-left:4px solid #409eff;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.hl-title{font-size:15px;font-weight:700;color:#1a3a6b;margin-bottom:6px}
+.hl-desc{font-size:12px;color:#666;line-height:1.7}
+.stat-box{text-align:center}
+.stat-num{font-size:38px;font-weight:800;color:#c99a2e}
+.stat-label{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
+.stat-desc{font-size:10px;color:rgba(255,255,255,.4);margin-top:4px;white-space:pre-line}
+.thank-you{font-size:20px;color:#a0c4ff}
+@media(max-width:768px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.flow-row{flex-wrap:wrap}.slide{padding:20px}.cover-title{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="slides" id="slides">
+
+<!-- S1: Cover -->
+<div class="slide slide-cover active" data-index="0">
+  <div class="cover-title">公务用车管理信息系统</div>
+  <div class="cover-line"></div>
+  <div class="cover-sub">项目建设方案汇报</div>
+  <div class="cover-desc">—— 车辆全生命周期数字化管理平台</div>
+  <div class="cover-date">2026年7月</div>
+</div>
+
+<!-- S2: Background -->
+<div class="slide slide-content" data-index="1">
+  <div class="page-title">一、建设背景与必要性</div>
+  <div class="page-body">
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="bg-card" style="border-top:4px solid #409eff">
+        <div class="section-title" style="border-left-color:#409eff">政策背景</div>
+        <ul class="item-list">
+          <li>党的十八大以来，中央持续推进公务用车制度改革</li>
+          <li>《党政机关公务用车管理办法》要求建立管理信息系统，实现全流程监管</li>
+          <li>国资委要求央企加快数字化转型，以信息化手段提升管理效能</li>
+          <li>中央八项规定精神持续深化，对公务用车管理提出更高纪律要求</li>
+        </ul>
+      </div>
+      <div class="bg-card" style="border-top:4px solid #c02828">
+        <div class="section-title" style="border-left-color:#c02828">当前管理中的突出问题</div>
+        <ul class="item-list">
+          <li><b>信息孤岛：</b>车辆、驾驶员、费用等数据分散在不同部门，缺乏统一管理</li>
+          <li><b>审批滞后：</b>纸质审批流程长、效率低，审批记录难以追溯</li>
+          <li><b>调度困难：</b>车辆状态不透明，调度靠人工沟通，空置与短缺并存</li>
+          <li><b>监管不足：</b>用车行为缺乏有效监督，违规用车难以发现和处置</li>
+        </ul>
+      </div>
+    </div>
+    <div class="section-title">建设必要性</div>
+    <div class="grid4">
+      <div class="bg-card" style="border-top:3px solid #c02828;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:#c02828;margin-bottom:6px">落实政策要求</div>
+        <div style="font-size:11px;color:#666;line-height:1.6">贯彻公车制度改革部署<br>以信息化推动管理规范化</div>
+      </div>
+      <div class="bg-card" style="border-top:3px solid #409eff;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:#409eff;margin-bottom:6px">提升管理效能</div>
+        <div style="font-size:11px;color:#666;line-height:1.6">一体化管理车辆/驾驶员<br>大幅提升工作精细化水平</div>
+      </div>
+      <div class="bg-card" style="border-top:3px solid #e6a23c;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:#e6a23c;margin-bottom:6px">强化合规监管</div>
+        <div style="font-size:11px;color:#666;line-height:1.6">全流程留痕可追溯<br>为纪检审计提供有力支撑</div>
+      </div>
+      <div class="bg-card" style="border-top:3px solid #67c23a;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:#67c23a;margin-bottom:6px">降低运行成本</div>
+        <div style="font-size:11px;color:#666;line-height:1.6">数据优化车辆配置<br>有效降低运行维护成本</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: Overall Design -->
+<div class="slide slide-content" data-index="2">
+  <div class="page-title">二、系统总体规划设计</div>
+  <div class="page-body">
+    <div class="bg-card" style="border-left:4px solid #1a3a6b;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:700;color:#1a3a6b;margin-bottom:8px">系统定位</div>
+      <div style="font-size:12px;color:#555;line-height:1.8">构建覆盖集团总部及下属分公司的统一的公务用车管理信息平台，实现车辆"从购置到报废"的全生命周期管理和用车"从申请到结算"的全业务流程闭环，为管理决策提供数据支撑，为合规监管提供技术保障。</div>
+    </div>
+    <div class="section-title">设计原则</div>
+    <div class="grid4" style="margin-bottom:16px">
+      <div class="bg-card" style="border-top:3px solid #409eff;text-align:center"><div style="font-size:15px;font-weight:700;color:#409eff;margin-bottom:6px">规范统一</div><div style="font-size:11px;color:#888;line-height:1.6">严格遵循公务用车管理制度规定，建立标准化业务流程和数据规范</div></div>
+      <div class="bg-card" style="border-top:3px solid #67c23a;text-align:center"><div style="font-size:15px;font-weight:700;color:#67c23a;margin-bottom:6px">安全可控</div><div style="font-size:11px;color:#888;line-height:1.6">分级授权、操作留痕，确保系统安全可靠运行</div></div>
+      <div class="bg-card" style="border-top:3px solid #e6a23c;text-align:center"><div style="font-size:15px;font-weight:700;color:#e6a23c;margin-bottom:6px">便捷高效</div><div style="font-size:11px;color:#888;line-height:1.6">优化审批流程，提升各级人员使用体验和工作效率</div></div>
+      <div class="bg-card" style="border-top:3px solid #c02828;text-align:center"><div style="font-size:15px;font-weight:700;color:#c02828;margin-bottom:6px">数据驱动</div><div style="font-size:11px;color:#888;line-height:1.6">汇聚车辆运营全维度数据，为管理决策提供科学依据</div></div>
+    </div>
+    <div class="section-title">覆盖范围</div>
+    <div class="grid4">
+      <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">组织层级</div><div style="font-size:11px;color:#666;line-height:1.6">集团总部 → 分公司 → 部门<br>三级架构全覆盖</div></div>
+      <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">业务范围</div><div style="font-size:11px;color:#666;line-height:1.6">车辆管理 | 用车审批<br>调度派车 | 费用结算</div></div>
+      <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">角色覆盖</div><div style="font-size:11px;color:#666;line-height:1.6">管理员 | 员工 | 部门负责人<br>调度员 | 司机 | 纪检 | 财务</div></div>
+      <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">车辆类型</div><div style="font-size:11px;color:#666;line-height:1.6">轿车 | SUV | 商务车<br>中型客车 | 大型客车</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: Business Flow -->
+<div class="slide slide-content" data-index="3">
+  <div class="page-title">三、核心业务流程设计</div>
+  <div class="page-body">
+    <div class="flow-row" style="margin-bottom:18px">
+      <div class="flow-step" style="border-top:3px solid #409eff"><div class="step-num" style="color:#409eff">Step 1</div><div class="step-title">用车申请</div><div class="step-desc">员工线上提交<br>选择用车类型<br>系统校验合规性</div></div>
+      <div class="flow-step" style="border-top:3px solid #409eff"><div class="step-num" style="color:#409eff">Step 2</div><div class="step-title">部门审批</div><div class="step-desc">部门负责人审核<br>核对用车合理性<br>审批意见存档</div></div>
+      <div class="flow-step" style="border-top:3px solid #409eff"><div class="step-num" style="color:#409eff">Step 3</div><div class="step-title">领导审批</div><div class="step-desc">分管领导终审<br>重点把关合规<br>审批记录可追溯</div></div>
+      <div class="flow-step" style="border-top:3px solid #e6a23c"><div class="step-num" style="color:#e6a23c">Step 4</div><div class="step-title">车辆调度</div><div class="step-desc">调度员在线派车<br>匹配可用车辆<br>自动更新状态</div></div>
+      <div class="flow-step" style="border-top:3px solid #67c23a"><div class="step-num" style="color:#67c23a">Step 5</div><div class="step-title">出车执行</div><div class="step-desc">驾驶员确认出车<br>记录起始里程<br>全程GPS可查</div></div>
+      <div class="flow-step" style="border-top:3px solid #67c23a"><div class="step-num" style="color:#67c23a">Step 6</div><div class="step-title">归库登记</div><div class="step-desc">驾驶员确认归库<br>记录终止里程<br>自动计算里程</div></div>
+      <div class="flow-step" style="border-top:3px solid #67c23a"><div class="step-num" style="color:#67c23a">Step 7</div><div class="step-title">费用结算</div><div class="step-desc">录入相关费用<br>关联用车申请<br>财务审核入账</div></div>
+    </div>
+    <div class="section-title">设计与解决的问题</div>
+    <div class="grid2">
+      <div class="bg-card" style="border-left:3px solid #c02828"><div style="font-size:13px;font-weight:700;color:#c02828;margin-bottom:4px">问题一：审批效率低、周期长</div><div style="font-size:11px;color:#666">线上审批替代纸质流转，审批周期从数天缩短至数小时</div></div>
+      <div class="bg-card" style="border-left:3px solid #e6a23c"><div style="font-size:13px;font-weight:700;color:#e6a23c;margin-bottom:4px">问题二：车辆调度不透明</div><div style="font-size:11px;color:#666">实时展示车辆状态，调度员一站式完成车辆-驾驶员匹配</div></div>
+      <div class="bg-card" style="border-left:3px solid #c02828"><div style="font-size:13px;font-weight:700;color:#c02828;margin-bottom:4px">问题三：用车行为难监管</div><div style="font-size:11px;color:#666">全流程操作留痕，纪检人员可随时查阅任一环节使用记录</div></div>
+      <div class="bg-card" style="border-left:3px solid #e6a23c"><div style="font-size:13px;font-weight:700;color:#e6a23c;margin-bottom:4px">问题四：费用管理分散混乱</div><div style="font-size:11px;color:#666">费用统一关联用车申请，自动汇总统计，预算一目了然</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S5: Modules 1 -->
+<div class="slide slide-content" data-index="4">
+  <div class="page-title">四、功能模块介绍 -- 核心业务模块</div>
+  <div class="page-body">
+    <div class="grid4">
+      <div class="module-card" style="border-top-color:#67c23a"><span class="priority-tag" style="background:#67c23a">P0</span><div class="m-name" style="margin-top:6px">车辆档案管理</div><div class="m-desc">建立车辆电子档案<br>记录全生命周期数据<br>一车一档、信息完整</div></div>
+      <div class="module-card" style="border-top-color:#67c23a"><span class="priority-tag" style="background:#67c23a">P0</span><div class="m-name" style="margin-top:6px">驾驶员信息管理</div><div class="m-desc">驾驶员基础档案、驾驶证<br>健康状况、培训记录<br>资质到期自动提醒</div></div>
+      <div class="module-card" style="border-top-color:#409eff"><span class="priority-tag" style="background:#409eff">P0</span><div class="m-name" style="margin-top:6px">用车申请管理</div><div class="m-desc">支持6种业务场景在线申请<br>系统自动校验合规性<br>关联车辆编制配额</div></div>
+      <div class="module-card" style="border-top-color:#409eff"><span class="priority-tag" style="background:#409eff">P0</span><div class="m-name" style="margin-top:6px">用车审批管理</div><div class="m-desc">两级审批机制<br>部门负责人初审+分管领导终审<br>审批留痕可追溯</div></div>
+      <div class="module-card" style="border-top-color:#409eff"><span class="priority-tag" style="background:#409eff">P0</span><div class="m-name" style="margin-top:6px">车辆调度管理</div><div class="m-desc">可视化展示车辆状态<br>在线完成车辆-驾驶员匹配<br>自动更新车辆状态</div></div>
+      <div class="module-card" style="border-top-color:#409eff"><span class="priority-tag" style="background:#409eff">P0</span><div class="m-name" style="margin-top:6px">出车归库管理</div><div class="m-desc">出车前确认并记录里程<br>归库时记录终止里程<br>系统自动计算行驶里程</div></div>
+      <div class="module-card" style="border-top-color:#e6a23c"><span class="priority-tag" style="background:#e6a23c">P1</span><div class="m-name" style="margin-top:6px">费用管理</div><div class="m-desc">统一记录各类费用<br>支持费用审核和报销<br>自动生成费用报表</div></div>
+      <div class="module-card" style="border-top-color:#e6a23c"><span class="priority-tag" style="background:#e6a23c">P1</span><div class="m-name" style="margin-top:6px">行程记录查询</div><div class="m-desc">完整记录每次用车行程<br>多维度查询和统计<br>支持数据导出</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: Modules 2 -->
+<div class="slide slide-content" data-index="5">
+  <div class="page-title">四、功能模块介绍 -- 支撑与监管模块</div>
+  <div class="page-body">
+    <div class="grid3">
+      <div class="module-card" style="border-top-color:#e6a23c"><span class="priority-tag" style="background:#e6a23c">P1</span><div class="m-name" style="margin-top:6px">GPS轨迹监控</div><div class="m-desc">实时记录车辆行驶轨迹<br>支持轨迹回放和里程统计<br>异常行驶自动告警</div></div>
+      <div class="module-card" style="border-top-color:#67c23a"><span class="priority-tag" style="background:#67c23a">P0</span><div class="m-name" style="margin-top:6px">车辆运营管理</div><div class="m-desc">加油记录、维修保养、保险台账<br>年检记录、违章处理<br>运营数据统一管理、到期提醒</div></div>
+      <div class="module-card" style="border-top-color:#67c23a"><span class="priority-tag" style="background:#67c23a">P0</span><div class="m-name" style="margin-top:6px">驾驶员培训管理</div><div class="m-desc">培训计划、执行记录、考核管理<br>支持8种培训类型<br>培训状态与驾驶资格联动</div></div>
+      <div class="module-card" style="border-top-color:#e6a23c"><span class="priority-tag" style="background:#e6a23c">P1</span><div class="m-name" style="margin-top:6px">统计分析报表</div><div class="m-desc">车辆使用率、费用趋势分析<br>多维度报表和图表展示<br>支持数据导出</div></div>
+      <div class="module-card" style="border-top-color:#c02828"><span class="priority-tag" style="background:#c02828">P0</span><div class="m-name" style="margin-top:6px">权限角色管理</div><div class="m-desc">管理员、员工、部门负责人<br>调度员、驾驶员、纪检<br>财务、分管领导共8种角色</div></div>
+      <div class="module-card" style="border-top-color:#e6a23c"><span class="priority-tag" style="background:#e6a23c">P1</span><div class="m-name" style="margin-top:6px">通知消息管理</div><div class="m-desc">审批提醒、到期预警<br>异常告警等关键节点推送<br>确保重要信息及时传达</div></div>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:11px;color:#aaa">P0 = 核心功能（优先实现上线） &nbsp;&nbsp;&nbsp; P1 = 辅助功能（逐步完善优化）</div>
+  </div>
+</div>
+
+<!-- S7: Role System -->
+<div class="slide slide-content" data-index="6">
+  <div class="page-title">五、角色权限与安全管理</div>
+  <div class="page-body">
+    <div style="font-size:15px;font-weight:700;color:#1a3a6b;margin-bottom:16px;border-left:4px solid #1a3a6b;padding-left:10px">8种固化角色，各司其职、权责分明</div>
+    <div class="grid4">
+      <div class="role-card" style="border-top-color:#409eff"><div class="role-avatar" style="background:#409eff">管</div><div class="role-name">系统管理员</div><div class="role-desc">负责系统配置<br>用户管理和权限分配</div></div>
+      <div class="role-card" style="border-top-color:#67c23a"><div class="role-avatar" style="background:#67c23a">员</div><div class="role-name">普通员工</div><div class="role-desc">提交用车申请<br>查看个人申请记录</div></div>
+      <div class="role-card" style="border-top-color:#e6a23c"><div class="role-avatar" style="background:#e6a23c">部</div><div class="role-name">部门负责人</div><div class="role-desc">审核本部门用车<br>管理本部门人员</div></div>
+      <div class="role-card" style="border-top-color:#c02828"><div class="role-avatar" style="background:#c02828">领</div><div class="role-name">分管领导</div><div class="role-desc">用车申请终审<br>查看全局数据</div></div>
+      <div class="role-card" style="border-top-color:#409eff"><div class="role-avatar" style="background:#409eff">调</div><div class="role-name">车队调度员</div><div class="role-desc">管理车辆和驾驶员<br>负责派车和协调</div></div>
+      <div class="role-card" style="border-top-color:#67c23a"><div class="role-avatar" style="background:#67c23a">驾</div><div class="role-name">驾驶员</div><div class="role-desc">出车归库确认<br>记录行程里程</div></div>
+      <div class="role-card" style="border-top-color:#e6a23c"><div class="role-avatar" style="background:#e6a23c">纪</div><div class="role-name">纪检监察人员</div><div class="role-desc">独立监督用车合规<br>查看审计记录</div></div>
+      <div class="role-card" style="border-top-color:#c02828"><div class="role-avatar" style="background:#c02828">财</div><div class="role-name">财务人员</div><div class="role-desc">审核费用报销<br>管理预算执行</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: Problems Solved -->
+<div class="slide slide-content" data-index="7">
+  <div class="page-title">六、系统解决的实际问题</div>
+  <div class="page-body">
+    <div class="grid3">
+      <div class="problem-card" style="border-top-color:#c02828">
+        <div class="problem-title">规范用车行为</div>
+        <div class="problem-sub">建立标准化线上审批流程，杜绝"先用车后补单"、私自用车等违规现象，从源头强化合规管理</div>
+        <div class="problem-hint" style="color:#c02828">建设效果：全流程线上化实时监管，每笔用车可追溯</div>
+      </div>
+      <div class="problem-card" style="border-top-color:#409eff">
+        <div class="problem-title">提升管理效率</div>
+        <div class="problem-sub">用车申请、审批、调度全流程线上流转，审批人通过移动端随时处理，大幅压缩审批周期</div>
+        <div class="problem-hint" style="color:#409eff">建设效果：审批周期从数天缩短至4小时内</div>
+      </div>
+      <div class="problem-card" style="border-top-color:#67c23a">
+        <div class="problem-title">优化资源配置</div>
+        <div class="problem-sub">实时呈现车辆使用状态和闲置情况，为车辆采购和调配提供数据支撑，减少不必要的闲置</div>
+        <div class="problem-hint" style="color:#67c23a">建设效果：数据辅助优化编制和采购，节约成本</div>
+      </div>
+      <div class="problem-card" style="border-top-color:#e6a23c">
+        <div class="problem-title">强化费用管控</div>
+        <div class="problem-sub">油费、维修费、保险费等运营费用纳入统一管理，预算执行实时监控，超标自动预警</div>
+        <div class="problem-hint" style="color:#e6a23c">建设效果：全流程追踪费用支出，防止不合理开支</div>
+      </div>
+      <div class="problem-card" style="border-top-color:#c02828">
+        <div class="problem-title">保障合规审计</div>
+        <div class="problem-sub">系统自动记录操作节点的时间、操作人和内容，形成完整审计日志，满足纪检审计要求</div>
+        <div class="problem-hint" style="color:#c02828">建设效果：可调取任意时段任意车辆完整记录</div>
+      </div>
+      <div class="problem-card" style="border-top-color:#409eff">
+        <div class="problem-title">数据辅助决策</div>
+        <div class="problem-sub">汇聚车辆全生命周期运营数据，生成多维度统计分析报表，为管理决策提供科学依据</div>
+        <div class="problem-hint" style="color:#409eff">建设效果：从经验管理向数据管理转变</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S9: Plan -->
+<div class="slide slide-cover" data-index="8">
+  <div style="font-size:24px;font-weight:700;margin-bottom:36px;text-align:center;width:100%">七、实施计划与阶段目标</div>
+  <div class="grid3" style="margin-bottom:40px">
+    <div class="phase-card" style="border-top:4px solid #67c23a">
+      <div class="phase-title" style="background:#67c23a;color:#fff">第一阶段：基础建设<br><span style="font-size:11px">当前阶段</span></div>
+      <div class="phase-item">完成核心业务流程系统开发与联调</div>
+      <div class="phase-item">建立车辆、驾驶员、组织基础数据库</div>
+      <div class="phase-item">实现8种角色权限体系</div>
+      <div class="phase-item">开展系统功能测试和验收</div>
+    </div>
+    <div class="phase-card" style="border-top:4px solid #409eff">
+      <div class="phase-title" style="background:#409eff;color:#fff">第二阶段：功能完善</div>
+      <div class="phase-item">运营管理功能全模块上线</div>
+      <div class="phase-item">GPS轨迹监控与电子围栏部署</div>
+      <div class="phase-item">统计分析报表和可视化仪表盘</div>
+      <div class="phase-item">系统操作培训和试运行</div>
+    </div>
+    <div class="phase-card" style="border-top:4px solid #e6a23c">
+      <div class="phase-title" style="background:#e6a23c;color:#fff">第三阶段：优化推广</div>
+      <div class="phase-item">收集反馈迭代优化功能体验</div>
+      <div class="phase-item">全集团推广覆盖所有分公司</div>
+      <div class="phase-item">探索智能调度和费用预测</div>
+      <div class="phase-item">对接ETC/加油卡/北斗等外部系统</div>
+    </div>
+  </div>
+</div>
+
+<!-- S10: Results & Thanks -->
+<div class="slide slide-cover" data-index="9">
+  <div style="font-size:24px;font-weight:700;margin-bottom:36px;text-align:center">预期建设成效</div>
+  <div style="display:flex;gap:14px;width:100%;margin-bottom:40px;flex-wrap:wrap;justify-content:center">
+    <div class="effect-card" style="width:220px"><div class="effect-name">管理规范化</div><div class="effect-desc">建立统一管理制度<br>和标准化操作流程</div></div>
+    <div class="effect-card" style="width:220px"><div class="effect-name">流程高效化</div><div class="effect-desc">审批周期从数天<br>缩短至数小时</div></div>
+    <div class="effect-card" style="width:220px"><div class="effect-name">监管透明化</div><div class="effect-desc">全流程留痕可追溯<br>纪检审计有据可查</div></div>
+    <div class="effect-card" style="width:220px"><div class="effect-name">决策数据化</div><div class="effect-desc">运营数据自动汇总<br>管理决策有科学依据</div></div>
+    <div class="effect-card" style="width:220px"><div class="effect-name">成本可控化</div><div class="effect-desc">费用预算实时监控<br>运行成本显著降低</div></div>
+  </div>
+  <div style="width:60%;height:1px;background:rgba(255,255,255,.12);margin-bottom:36px"></div>
+  <div class="thank-you" style="text-align:center;font-size:20px;color:#a0c4ff;margin-bottom:8px">恳请各位领导批评指正</div>
+  <div style="text-align:center;font-size:13px;color:#5577aa">公务用车管理信息系统 项目建设方案</div>
+</div>
+
+</div>
+
+<div class="nav">
+  <button class="nav-btn" onclick="prevSlide()">&#9664;</button>
+  <div class="nav-dots" id="navDots"></div>
+  <button class="nav-btn" onclick="nextSlide()">&#9654;</button>
+</div>
+<div class="page-num" id="pageNum">1 / 10</div>
+
+<script>
+var cur=0,slides=document.querySelectorAll('.slide'),total=slides.length,dots=document.getElementById('navDots');
+for(var i=0;i<total;i++){var d=document.createElement('div');d.className='nav-dot'+(i==0?' active':'');d.setAttribute('data-i',i);d.onclick=function(){goSlide(parseInt(this.getAttribute('data-i')))};dots.appendChild(d)}
+function goSlide(i){slides[cur].classList.remove('active');slides[i].classList.add('active');cur=i;document.querySelectorAll('.nav-dot').forEach(function(d,j){d.classList.toggle('active',j==i)});document.getElementById('pageNum').textContent=(i+1)+' / '+total}
+function nextSlide(){if(cur<total-1)goSlide(cur+1)}
+function prevSlide(){if(cur>0)goSlide(cur-1)}
+document.addEventListener('keydown',function(e){if(e.key=='ArrowRight'||e.key=='ArrowDown')nextSlide();if(e.key=='ArrowLeft'||e.key=='ArrowUp')prevSlide()});
+var tx=0;document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX});document.addEventListener('touchend',function(e){var d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)d>0?nextSlide():prevSlide()});
+</script>
+</body>
+</html>
