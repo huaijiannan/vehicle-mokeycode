@@ -149,7 +149,7 @@ ul.item-list li::before{content:'';position:absolute;left:0;top:10px;width:5px;h
     <div class="grid4">
       <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">组织层级</div><div style="font-size:11px;color:#666;line-height:1.6">集团总部 → 分公司 → 部门<br>三级架构全覆盖</div></div>
       <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">业务范围</div><div style="font-size:11px;color:#666;line-height:1.6">车辆管理 | 用车审批<br>调度派车 | 费用结算</div></div>
-      <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">角色覆盖</div><div style="font-size:11px;color:#666;line-height:1.6">管理员 | 员工 | 部门负责人<br>调度员 | 司机 | 纪检 | 财务</div></div>
+      <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">角色覆盖</div><div style="font-size:11px;color:#666;line-height:1.6">管理员 | 员工 | 部门负责人<br>调度员 | 司机 | 分管领导</div></div>
       <div class="bg-card" style="background:#e6f0fa;text-align:center"><div style="font-size:13px;font-weight:700;color:#1a3a6b;margin-bottom:4px">车辆类型</div><div style="font-size:11px;color:#666;line-height:1.6">轿车 | SUV | 商务车<br>中型客车 | 大型客车</div></div>
     </div>
   </div>
@@ -204,7 +204,7 @@ ul.item-list li::before{content:'';position:absolute;left:0;top:10px;width:5px;h
       <div class="module-card" style="border-top-color:#67c23a"><span class="priority-tag" style="background:#67c23a">P0</span><div class="m-name" style="margin-top:6px">车辆运营管理</div><div class="m-desc">加油记录、维修保养、保险台账<br>年检记录、违章处理<br>运营数据统一管理、到期提醒</div></div>
       <div class="module-card" style="border-top-color:#67c23a"><span class="priority-tag" style="background:#67c23a">P0</span><div class="m-name" style="margin-top:6px">驾驶员培训管理</div><div class="m-desc">培训计划、执行记录、考核管理<br>支持8种培训类型<br>培训状态与驾驶资格联动</div></div>
       <div class="module-card" style="border-top-color:#e6a23c"><span class="priority-tag" style="background:#e6a23c">P1</span><div class="m-name" style="margin-top:6px">统计分析报表</div><div class="m-desc">车辆使用率、费用趋势分析<br>多维度报表和图表展示<br>支持数据导出</div></div>
-      <div class="module-card" style="border-top-color:#c02828"><span class="priority-tag" style="background:#c02828">P0</span><div class="m-name" style="margin-top:6px">权限角色管理</div><div class="m-desc">管理员、员工、部门负责人<br>调度员、驾驶员、纪检<br>财务、分管领导共8种角色</div></div>
+      <div class="module-card" style="border-top-color:#c02828"><span class="priority-tag" style="background:#c02828">P0</span><div class="m-name" style="margin-top:6px">权限角色管理</div><div class="m-desc">管理员、员工、部门负责人<br>调度员、驾驶员<br>分管领导共6种角色</div></div>
       <div class="module-card" style="border-top-color:#e6a23c"><span class="priority-tag" style="background:#e6a23c">P1</span><div class="m-name" style="margin-top:6px">通知消息管理</div><div class="m-desc">审批提醒、到期预警<br>异常告警等关键节点推送<br>确保重要信息及时传达</div></div>
     </div>
     <div style="text-align:center;margin-top:16px;font-size:11px;color:#aaa">P0 = 核心功能（优先实现上线） &nbsp;&nbsp;&nbsp; P1 = 辅助功能（逐步完善优化）</div>
@@ -215,16 +215,14 @@ ul.item-list li::before{content:'';position:absolute;left:0;top:10px;width:5px;h
 <div class="slide slide-content" data-index="6">
   <div class="page-title">五、角色权限与安全管理</div>
   <div class="page-body">
-    <div style="font-size:15px;font-weight:700;color:#1a3a6b;margin-bottom:16px;border-left:4px solid #1a3a6b;padding-left:10px">8种固化角色，各司其职、权责分明</div>
-    <div class="grid4">
+    <div style="font-size:15px;font-weight:700;color:#1a3a6b;margin-bottom:16px;border-left:4px solid #1a3a6b;padding-left:10px">6种固化角色，各司其职、权责分明</div>
+    <div class="grid3">
       <div class="role-card" style="border-top-color:#409eff"><div class="role-avatar" style="background:#409eff">管</div><div class="role-name">系统管理员</div><div class="role-desc">负责系统配置<br>用户管理和权限分配</div></div>
       <div class="role-card" style="border-top-color:#67c23a"><div class="role-avatar" style="background:#67c23a">员</div><div class="role-name">普通员工</div><div class="role-desc">提交用车申请<br>查看个人申请记录</div></div>
       <div class="role-card" style="border-top-color:#e6a23c"><div class="role-avatar" style="background:#e6a23c">部</div><div class="role-name">部门负责人</div><div class="role-desc">审核本部门用车<br>管理本部门人员</div></div>
       <div class="role-card" style="border-top-color:#c02828"><div class="role-avatar" style="background:#c02828">领</div><div class="role-name">分管领导</div><div class="role-desc">用车申请终审<br>查看全局数据</div></div>
       <div class="role-card" style="border-top-color:#409eff"><div class="role-avatar" style="background:#409eff">调</div><div class="role-name">车队调度员</div><div class="role-desc">管理车辆和驾驶员<br>负责派车和协调</div></div>
       <div class="role-card" style="border-top-color:#67c23a"><div class="role-avatar" style="background:#67c23a">驾</div><div class="role-name">驾驶员</div><div class="role-desc">出车归库确认<br>记录行程里程</div></div>
-      <div class="role-card" style="border-top-color:#e6a23c"><div class="role-avatar" style="background:#e6a23c">纪</div><div class="role-name">纪检监察人员</div><div class="role-desc">独立监督用车合规<br>查看审计记录</div></div>
-      <div class="role-card" style="border-top-color:#c02828"><div class="role-avatar" style="background:#c02828">财</div><div class="role-name">财务人员</div><div class="role-desc">审核费用报销<br>管理预算执行</div></div>
     </div>
   </div>
 </div>
