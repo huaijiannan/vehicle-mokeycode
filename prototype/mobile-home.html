@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公务用车移动端 - 角色首页原型</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; gap: 20px; padding: 20px; }
+
+.role-tabs { display: flex; gap: 10px; background: #fff; padding: 12px 20px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.06); flex-wrap: wrap; justify-content: center; }
+.role-tab { padding: 10px 20px; border-radius: 14px; border: none; cursor: pointer; font-size: 14px; color: #666; background: #f5f5f5; transition: all .2s; white-space: nowrap; font-weight: 500; }
+.role-tab:hover { background: #e8f0fe; color: #1a73e8; }
+.role-tab.active { background: #1a73e8; color: #fff; }
+
+.phone-frame { width: 375px; height: 750px; background: #fff; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 3px #222, 0 0 0 6px #444, 0 0 0 8px #333; position: relative; overflow: hidden; }
+.phone-notch { width: 120px; height: 28px; background: #222; border-radius: 0 0 18px 18px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 10; }
+
+.phone-content { height: 100%; display: flex; flex-direction: column; padding-top: 28px; }
+
+.status-bar { height: 36px; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; font-size: 12px; font-weight: 600; color: #333; flex-shrink: 0; }
+.status-bar .time { font-size: 13px; }
+.status-icons { display: flex; gap: 6px; align-items: center; }
+
+.nav-header { height: 48px; display: flex; align-items: center; padding: 0 16px; flex-shrink: 0; }
+.nav-header .title { font-size: 18px; font-weight: 700; color: #1a1a1a; flex: 1; }
+.nav-header .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #1a73e8; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+.nav-header .badge-wrap { position: relative; margin-right: 12px; }
+.nav-header .badge { position: absolute; top: -4px; right: -6px; min-width: 16px; height: 16px; background: #ee0a24; color: #fff; border-radius: 8px; font-size: 10px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+.nav-header .bell { width: 22px; height: 22px; }
+
+.page-body { flex: 1; overflow-y: auto; padding: 12px 16px 0; -webkit-overflow-scrolling: touch; }
+.page-body::-webkit-scrollbar { display: none; }
+
+.bottom-tab { height: 56px; display: flex; border-top: 1px solid #f0f0f0; background: #fff; flex-shrink: 0; padding-bottom: 4px; }
+.bottom-tab .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+.bottom-tab .tab-item .icon { width: 22px; height: 22px; }
+.bottom-tab .tab-item .label { font-size: 10px; color: #999; }
+.bottom-tab .tab-item.active .label { color: #1a73e8; font-weight: 600; }
+.bottom-tab .tab-item.active .icon { opacity: 1; }
+
+.card { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.05); border: 1px solid #f0f0f0; }
+.card-row { display: flex; justify-content: space-between; align-items: center; }
+.card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
+.card-meta { font-size: 12px; color: #999; display: flex; gap: 10px; }
+.card-label { font-size: 11px; color: #999; }
+.card-value { font-size: 13px; color: #333; }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.tag-pending { background: #fff7e6; color: #fa8c16; }
+.tag-pass { background: #f6ffed; color: #52c41a; }
+.tag-reject { background: #fff1f0; color: #f5222d; }
+.tag-urgent { background: #fff1f0; color: #f5222d; }
+.tag-normal { background: #e6f7ff; color: #1890ff; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 8px 18px; cursor: pointer; transition: all .2s; }
+.btn-primary { background: #1a73e8; color: #fff; height: 36px; }
+.btn-primary:hover { background: #1557b0; }
+.btn-danger { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
+.btn-ghost { background: #f5f5f5; color: #666; }
+.btn-block { width: 100%; }
+.btn-sm { height: 30px; padding: 0 12px; font-size: 12px; }
+
+.apply-btn { background: linear-gradient(135deg, #1a73e8, #4080ff); color: #fff; border: none; border-radius: 16px; padding: 20px; text-align: center; font-size: 17px; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(26,115,232,.3); letter-spacing: 1px; }
+.apply-btn .plus { font-size: 28px; display: block; margin-bottom: 4px; font-weight: 300; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.stat-card { background: #fff; border-radius: 12px; padding: 12px; text-align: center; border: 1px solid #f0f0f0; }
+.stat-num { font-size: 24px; font-weight: 700; color: #1a73e8; }
+.stat-num.warn { color: #fa8c16; }
+.stat-num.success { color: #52c41a; }
+.stat-num.danger { color: #f5222d; }
+.stat-label { font-size: 11px; color: #999; margin-top: 2px; }
+
+.section-title { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.section-title::before { content: ''; width: 3px; height: 14px; background: #1a73e8; border-radius: 2px; }
+
+.active-task-card { background: linear-gradient(135deg, #1a73e8, #4080ff); color: #fff; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.active-task-card .task-time-label { font-size: 11px; opacity: .8; }
+.active-task-card .task-time { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.active-task-card .task-route { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.active-task-card .task-vehicle { font-size: 13px; opacity: .9; }
+.active-task-card .actions { display: flex; gap: 10px; margin-top: 14px; }
+.active-task-card .btn-white { background: rgba(255,255,255,.25); color: #fff; border: 1px solid rgba(255,255,255,.4); border-radius: 10px; padding: 8px 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.active-task-card .btn-solid { background: #fff; color: #1a73e8; border: none; border-radius: 10px; padding: 8px 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: #ccc; }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state .text { font-size: 14px; }
+
+.alert-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+.alert-item:last-child { border-bottom: none; }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; background: #f5222d; flex-shrink: 0; }
+.alert-info { flex: 1; }
+.alert-title { font-size: 13px; font-weight: 600; color: #333; }
+.alert-desc { font-size: 11px; color: #999; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="role-tabs">
+  <button class="role-tab active" onclick="switchRole('employee')">普通员工</button>
+  <button class="role-tab" onclick="switchRole('approver')">部门负责人</button>
+  <button class="role-tab" onclick="switchRole('dispatcher')">调度员</button>
+  <button class="role-tab" onclick="switchRole('driver')">驾驶员</button>
+  <button class="role-tab" onclick="switchRole('admin')">管理员</button>
+</div>
+
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+  <div class="phone-content" id="phoneScreen"></div>
+</div>
+
+<script>
+function timeNow() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+function statusBar() {
+  return `<div class="status-bar"><span class="time">${timeNow()}</span><span class="status-icons">5G&nbsp;&nbsp;🔋</span></div>`;
+}
+
+function navHeader(title, badgeCount, avatar) {
+  a = avatar || '张';
+  b = badgeCount > 0
+    ? `<div class="badge-wrap"><svg class="bell" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><div class="badge">${badgeCount}</div></div>`
+    : `<svg class="bell" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`;
+  return `<div class="nav-header"><div class="title">${title}</div>${b}<div class="user-avatar">${a}</div></div>`;
+}
+
+function bottomTab(activeTab) {
+  const tabs = [
+    { key:'home', label:'首页', activeIcon:'M3 13h1v7c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-7h1a1 1 0 00.707-1.707l-9-9a.999.999 0 00-1.414 0l-9 9A1 1 0 003 13zm7 7v-5h4v5h-4zm2-15.586l6 6V20h-2v-5c0-1.103-.897-2-2-2h-4c-1.103 0-2 .897-2 2v5H6v-6.586l6-6z', icon:'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z' },
+    { key:'msg', label:'消息', activeIcon:'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z', icon:'M20 2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h14l4 4V4c0-1.103-.897-2-2-2z' },
+    { key:'me', label:'我的', activeIcon:'M12 2C6.579 2 2 6.579 2 12s4.579 10 10 10 10-4.579 10-10S17.421 2 12 2zm0 5c1.727 0 3 1.273 3 3s-1.273 3-3 3-3-1.273-3-3 1.273-3 3-3zm0 14c-2.109 0-4.094-.8-5.617-2.116A8.002 8.002 0 0112 14c2.293 0 4.34.963 5.827 2.459A9.972 9.972 0 0112 21z', icon:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0112.28 0C16.43 19.18 14.03 20 12 20z' },
+  ];
+  return `<div class="bottom-tab">` + tabs.map(t =>
+    `<div class="tab-item${t.key===activeTab?' active':''}">
+      <svg class="icon" viewBox="0 0 24 24" fill="${t.key===activeTab?'#1a73e8':'#ccc'}"><path d="${t.key===activeTab?t.activeIcon:t.icon}"/></svg>
+      <span class="label">${t.label}</span>
+    </div>`
+  ).join('') + `</div>`;
+}
+
+function renderEmployee() {
+  return statusBar() + navHeader('公务用车', 2, '王') + `
+<div class="page-body">
+  <button class="apply-btn"><span class="plus">+</span>申请用车</button>
+  <div class="section-title">我的申请</div>
+  <div class="card" style="border-left: 3px solid #fa8c16;">
+    <div class="card-row"><span class="card-title">外出调研</span><span class="tag tag-pending">审批中</span></div>
+    <div class="card-meta"><span>07-09 14:00</span><span>2人</span></div>
+    <div style="margin-top:4px;font-size:12px;color:#999;">总部 → 高新区管委会</div>
+  </div>
+  <div class="card" style="border-left: 3px solid #52c41a;">
+    <div class="card-row"><span class="card-title">客户拜访</span><span class="tag tag-pass">已通过</span></div>
+    <div class="card-meta"><span>07-08 09:30</span><span>1人</span></div>
+    <div style="margin-top:4px;font-size:12px;color:#999;">总部 → 金融港大厦</div>
+  </div>
+  <div class="card" style="border-left: 3px solid #f5222d;">
+    <div class="card-row"><span class="card-title">设备验收</span><span class="tag tag-reject">已驳回</span></div>
+    <div class="card-meta"><span>07-07 15:00</span><span>3人</span></div>
+    <div style="margin-top:4px;font-size:12px;color:#999;">总部 → 开发区工厂</div>
+  </div>
+</div>` + bottomTab('home');
+}
+
+function renderApprover() {
+  return statusBar() + navHeader('公务用车', 3, '李') + `
+<div class="page-body">
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num warn">3</div><div class="stat-label">待审批</div></div>
+    <div class="stat-card"><div class="stat-num success">8</div><div class="stat-label">今日已批</div></div>
+  </div>
+  <div class="section-title">待审批</div>
+  <div class="card">
+    <div class="card-row"><span class="card-title">项目考察用车</span><span class="tag tag-urgent">加急</span></div>
+    <div class="card-meta"><span>张伟 · 市场部</span><span>07-09 14:00</span></div>
+    <div style="margin:6px 0;font-size:12px;color:#999;">总部 → 临港产业园 · 3人</div>
+    <div class="card-row" style="margin-top:10px;">
+      <span style="font-size:12px;color:#999;">车辆：待调度</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-ghost">驳回</button>
+        <button class="btn btn-sm btn-primary">通过</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-row"><span class="card-title">客户接待用车</span><span class="tag tag-normal">普通</span></div>
+    <div class="card-meta"><span>刘芳 · 销售部</span><span>07-09 16:00</span></div>
+    <div style="margin:6px 0;font-size:12px;color:#999;">总部 → 高铁站 · 2人</div>
+    <div class="card-row" style="margin-top:10px;">
+      <span style="font-size:12px;color:#999;">车辆：待调度</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-ghost">驳回</button>
+        <button class="btn btn-sm btn-primary">通过</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-row"><span class="card-title">设备运输</span><span class="tag tag-normal">普通</span></div>
+    <div class="card-meta"><span>陈刚 · 运维部</span><span>07-10 08:00</span></div>
+    <div style="margin:6px 0;font-size:12px;color:#999;">总部 → 数据中心 · 1人</div>
+    <div class="card-row" style="margin-top:10px;">
+      <span style="font-size:12px;color:#999;">车辆：待调度</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-ghost">驳回</button>
+        <button class="btn btn-sm btn-primary">通过</button>
+      </div>
+    </div>
+  </div>
+</div>` + bottomTab('home');
+}
+
+function renderDispatcher() {
+  return statusBar() + navHeader('公务用车', 2, '赵') + `
+<div class="page-body">
+  <div class="stat-grid-3">
+    <div class="stat-card"><div class="stat-num warn">4</div><div class="stat-label">待调度</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">进行中</div></div>
+    <div class="stat-card"><div class="stat-num success">12</div><div class="stat-label">已归库</div></div>
+  </div>
+  <div class="section-title">待调度任务</div>
+  <div class="card" style="border-left: 3px solid #f5222d;">
+    <div class="card-row"><span class="card-title">项目考察用车</span><span class="tag tag-urgent">加急</span></div>
+    <div class="card-meta"><span>张伟</span><span>07-09 14:00</span><span>总部→临港产业园</span></div>
+    <div class="card-row" style="margin-top:8px;">
+      <span style="font-size:12px;color:#999;">空闲车 5辆 · 空闲司机 3人</span>
+      <button class="btn btn-sm btn-primary">派车</button>
+    </div>
+  </div>
+  <div class="card" style="border-left: 3px solid #1890ff;">
+    <div class="card-row"><span class="card-title">客户接待用车</span><span class="tag tag-normal">普通</span></div>
+    <div class="card-meta"><span>刘芳</span><span>07-09 16:00</span><span>总部→高铁站</span></div>
+    <div class="card-row" style="margin-top:8px;">
+      <span style="font-size:12px;color:#999;">空闲车 5辆 · 空闲司机 3人</span>
+      <button class="btn btn-sm btn-primary">派车</button>
+    </div>
+  </div>
+  <div class="card" style="border-left: 3px solid #1890ff;">
+    <div class="card-row"><span class="card-title">设备运输</span><span class="tag tag-normal">普通</span></div>
+    <div class="card-meta"><span>陈刚</span><span>07-10 08:00</span><span>总部→数据中心</span></div>
+    <div class="card-row" style="margin-top:8px;">
+      <span style="font-size:12px;color:#999;">空闲车 5辆 · 空闲司机 3人</span>
+      <button class="btn btn-sm btn-primary">派车</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-row"><span class="card-title">外出调研</span><span class="tag tag-normal">普通</span></div>
+    <div class="card-meta"><span>周杰</span><span>07-10 09:30</span><span>总部→高新区管委会</span></div>
+    <div class="card-row" style="margin-top:8px;">
+      <span style="font-size:12px;color:#999;">空闲车 5辆 · 空闲司机 3人</span>
+      <button class="btn btn-sm btn-primary">派车</button>
+    </div>
+  </div>
+</div>` + bottomTab('home');
+}
+
+function renderDriver() {
+  return statusBar() + navHeader('公务用车', 1, '孙') + `
+<div class="page-body">
+  <div class="section-title">进行中</div>
+  <div class="active-task-card">
+    <div class="task-time-label">出车时间</div>
+    <div class="task-time">07-09 09:30 已行驶 2h15m</div>
+    <div class="task-route">总部 → 临港产业园</div>
+    <div class="task-vehicle">京A·88888 · 别克GL8 · 乘员3人</div>
+    <div class="actions">
+      <button class="btn-white">费用记入</button>
+      <button class="btn-solid">确认归库</button>
+    </div>
+  </div>
+  <div class="section-title">待执行 (2)</div>
+  <div class="card">
+    <div class="card-row"><span class="card-title">高铁站接站</span><span class="tag tag-normal">今天</span></div>
+    <div class="card-meta"><span>07-09 16:00</span><span>京B·66666</span></div>
+    <div style="font-size:12px;color:#999;margin-top:4px;">总部 → 高铁站 → 总部 · 2人</div>
+    <div class="card-row" style="margin-top:8px;">
+      <span style="font-size:11px;color:#999;">调度员：赵亮</span>
+      <button class="btn btn-sm btn-primary">确认出车</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-row"><span class="card-title">设备运输</span><span class="tag tag-normal">明天</span></div>
+    <div class="card-meta"><span>07-10 08:00</span><span>京A·88888</span></div>
+    <div style="font-size:12px;color:#999;margin-top:4px;">总部 → 数据中心 · 1人</div>
+    <div class="card-row" style="margin-top:8px;">
+      <span style="font-size:11px;color:#999;">调度员：赵亮</span>
+      <button class="btn btn-sm btn-ghost">待执行</button>
+    </div>
+  </div>
+</div>` + bottomTab('home');
+}
+
+function renderAdmin() {
+  return statusBar() + navHeader('公务用车', 1, '管') + `
+<div class="page-body">
+  <div class="section-title">今日运营概览</div>
+  <div class="stat-grid-4">
+    <div class="stat-card"><div class="stat-num">7</div><div class="stat-label">申请数</div></div>
+    <div class="stat-card"><div class="stat-num warn">3</div><div class="stat-label">在途</div></div>
+    <div class="stat-card"><div class="stat-num success">12</div><div class="stat-label">已完成</div></div>
+    <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">空闲车辆</div></div>
+  </div>
+  <div class="section-title">车辆状态分布</div>
+  <div style="display:flex;height:28px;border-radius:6px;overflow:hidden;margin-bottom:16px;">
+    <div style="width:40%;background:#52c41a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;">空闲 8辆</div>
+    <div style="width:15%;background:#1a73e8;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;">在途 3辆</div>
+    <div style="width:10%;background:#fa8c16;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;">维2</div>
+    <div style="width:35%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;color:#999;font-size:11px;">停用 7辆</div>
+  </div>
+  <div class="section-title">异常提醒</div>
+  <div class="card">
+    <div class="alert-item">
+      <div class="alert-dot"></div>
+      <div class="alert-info"><div class="alert-title">超时未归库</div><div class="alert-desc">京A·88888 预计12:30归库已超时1h</div></div>
+      <span style="font-size:11px;color:#999;">14:30</span>
+    </div>
+    <div class="alert-item">
+      <div class="alert-dot" style="background:#fa8c16;"></div>
+      <div class="alert-info"><div class="alert-title">年检即将到期</div><div class="alert-desc">京B·12345 年检到期 2026-07-15</div></div>
+      <span style="font-size:11px;color:#999;">今日</span>
+    </div>
+    <div class="alert-item">
+      <div class="alert-dot" style="background:#fa8c16;"></div>
+      <div class="alert-info"><div class="alert-title">保险即将到期</div><div class="alert-desc">京C·56789 保险到期 2026-07-20</div></div>
+      <span style="font-size:11px;color:#999;">今日</span>
+    </div>
+  </div>
+</div>` + bottomTab('home');
+}
+
+function switchRole(role) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  const phone = document.getElementById('phoneScreen');
+  const renders = { employee:renderEmployee, approver:renderApprover, dispatcher:renderDispatcher, driver:renderDriver, admin:renderAdmin };
+  phone.innerHTML = renders[role]();
+}
+
+document.addEventListener('DOMContentLoaded', ()=> {
+  document.getElementById('phoneScreen').innerHTML = renderEmployee();
+});
+</script>
+</body>
+</html>
