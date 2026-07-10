@@ -99,7 +99,7 @@ function seedDemoOperations() {
         ]
         const v = violations[Math.floor(Math.random() * violations.length)]
         const vDay = String(Math.floor(10 + Math.random() * 20)).padStart(2, '0')
-        insertViolation.run(vid, `${mDateStr}-${vDay}`, '市区主要道路', v[0], v[1], v[2], Math.random() > 0.4 ? '待处理' : '已处理')
+        insertViolation.run(vid, `${curMonthStr}-${vDay}`, '市区主要道路', v[0], v[1], v[2], Math.random() > 0.4 ? '待处理' : '已处理')
       }
     }
   })

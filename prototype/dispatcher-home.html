@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调度员首页原型 - 公务用车移动端</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; justify-content: center; padding: 30px 20px; gap: 40px; flex-wrap: wrap; }
+
+.analysis { width: 380px; background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 16px rgba(0,0,0,.06); height: fit-content; position: sticky; top: 20px; }
+.analysis h2 { font-size: 20px; color: #1a1a1a; margin-bottom: 6px; }
+.analysis .subtitle { font-size: 12px; color: #999; margin-bottom: 24px; }
+.analysis h3 { font-size: 14px; color: #1a73e8; margin: 20px 0 10px; display: flex; align-items: center; gap: 6px; }
+.analysis h3::before { content: ''; width: 4px; height: 14px; background: #1a73e8; border-radius: 2px; }
+.analysis p { font-size: 13px; color: #555; line-height: 1.8; }
+.analysis .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.analysis .tag { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; background: #e8f0fe; color: #1a73e8; }
+.analysis .tag.orange { background: #fff7e6; color: #fa8c16; }
+.analysis .tag.green { background: #f6ffed; color: #52c41a; }
+.analysis .flow-step { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px; color: #666; }
+.analysis .flow-step .dot { width: 6px; height: 6px; border-radius: 50%; background: #1a73e8; flex-shrink: 0; }
+.analysis .flow-step .arrow { color: #ccc; font-size: 10px; }
+.analysis .matrix { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; }
+.analysis .matrix th { background: #f5f7fa; padding: 6px 8px; text-align: left; color: #666; font-weight: 600; border-bottom: 1px solid #e8e8e8; }
+.analysis .matrix td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; color: #333; }
+.analysis .matrix td.strong { font-weight: 700; color: #1a73e8; }
+
+/* Phone */
+.phone-shell { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.phone-label { font-size: 13px; color: #999; font-weight: 600; letter-spacing: 1px; }
+.phone-frame { width: 390px; height: 780px; background: #fff; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 3px #222, 0 0 0 6px #444, 0 0 0 8px #333; position: relative; overflow: hidden; }
+.phone-notch { width: 130px; height: 30px; background: #222; border-radius: 0 0 20px 20px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 10; }
+.phone-content { height: 100%; display: flex; flex-direction: column; padding-top: 30px; }
+
+.status-bar { height: 36px; display: flex; justify-content: space-between; align-items: center; padding: 0 28px; font-size: 12px; font-weight: 600; color: #333; flex-shrink: 0; background: #fff; }
+.status-bar .time { font-size: 13px; }
+
+.nav-section { padding: 0 16px; flex-shrink: 0; background: #fff; }
+.nav-row { display: flex; align-items: center; justify-content: space-between; height: 44px; }
+.nav-row .greeting { font-size: 20px; font-weight: 800; color: #1a1a1a; }
+.nav-row .greeting .emoji { font-size: 22px; }
+.nav-actions { display: flex; gap: 14px; align-items: center; }
+.nav-actions .icon-btn { position: relative; width: 34px; height: 34px; border-radius: 50%; background: #f5f5f5; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.nav-actions .badge { position: absolute; top: -2px; right: -2px; min-width: 16px; height: 16px; background: #ee0a24; color: #fff; border-radius: 8px; font-size: 10px; display: flex; align-items: center; justify-content: center; padding: 0 5px; font-weight: 600; }
+.nav-actions .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1a73e8, #4080ff); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+
+.nav-bottom { display: flex; gap: 0; margin-bottom: 4px; }
+.nav-tab { flex: 1; text-align: center; padding: 8px 0; font-size: 13px; color: #999; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 500; transition: all .2s; }
+.nav-tab.active { color: #1a73e8; border-bottom-color: #1a73e8; font-weight: 700; }
+
+.page-body { flex: 1; overflow-y: auto; padding: 12px 16px 80px; -webkit-overflow-scrolling: touch; background: #f5f6f8; }
+.page-body::-webkit-scrollbar { display: none; }
+
+.bottom-tab { height: 60px; display: flex; border-top: 1px solid #eee; background: #fff; flex-shrink: 0; padding-bottom: 4px; position: absolute; bottom: 0; width: 100%; }
+.bottom-tab .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+.bottom-tab .tab-item .icon { width: 22px; height: 22px; }
+.bottom-tab .tab-item .label { font-size: 10px; color: #bbc0c8; }
+.bottom-tab .tab-item.active .label { color: #1a73e8; font-weight: 600; }
+
+.urgent-strip { background: linear-gradient(135deg, #fff1f0, #fff); border: 1px solid #ffccc7; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.urgent-strip .icon-box { width: 38px; height: 38px; border-radius: 10px; background: #f5222d; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.urgent-strip .urgent-info { flex: 1; }
+.urgent-strip .urgent-title { font-size: 14px; font-weight: 700; color: #cf1322; }
+.urgent-strip .urgent-desc { font-size: 11px; color: #999; margin-top: 2px; line-height: 1.5; }
+.urgent-strip .count-badge { background: #f5222d; color: #fff; border-radius: 10px; padding: 4px 10px; font-size: 13px; font-weight: 700; }
+
+.stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat-card { background: #fff; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.stat-card .num { font-size: 26px; font-weight: 800; line-height: 1.2; }
+.stat-card .num.blue { color: #1a73e8; }
+.stat-card .num.orange { color: #fa8c16; }
+.stat-card .num.green { color: #52c41a; }
+.stat-card .num.red { color: #f5222d; }
+.stat-card .lbl { font-size: 11px; color: #999; margin-top: 2px; }
+
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.section-header .title { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.section-header .more { font-size: 12px; color: #1a73e8; cursor: pointer; }
+
+.task-card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04); position: relative; }
+.task-card.urgent { border-left: 4px solid #f5222d; }
+.task-card.normal { border-left: 4px solid #1890ff; }
+.task-card .task-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.task-card .task-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.task-card .task-type { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+.task-card .task-type.urgent-type { background: #fff1f0; color: #f5222d; }
+.task-card .task-type.normal-type { background: #e6f7ff; color: #1890ff; }
+.task-card .task-detail { font-size: 12px; color: #666; line-height: 1.7; }
+.task-card .task-detail .highlight { color: #1a73e8; font-weight: 600; }
+.task-card .task-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f5f5f5; }
+.task-card .resource-hint { font-size: 11px; color: #999; display: flex; align-items: center; gap: 4px; }
+.task-card .resource-hint .dot-green { width: 6px; height: 6px; border-radius: 50%; background: #52c41a; display: inline-block; }
+.task-card .dispatch-btn { background: #1a73e8; color: #fff; border: none; border-radius: 8px; padding: 7px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.task-card .dispatch-btn:hover { background: #1557b0; }
+
+.resource-bar { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.resource-bar .r-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 10px; }
+.resource-bar .r-items { display: flex; gap: 20px; }
+.resource-bar .r-item { flex: 1; display: flex; align-items: center; gap: 8px; }
+.resource-bar .r-num { font-size: 20px; font-weight: 700; }
+.resource-bar .r-num.g { color: #52c41a; }
+.resource-bar .r-num.b { color: #1a73e8; }
+.resource-bar .r-label { font-size: 11px; color: #999; }
+
+.progress-strip { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; background: #fff; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.progress-strip .p-label { font-size: 12px; color: #666; white-space: nowrap; }
+.progress-strip .p-bar-wrap { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+.progress-strip .p-bar { height: 100%; border-radius: 4px; transition: width .3s; }
+
+.fab { position: absolute; bottom: 80px; right: 20px; width: 48px; height: 48px; border-radius: 50%; background: #1a73e8; color: #fff; border: none; box-shadow: 0 4px 14px rgba(26,115,232,.35); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; }
+</style>
+</head>
+<body>
+
+<!-- 分析面板 -->
+<div class="analysis">
+  <h2>车辆调度员</h2>
+  <div class="subtitle">角色分析 & 首页设计思路</div>
+
+  <h3>岗位定位</h3>
+  <p>调度员是"审批-执行"链路的中枢节点，负责将已审批的用车申请转化为具体的派车指令。核心任务是<strong>在有限资源下做出最优匹配</strong>，同时确保车辆状态可控、任务可追踪。</p>
+
+  <h3>角色特点</h3>
+  <div class="tag-list">
+    <span class="tag">承上启下</span><span class="tag">资源匹配</span><span class="tag orange">实时决策</span><span class="tag">多任务并行</span><span class="tag green">状态感知</span>
+  </div>
+  <p>接收审批通过申请 → 匹配车辆与司机 → 下发任务 → 监控执行 → 确认归库</p>
+  <div class="flow-step"><span class="dot"></span> 审批通过 <span class="arrow">→</span> 待调度队列 <span class="arrow">→</span> 调度派车 <span class="arrow">→</span> 司机出车 <span class="arrow">→</span> 行程监控 <span class="arrow">→</span> 归库确认</div>
+
+  <h3>业务关注点</h3>
+  <table class="matrix">
+    <tr><th>关注维度</th><th>核心问题</th></tr>
+    <tr><td class="strong">待处理任务</td><td>有多少申请等待调度？紧急程度如何？</td></tr>
+    <tr><td class="strong">资源可用性</td><td>当前空闲车辆和司机有多少？</td></tr>
+    <tr><td class="strong">任务进度</td><td>正在执行的任务状态如何？</td></tr>
+    <tr><td class="strong">冲突预警</td><td>是否有时间/资源冲突？</td></tr>
+    <tr><td class="strong">效率统计</td><td>今日完成多少？平均响应时间？</td></tr>
+  </table>
+
+  <h3>首页信息层级</h3>
+  <p>
+    <strong>L1 最高优先级</strong> — 紧急待调度任务（红色警示条）<br>
+    <strong>L2 决策辅助</strong> — 统计卡片 + 可用资源概览<br>
+    <strong>L3 任务队列</strong> — 待调度列表（按紧急度排列）<br>
+    <strong>L4 全局监控</strong> — 进行中行程 + 今日完成率
+  </p>
+
+  <h3>设计原则</h3>
+  <div class="tag-list">
+    <span class="tag green">一眼看全</span><span class="tag green">快速决策</span><span class="tag orange">减少操作</span><span class="tag">推送驱动</span>
+  </div>
+  <p style="margin-top:6px">首页即工作台，所有待处理任务直接可操作，无需进入二级页面。紧急任务用视觉层级抢占注意力。</p>
+</div>
+
+<!-- 手机原型 -->
+<div class="phone-shell">
+  <div class="phone-label">调度员 赵前 · 首页原型</div>
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-content">
+
+      <div class="status-bar"><span class="time">14:30</span><span style="display:flex;gap:6px;align-items:center">5G&nbsp;🔋</span></div>
+
+      <div class="nav-section">
+        <div class="nav-row">
+          <div class="greeting"><span class="emoji"></span>下午好，赵前</div>
+          <div class="nav-actions">
+            <div class="icon-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <div class="badge">3</div>
+            </div>
+            <div class="avatar">赵</div>
+          </div>
+        </div>
+        <div class="nav-bottom">
+          <div class="nav-tab active">调度台</div>
+          <div class="nav-tab">进行中</div>
+          <div class="nav-tab">已完成</div>
+        </div>
+      </div>
+
+      <div class="page-body">
+
+        <!-- 紧急任务警示条 -->
+        <div class="urgent-strip">
+          <div class="icon-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2zm0-6h2v4h-2z"/></svg>
+          </div>
+          <div class="urgent-info">
+            <div class="urgent-title">紧急任务待处理</div>
+            <div class="urgent-desc">项目考察用车 预计14:00出发，已等待30分钟</div>
+          </div>
+          <div class="count-badge">2</div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="num orange">4</div>
+            <div class="lbl">待调度</div>
+          </div>
+          <div class="stat-card">
+            <div class="num blue">3</div>
+            <div class="lbl">进行中</div>
+          </div>
+          <div class="stat-card">
+            <div class="num green">12</div>
+            <div class="lbl">今日归库</div>
+          </div>
+        </div>
+
+        <!-- 可用资源条 -->
+        <div class="resource-bar">
+          <div class="r-title">可用资源</div>
+          <div class="r-items">
+            <div class="r-item">
+              <span class="r-num g">5</span>
+              <span class="r-label">空闲车辆</span>
+            </div>
+            <div class="r-item">
+              <span class="r-num b">3</span>
+              <span class="r-label">空闲司机</span>
+            </div>
+            <div class="r-item">
+              <div style="font-size:20px;font-weight:700;color:#999">2</div>
+              <span class="r-label" style="font-size:11px;color:#999">维修中</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 今日进度 -->
+        <div class="progress-strip">
+          <span class="p-label">今日完成率</span>
+          <div class="p-bar-wrap">
+            <div class="p-bar" style="width:75%;background:linear-gradient(90deg,#52c41a,#73d13d)"></div>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:#52c41a">75%</span>
+        </div>
+
+        <!-- 待调度列表 -->
+        <div class="section-header">
+          <div class="title">待调度任务</div>
+          <div class="more">全部 ›</div>
+        </div>
+
+        <div class="task-card urgent">
+          <div class="task-top">
+            <div class="task-name">项目考察用车</div>
+            <div class="task-type urgent-type">加急</div>
+          </div>
+          <div class="task-detail">
+            申请人：<span class="highlight">张伟</span> · 市场部<br>
+            出发：<span class="highlight">07-09 14:00</span> · 总部 → 临港产业园<br>
+            乘车人数：3人 · 需司机 · 预计往返4小时
+          </div>
+          <div class="task-footer">
+            <div class="resource-hint"><span class="dot-green"></span> 空闲车5辆 · 空闲司机3人</div>
+            <button class="dispatch-btn">立即派车</button>
+          </div>
+        </div>
+
+        <div class="task-card urgent">
+          <div class="task-top">
+            <div class="task-name">领导紧急出行</div>
+            <div class="task-type urgent-type">加急</div>
+          </div>
+          <div class="task-detail">
+            申请人：<span class="highlight">王五</span> · 北京分公司<br>
+            出发：<span class="highlight">07-09 14:30</span> · 总部 → 市政府<br>
+            乘车人数：2人 · 需司机 · 单程
+          </div>
+          <div class="task-footer">
+            <div class="resource-hint"><span class="dot-green"></span> 空闲车5辆 · 空闲司机3人</div>
+            <button class="dispatch-btn">立即派车</button>
+          </div>
+        </div>
+
+        <div class="task-card normal">
+          <div class="task-top">
+            <div class="task-name">客户接待用车</div>
+            <div class="task-type normal-type">普通</div>
+          </div>
+          <div class="task-detail">
+            申请人：<span class="highlight">刘芳</span> · 销售部<br>
+            出发：<span class="highlight">07-09 16:00</span> · 总部 → 高铁站<br>
+            乘车人数：2人 · 需司机
+          </div>
+          <div class="task-footer">
+            <div class="resource-hint"><span class="dot-green"></span> 空闲车5辆 · 空闲司机3人</div>
+            <button class="dispatch-btn">派车</button>
+          </div>
+        </div>
+
+        <div class="task-card normal">
+          <div class="task-top">
+            <div class="task-name">设备运输</div>
+            <div class="task-type normal-type">普通</div>
+          </div>
+          <div class="task-detail">
+            申请人：<span class="highlight">陈刚</span> · 运维部<br>
+            出发：<span class="highlight">07-10 08:00</span> · 总部 → 数据中心<br>
+            乘车人数：1人 · 无需司机（自驾）
+          </div>
+          <div class="task-footer">
+            <div class="resource-hint"><span class="dot-green"></span> 空闲车5辆 · 需匹配合适车型</div>
+            <button class="dispatch-btn">派车</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FAB -->
+      <div class="fab">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      </div>
+
+      <!-- 底部导航 -->
+      <div class="bottom-tab">
+        <div class="tab-item active">
+          <svg class="icon" viewBox="0 0 24 24" fill="#1a73e8"><path d="M3 13h1v7c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-7h1a1 1 0 00.707-1.707l-9-9a.999.999 0 00-1.414 0l-9 9A1 1 0 003 13zm7 7v-5h4v5h-4zm2-15.586l6 6V20h-2v-5c0-1.103-.897-2-2-2h-4c-1.103 0-2 .897-2 2v5H6v-6.586l6-6z"/></svg>
+          <span class="label">调度台</span>
+        </div>
+        <div class="tab-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="#bbc0c8"><path d="M20 2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h14l4 4V4c0-1.103-.897-2-2-2z"/></svg>
+          <span class="label">消息</span>
+        </div>
+        <div class="tab-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="#bbc0c8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88a9.947 9.947 0 0112.28 0C16.43 19.18 14.03 20 12 20z"/></svg>
+          <span class="label">我的</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

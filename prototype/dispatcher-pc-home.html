@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调度管理首页 - 公务用车管理系统</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; min-height: 100vh; }
+
+/* 顶部导航 */
+.topbar { height: 48px; background: #1a1a1a; display: flex; align-items: center; padding: 0 24px; color: #fff; justify-content: space-between; }
+.topbar .logo { font-size: 16px; font-weight: 700; letter-spacing: 2px; }
+.topbar .user { display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; }
+.topbar .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #1a73e8; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+
+/* 主布局 */
+.layout { display: flex; height: calc(100vh - 48px); }
+.sidebar { width: 200px; background: #263445; color: #bfcbd9; flex-shrink: 0; overflow-y: auto; }
+.sidebar .menu-item { padding: 14px 20px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all .15s; border-left: 3px solid transparent; }
+.sidebar .menu-item:hover { background: #1d2e3f; color: #fff; }
+.sidebar .menu-item.active { background: #1d2e3f; color: #409eff; border-left-color: #409eff; }
+.sidebar .menu-group { padding: 16px 20px 6px; font-size: 11px; color: #6b7b8d; text-transform: uppercase; letter-spacing: 1px; }
+.sidebar .menu-item .dot { width: 6px; height: 6px; border-radius: 50%; background: #e6a23c; }
+.sidebar .menu-item .badge { margin-left: auto; background: #f56c6c; color: #fff; border-radius: 8px; padding: 1px 7px; font-size: 10px; }
+
+/* 主内容区 */
+.main { flex: 1; overflow-y: auto; padding: 20px; }
+
+/* 面包屑 */
+.breadcrumb { font-size: 12px; color: #999; margin-bottom: 16px; }
+.breadcrumb span { color: #333; font-weight: 600; }
+
+/* 页面标题行 */
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.page-header h2 { font-size: 20px; color: #1a1a1a; display: flex; align-items: center; gap: 10px; }
+.page-header .role-tag { font-size: 11px; background: #e8f0fe; color: #1a73e8; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+.page-header .time { font-size: 13px; color: #999; }
+.page-header .actions { display: flex; gap: 10px; }
+
+/* 统计卡片行 */
+.stat-cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: #fff; border-radius: 8px; padding: 18px 16px; box-shadow: 0 1px 4px rgba(0,0,0,.04); position: relative; overflow: hidden; }
+.stat-card .icon-area { position: absolute; right: 12px; top: 12px; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.stat-card .icon-area.blue { background: #e8f0fe; }
+.stat-card .icon-area.orange { background: #fff7e6; }
+.stat-card .icon-area.green { background: #f6ffed; }
+.stat-card .icon-area.red { background: #fff1f0; }
+.stat-card .icon-area.purple { background: #f9f0ff; }
+.stat-card .icon-area.cyan { background: #e6fffb; }
+.stat-card .label { font-size: 12px; color: #999; margin-bottom: 6px; }
+.stat-card .value { font-size: 26px; font-weight: 800; color: #1a1a1a; }
+.stat-card .sub { font-size: 11px; color: #999; margin-top: 4px; }
+.stat-card .sub.up { color: #52c41a; }
+.stat-card .sub.down { color: #f5222d; }
+
+/* 两栏布局 */
+.panels { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin-bottom: 20px; }
+.panels-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+/* 面板 */
+.panel { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.04); overflow: hidden; }
+.panel-header { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+.panel-header h3 { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.panel-header .extra { font-size: 12px; color: #1a73e8; cursor: pointer; }
+.panel-body { padding: 12px 16px; }
+.panel-body.no-pad { padding: 0; }
+
+/* 表格 */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+table th { background: #fafafa; padding: 10px 12px; text-align: left; font-weight: 600; color: #666; white-space: nowrap; border-bottom: 1px solid #f0f0f0; }
+table td { padding: 10px 12px; border-bottom: 1px solid #f5f5f5; color: #333; }
+table tr:hover td { background: #fafbfc; }
+table .urgent-row td { background: #fffbf0; }
+table .urgent-row:hover td { background: #fff7e6; }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.tag-danger { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
+.tag-warning { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+.tag-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+.tag-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+.tag-default { background: #fafafa; color: #999; border: 1px solid #e8e8e8; }
+
+.btn { display: inline-flex; align-items: center; gap: 4px; border: 1px solid #d9d9d9; border-radius: 6px; padding: 6px 14px; font-size: 12px; cursor: pointer; background: #fff; color: #333; transition: all .15s; }
+.btn:hover { border-color: #1a73e8; color: #1a73e8; }
+.btn-primary { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+.btn-primary:hover { background: #1557b0; border-color: #1557b0; color: #fff; }
+.btn-danger { color: #f5222d; border-color: #f5222d; }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-text { border: none; background: none; color: #1a73e8; padding: 4px 8px; }
+
+/* 车辆状态色块 */
+.status-bar-wrap { display: flex; height: 36px; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+.status-bar-wrap .seg { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; transition: width .3s; }
+.status-legend { display: flex; gap: 20px; flex-wrap: wrap; }
+.status-legend .item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
+.status-legend .dot { width: 10px; height: 10px; border-radius: 3px; }
+
+/* 到期提醒 */
+.alert-list { }
+.alert-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+.alert-item:last-child { border-bottom: none; }
+.alert-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.alert-icon.red { background: #fff1f0; color: #f5222d; }
+.alert-icon.orange { background: #fff7e6; color: #fa8c16; }
+.alert-content { flex: 1; min-width: 0; }
+.alert-content .title { font-size: 13px; font-weight: 600; color: #333; }
+.alert-content .desc { font-size: 11px; color: #999; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alert-days { font-size: 13px; font-weight: 700; white-space: nowrap; }
+.alert-days.red { color: #f5222d; }
+.alert-days.orange { color: #fa8c16; }
+
+/* 进度条 */
+.progress-wrap { margin: 4px 0; }
+.progress-bar { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+.progress-info { display: flex; justify-content: space-between; font-size: 11px; color: #999; margin-top: 4px; }
+
+/* 快速操作 */
+.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.quick-action { background: #fafbfc; border: 1px solid #f0f0f0; border-radius: 8px; padding: 14px; cursor: pointer; transition: all .15s; text-align: center; }
+.quick-action:hover { border-color: #1a73e8; background: #e8f0fe; }
+.quick-action .icon { font-size: 24px; margin-bottom: 6px; }
+.quick-action .text { font-size: 12px; color: #333; font-weight: 500; }
+
+/* 空状态 */
+.empty { text-align: center; padding: 40px; color: #ccc; font-size: 13px; }
+
+/* 进度列表 */
+.progress-list { }
+.progress-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+.progress-item:last-child { border-bottom: none; }
+.progress-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.progress-dot.active { background: #1a73e8; animation: pulse 2s infinite; }
+.progress-dot.idle { background: #52c41a; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+
+.prog-info { flex: 1; min-width: 0; }
+.prog-info .p-title { font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prog-info .p-meta { font-size: 11px; color: #999; }
+
+/* 小型指标 */
+.mini-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.mini-stat { text-align: center; padding: 10px; background: #fafbfc; border-radius: 8px; }
+.mini-stat .num { font-size: 22px; font-weight: 800; }
+.mini-stat .txt { font-size: 11px; color: #999; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">公务用车管理系统</div>
+  <div class="user">
+    <span>赵前</span>
+    <div class="user-avatar">赵</div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="menu-group">核心功能</div>
+    <div class="menu-item active">&#9704; 工作首页</div>
+    <div class="menu-item">&#9724; 调度管理 <span class="badge">4</span></div>
+    <div class="menu-item">&#9643; 行程监控</div>
+    <div class="menu-group">车辆管理</div>
+    <div class="menu-item">&#9643; 车辆档案</div>
+    <div class="menu-item">&#9643; 车辆运营 <span class="dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#e6a23c;margin-left:auto"></span></div>
+    <div class="menu-item">&#9643; 驾驶员管理</div>
+    <div class="menu-group">其他</div>
+    <div class="menu-item">&#9643; 费用管理</div>
+    <div class="menu-item">&#9643; 统计报表</div>
+  </div>
+
+  <div class="main">
+
+    <div class="breadcrumb">工作台 <span style="margin:0 6px">/</span> <span>首页</span></div>
+
+    <div class="page-header">
+      <h2>调度管理台 <span class="role-tag">调度员 · 车辆管理员</span></h2>
+      <div class="time">2026-07-09 星期三 14:30</div>
+    </div>
+
+    <!-- 6 指标卡片 -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="icon-area orange"><span style="font-size:18px">&#9888;</span></div>
+        <div class="label">待调度任务</div>
+        <div class="value" style="color:#fa8c16">4</div>
+        <div class="sub up">含 2 个加急</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-area blue"><span style="font-size:18px">&#9992;</span></div>
+        <div class="label">进行中行程</div>
+        <div class="value" style="color:#1a73e8">3</div>
+        <div class="sub">预计 16:30 前全部归库</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-area green"><span style="font-size:18px">&#10004;</span></div>
+        <div class="label">今日已完成</div>
+        <div class="value" style="color:#52c41a">12</div>
+        <div class="sub up">较昨日 +3</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-area cyan"><span style="font-size:18px">&#128663;</span></div>
+        <div class="label">车辆总数</div>
+        <div class="value">20</div>
+        <div class="sub">空闲 8 · 占用 3 · 维修 2</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-area purple"><span style="font-size:18px">&#128101;</span></div>
+        <div class="label">驾驶员</div>
+        <div class="value">12</div>
+        <div class="sub">在岗 10 · 休假 2</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-area red"><span style="font-size:18px">&#9889;</span></div>
+        <div class="label">到期提醒</div>
+        <div class="value" style="color:#f5222d">5</div>
+        <div class="sub down">年检 3 · 保险 2</div>
+      </div>
+    </div>
+
+    <!-- 主内容区：调度任务 + 车辆状态 -->
+    <div class="panels">
+      <!-- 左：待调度任务表格 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>&#128203; 待调度任务</h3>
+          <span class="extra">全部任务 &#8250;</span>
+        </div>
+        <div class="panel-body no-pad">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px"></th>
+                  <th>用车事由</th>
+                  <th>申请人</th>
+                  <th>部门</th>
+                  <th>出发时间</th>
+                  <th>目的地</th>
+                  <th>人数</th>
+                  <th>方式</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="urgent-row">
+                  <td><span class="tag tag-danger">加急</span></td>
+                  <td><strong>项目考察用车</strong></td>
+                  <td>张伟</td>
+                  <td>市场部</td>
+                  <td>07-09 14:00</td>
+                  <td>临港产业园</td>
+                  <td>3</td>
+                  <td>配司机</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">派车</button>
+                    <button class="btn btn-text btn-sm">详情</button>
+                  </td>
+                </tr>
+                <tr class="urgent-row">
+                  <td><span class="tag tag-danger">加急</span></td>
+                  <td><strong>领导紧急出行</strong></td>
+                  <td>王五</td>
+                  <td>分公司</td>
+                  <td>07-09 14:30</td>
+                  <td>市政府</td>
+                  <td>2</td>
+                  <td>配司机</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">派车</button>
+                    <button class="btn btn-text btn-sm">详情</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="tag tag-info">普通</span></td>
+                  <td>客户接待用车</td>
+                  <td>刘芳</td>
+                  <td>销售部</td>
+                  <td>07-09 16:00</td>
+                  <td>高铁站</td>
+                  <td>2</td>
+                  <td>配司机</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">派车</button>
+                    <button class="btn btn-text btn-sm">详情</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="tag tag-info">普通</span></td>
+                  <td>设备运输</td>
+                  <td>陈刚</td>
+                  <td>运维部</td>
+                  <td>07-10 08:00</td>
+                  <td>数据中心</td>
+                  <td>1</td>
+                  <td>自驾</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">派车</button>
+                    <button class="btn btn-text btn-sm">详情</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：车辆状态 + 快速操作 -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <!-- 车辆状态 -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>&#128663; 车辆状态总览</h3>
+            <span class="extra">全部车辆 &#8250;</span>
+          </div>
+          <div class="panel-body">
+            <div class="status-bar-wrap">
+              <div class="seg" style="width:40%;background:#52c41a">空闲 8</div>
+              <div class="seg" style="width:15%;background:#1a73e8">在途 3</div>
+              <div class="seg" style="width:10%;background:#fa8c16">维 2</div>
+              <div class="seg" style="width:35%;background:#e8e8e8;color:#999">停用 7</div>
+            </div>
+            <div class="status-legend">
+              <div class="item"><span class="dot" style="background:#52c41a"></span>空闲 8辆</div>
+              <div class="item"><span class="dot" style="background:#1a73e8"></span>占用 3辆</div>
+              <div class="item"><span class="dot" style="background:#fa8c16"></span>维修 2辆</div>
+              <div class="item"><span class="dot" style="background:#e8e8e8"></span>停用 7辆</div>
+            </div>
+
+            <div style="margin-top:14px">
+              <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:8px">今日调度效率</div>
+              <div class="progress-wrap">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width:75%;background:linear-gradient(90deg,#52c41a,#73d13d)"></div>
+                </div>
+                <div class="progress-info">
+                  <span>已完成 12 / 16</span>
+                  <span style="color:#52c41a;font-weight:600">75%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 快速操作 -->
+        <div class="panel">
+          <div class="panel-header"><h3>&#9889; 快速操作</h3></div>
+          <div class="panel-body">
+            <div class="quick-actions">
+              <div class="quick-action">
+                <div class="icon">&#128197;</div>
+                <div class="text">新建用车申请</div>
+              </div>
+              <div class="quick-action">
+                <div class="icon">&#128202;</div>
+                <div class="text">调度看板</div>
+              </div>
+              <div class="quick-action">
+                <div class="icon">&#128663;</div>
+                <div class="text">车辆登记</div>
+              </div>
+              <div class="quick-action">
+                <div class="icon">&#128221;</div>
+                <div class="text">运营记录</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 下半区：进行中行程 + 到期提醒 -->
+    <div class="panels-equal">
+      <!-- 进行中行程 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>&#128640; 进行中行程监控</h3>
+          <span class="extra">全部行程 &#8250;</span>
+        </div>
+        <div class="panel-body no-pad">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>车辆</th>
+                  <th>驾驶员</th>
+                  <th>路线</th>
+                  <th>出车时间</th>
+                  <th>已行驶</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>京A·88888 <br><span style="font-size:11px;color:#999">别克GL8</span></td>
+                  <td>孙力</td>
+                  <td>总部→临港产业园</td>
+                  <td>09:30</td>
+                  <td>2h15m</td>
+                  <td><span class="tag tag-info">行驶中</span></td>
+                </tr>
+                <tr>
+                  <td>京B·66666 <br><span style="font-size:11px;color:#999">帕萨特</span></td>
+                  <td>李明</td>
+                  <td>总部→金融港</td>
+                  <td>10:00</td>
+                  <td>1h45m</td>
+                  <td><span class="tag tag-info">行驶中</span></td>
+                </tr>
+                <tr>
+                  <td>京C·12345 <br><span style="font-size:11px;color:#999">奥迪A6</span></td>
+                  <td>王磊</td>
+                  <td>总部→开发区工厂</td>
+                  <td>11:00</td>
+                  <td>45m</td>
+                  <td><span class="tag tag-warning">即将返程</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 到期提醒 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>&#9200; 到期提醒</h3>
+          <span class="extra">全部提醒 &#8250;</span>
+        </div>
+        <div class="panel-body">
+          <div class="alert-list">
+            <div class="alert-item">
+              <div class="alert-icon red">&#9888;</div>
+              <div class="alert-content">
+                <div class="title">年检到期 - 京A·56789</div>
+                <div class="desc">奥迪A6L · 到期日期 2026-07-15</div>
+              </div>
+              <div class="alert-days red">剩 6 天</div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon red">&#9888;</div>
+              <div class="alert-content">
+                <div class="title">保险到期 - 京B·33445</div>
+                <div class="desc">帕萨特 · 到期日期 2026-07-18</div>
+              </div>
+              <div class="alert-days red">剩 9 天</div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon orange">&#9881;</div>
+              <div class="alert-content">
+                <div class="title">保养提醒 - 京A·88888</div>
+                <div class="desc">别克GL8 · 距上次保养已行驶 9,200km</div>
+              </div>
+              <div class="alert-days orange">建议保养</div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon orange">&#9881;</div>
+              <div class="alert-content">
+                <div class="title">保养提醒 - 京C·12345</div>
+                <div class="desc">奥迪A6 · 距上次保养已行驶 8,500km</div>
+              </div>
+              <div class="alert-days orange">建议保养</div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-icon red">&#9888;</div>
+              <div class="alert-content">
+                <div class="title">年检到期 - 京D·99001</div>
+                <div class="desc">考斯特中巴 · 到期日期 2026-07-30</div>
+              </div>
+              <div class="alert-days" style="color:#fa8c16">剩 21 天</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
