@@ -8,12 +8,18 @@ const { authMiddleware } = require('../middleware/auth')
 const router = express.Router()
 
 router.post('/login', (req, res) => {
-  const { username, password } = req.body
-  if (!username || !password) {
-    return res.status(422).json({ error: '参数错误', details: ['用户名和密码不能为空'] })
+  const { username, password, phone } = req.body
+
+  if ((!username && !phone) || !password) {
+    return res.status(422).json({ error: '参数错误', details: ['用户名/手机号和密码不能为空'] })
   }
 
-  const user = db.prepare('SELECT * FROM users WHERE username = ? AND status = ?').get(username, 'active')
+  let user
+  if (phone) {
+    user = db.prepare('SELECT * FROM users WHERE phone = ? AND status = ?').get(phone, 'active')
+  } else {
+    user = db.prepare('SELECT * FROM users WHERE username = ? AND status = ?').get(username, 'active')
+  }
   if (!user) {
     return res.status(401).json({ error: '用户名或密码错误' })
   }

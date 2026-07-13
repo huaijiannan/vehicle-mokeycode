@@ -17,6 +17,7 @@ app.use('/api/auth', require('./routes/auth'))
 app.use('/api/vehicles', require('./routes/vehicles'))
 app.use('/api/drivers', require('./routes/drivers'))
 app.use('/api/operations', require('./routes/operations'))
+app.use('/api/mobile', require('./routes/mobile'))
 
 app.use((err, req, res, next) => {
   console.error(err.stack)

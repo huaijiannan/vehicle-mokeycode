@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车辆管理部门负责人-移动端原型</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#e8ecf1;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:30px}
+.analysis{width:340px;background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,.06);position:sticky;top:20px}
+.analysis h2{font-size:20px;color:#1a1a1a;margin-bottom:4px}
+.analysis .sub{font-size:12px;color:#999;margin-bottom:20px}
+.analysis h3{font-size:14px;color:#1a73e8;margin:16px 0 8px;border-left:3px solid #1a73e8;padding-left:8px}
+.analysis p,.analysis li{font-size:13px;color:#555;line-height:1.8}
+.analysis ul{padding-left:16px}
+.analysis .flow{display:flex;align-items:center;gap:6px;font-size:12px;color:#1a73e8;font-weight:600;flex-wrap:wrap;margin:8px 0}
+.analysis .flow span{background:#e8f0fe;padding:4px 10px;border-radius:12px;white-space:nowrap}
+
+.phone-shell{display:flex;flex-direction:column;align-items:center;gap:8px}
+.phone-label{font-size:13px;color:#999;font-weight:600}
+.phone-frame{width:390px;height:780px;background:#fff;border-radius:36px;box-shadow:0 20px 60px rgba(0,0,0,.15),0 0 0 3px #222,0 0 0 6px #444,0 0 0 8px #333;overflow:hidden;position:relative}
+.phone-notch{width:130px;height:30px;background:#222;border-radius:0 0 20px 20px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10}
+.phone-content{height:100%;display:flex;flex-direction:column;padding-top:30px}
+.status-bar{height:32px;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:12px;font-weight:600;color:#333;flex-shrink:0;background:#fff}
+.nav-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:#fff}
+.nav-header .title{font-size:18px;font-weight:700}
+.nav-header .right{display:flex;align-items:center;gap:12px}
+.nav-header .badge-wrap{position:relative}
+.nav-header .badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;background:#ee0a24;color:#fff;border-radius:8px;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.nav-header .avatar{width:32px;height:32px;border-radius:50%;background:#1a73e8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
+.page-body{flex:1;overflow-y:auto;padding:12px 16px 60px;background:#f5f6f8}
+.page-body::-webkit-scrollbar{display:none}
+.bottom-bar{position:absolute;bottom:0;width:100%;height:56px;display:flex;border-top:1px solid #eee;background:#fff;padding-bottom:4px}
+.bottom-bar .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.bottom-bar .tab .lbl{font-size:10px;color:#bbc0c8}
+.bottom-bar .tab.active .lbl{color:#1a73e8;font-weight:600}
+.section-title{font-size:14px;font-weight:700;color:#333;margin:8px 0 10px;padding-left:6px;border-left:3px solid #1a73e8}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-card{background:#fff;border-radius:12px;padding:14px 8px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.stat-num{font-size:24px;font-weight:800}
+.stat-num.warn{color:#fa8c16}
+.stat-num.success{color:#52c41a}
+.stat-label{font-size:11px;color:#999;margin-top:2px}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-urgent{background:#fff1f0;color:#f5222d}
+.tag-normal{background:#e6f7ff;color:#1890ff}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer}
+.card.urgent{border-left:4px solid #f5222d}
+.card-row{display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.card-meta{font-size:12px;color:#999;margin-top:3px}
+.card-route{font-size:12px;color:#666;margin-top:2px}
+.card-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #f5f5f5}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:8px;font-size:13px;font-weight:600;padding:7px 16px;cursor:pointer}
+.btn-ghost{background:#f5f5f5;color:#666}
+.btn-primary{background:#1a73e8;color:#fff}
+.status-bar-chart{display:flex;height:30px;border-radius:8px;overflow:hidden;margin-bottom:16px}
+.bar-seg{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+.alert-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-radius:10px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.alert-dot.danger{background:#f5222d}
+.alert-dot.warning{background:#fa8c16}
+.alert-info{flex:1}
+.alert-title{font-size:13px;font-weight:600;color:#333}
+.alert-desc{font-size:11px;color:#999;margin-top:2px}
+.alert-time{font-size:11px;color:#ccc}
+.back-nav{padding:10px 16px;background:#fff;display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;cursor:pointer}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin:8px 0 10px}
+.section-header .more{font-size:12px;color:#1a73e8;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="analysis">
+  <h2>车辆管理部门负责人</h2>
+  <div class="sub">Fleet Director - 移动端原型设计</div>
+  <h3>角色定位</h3>
+  <p>车辆管理部门负责人统筹管理所有车辆资源，同时承担分管范围内用车申请的审批职责。关注车辆资源利用率和运营健康度。</p>
+  <h3>功能流程</h3>
+  <div class="flow"><span>首页看板</span>→<span>待审批</span>→<span>车辆状态</span>→<span>审批操作</span></div>
+  <h3>页面清单</h3>
+  <ul>
+    <li>首页看板：用车统计 + 车辆状态 + 待审批</li>
+    <li>车辆状态看板：全部车辆实时状态色块</li>
+    <li>审批详情：完整申请信息 + 通过/驳回</li>
+    <li>消息通知：异常告警 + 审批提醒</li>
+  </ul>
+  <h3>设计要点</h3>
+  <ul>
+    <li>数字卡片展示分管范围内当日/本周用车次数</li>
+    <li>车辆状态色块图直观展示分布</li>
+    <li>异常告警独立区域，红色醒目提示</li>
+    <li>底部Tab：首页/车辆/消息</li>
+  </ul>
+</div>
+
+<div class="phone-shell">
+  <div class="phone-label">车辆管理部门负责人 · 王五</div>
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-content" id="screen"></div>
+  </div>
+</div>
+
+<script>
+function timeNow(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}
+function bellSvg(c){return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${c||'#666'}" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`}
+
+const screen=document.getElementById('screen');
+
+function renderHome(){
+  return `<div class="status-bar"><span>${timeNow()}</span><span>5G 🔋</span></div>
+<div class="nav-header">
+  <div class="title">车辆管理中心</div>
+  <div class="right">
+    <div class="badge-wrap">${bellSvg('#666')}<div class="badge">4</div></div>
+    <div class="avatar">王</div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="section-title">分管范围用车概况</div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num warn">5</div><div class="stat-label">当日用车</div></div>
+    <div class="stat-card"><div class="stat-num">23</div><div class="stat-label">本周用车</div></div>
+    <div class="stat-card"><div class="stat-num success">2</div><div class="stat-label">待审批</div></div>
+  </div>
+
+  <div class="section-header">
+    <span class="section-title" style="margin:0;border:none;padding:0">车辆状态分布</span>
+    <span class="more" onclick="goVehicleStatus()">详情 &gt;</span>
+  </div>
+  <div class="status-bar-chart">
+    <div class="bar-seg" style="width:40%;background:#52c41a">空闲 8辆</div>
+    <div class="bar-seg" style="width:15%;background:#1a73e8">在途3辆</div>
+    <div class="bar-seg" style="width:10%;background:#fa8c16">维2</div>
+    <div class="bar-seg" style="width:35%;background:#e8e8e8">停7辆</div>
+  </div>
+
+  <div class="section-title">异常告警</div>
+  <div class="alert-item">
+    <div class="alert-dot danger"></div>
+    <div class="alert-info"><div class="alert-title">超时未归库</div><div class="alert-desc">京A·88888 预计12:30归库已超时1h</div></div>
+    <span class="alert-time">14:30</span>
+  </div>
+  <div class="alert-item">
+    <div class="alert-dot warning"></div>
+    <div class="alert-info"><div class="alert-title">年检即将到期</div><div class="alert-desc">京B·12345 年检到期 2026-07-15</div></div>
+    <span class="alert-time">今日</span>
+  </div>
+
+  <div class="section-title">待审批申请</div>
+  <div class="card urgent" onclick="goApproveDetail()">
+    <div class="card-row"><span class="card-title">领导紧急出行</span><span class="tag tag-urgent">加急</span></div>
+    <div class="card-meta">王五 · 北京分公司 · 07-09 14:30</div>
+    <div class="card-route">总部 → 市政府 · 2人 · 需司机</div>
+    <div class="card-actions">
+      <button class="btn btn-ghost" onclick="event.stopPropagation();alert('已驳回')">驳回</button>
+      <button class="btn btn-primary" onclick="event.stopPropagation();alert('审批已通过')">通过</button>
+    </div>
+  </div>
+  <div class="card" onclick="goApproveDetail()">
+    <div class="card-row"><span class="card-title">跨部门调研</span><span class="tag tag-normal">普通</span></div>
+    <div class="card-meta">李明 · 生产运营部 · 07-10 09:00</div>
+    <div class="card-route">总部 → 开发区工厂 · 4人 · 需司机</div>
+    <div class="card-actions">
+      <button class="btn btn-ghost" onclick="event.stopPropagation();alert('已驳回')">驳回</button>
+      <button class="btn btn-primary" onclick="event.stopPropagation();alert('审批已通过')">通过</button>
+    </div>
+  </div>
+</div>
+<div class="bottom-bar">
+  <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="#1a73e8"><path d="M3 13h1v7c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-7h1a1 1 0 00.707-1.707l-9-9a.999.999 0 00-1.414 0l-9 9A1 1 0 003 13zm7 7v-5h4v5h-4zm2-15.586l6 6V20h-2v-5c0-1.103-.897-2-2-2h-4c-1.103 0-2 .897-2 2v5H6v-6.586l6-6z"/></svg><div class="lbl" style="color:#1a73e8;font-weight:600">首页</div></div>
+  <div class="tab" onclick="goVehicleStatus()"><svg width="22" height="22" viewBox="0 0 24 24" fill="#bbc0c8"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-4-4-8-4zm0 2c3.86 0 6 1.07 6 2s-2.14 2-6 2-6-1.07-6-2 2.14-2 6-2z"/></svg><div class="lbl">车辆</div></div>
+  <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="#bbc0c8"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><div class="lbl">消息</div></div>
+</div>`;
+}
+
+function goVehicleStatus(){
+  screen.innerHTML=`<div class="back-nav" onclick="goHome()">← 车辆状态看板</div>
+<div class="page-body">
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num success">8</div><div class="stat-label">空闲</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">占用</div></div>
+    <div class="stat-card"><div class="stat-num warn">2</div><div class="stat-label">维修</div></div>
+  </div>
+  <div class="section-title">全部车辆 (20辆)</div>
+  <div style="background:#fff;border-radius:12px;padding:4px 0">
+    <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #f5f5f5"><span style="width:8px;height:8px;border-radius:50%;background:#52c41a;margin-right:10px"></span><span style="flex:1;font-size:14px">京A·88888 别克GL8</span><span style="font-size:12px;color:#52c41a;background:#f6ffed;padding:2px 8px;border-radius:4px">空闲</span></div>
+    <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #f5f5f5"><span style="width:8px;height:8px;border-radius:50%;background:#1a73e8;margin-right:10px"></span><span style="flex:1;font-size:14px">京B·66666 帕萨特</span><span style="font-size:12px;color:#1a73e8;background:#e8f0fe;padding:2px 8px;border-radius:4px">占用</span></div>
+    <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #f5f5f5"><span style="width:8px;height:8px;border-radius:50%;background:#52c41a;margin-right:10px"></span><span style="flex:1;font-size:14px">京B·77777 奥迪A6L</span><span style="font-size:12px;color:#52c41a;background:#f6ffed;padding:2px 8px;border-radius:4px">空闲</span></div>
+    <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #f5f5f5"><span style="width:8px;height:8px;border-radius:50%;background:#fa8c16;margin-right:10px"></span><span style="flex:1;font-size:14px">京C·11111 考斯特</span><span style="font-size:12px;color:#fa8c16;background:#fff7e6;padding:2px 8px;border-radius:4px">维修</span></div>
+    <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #f5f5f5"><span style="width:8px;height:8px;border-radius:50%;background:#52c41a;margin-right:10px"></span><span style="flex:1;font-size:14px">京A·99999 考斯特</span><span style="font-size:12px;color:#52c41a;background:#f6ffed;padding:2px 8px;border-radius:4px">空闲</span></div>
+    <div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid #f5f5f5"><span style="width:8px;height:8px;border-radius:50%;background:#1a73e8;margin-right:10px"></span><span style="flex:1;font-size:14px">京C·33333 雅阁</span><span style="font-size:12px;color:#1a73e8;background:#e8f0fe;padding:2px 8px;border-radius:4px">占用</span></div>
+    <div style="display:flex;align-items:center;padding:12px 14px"><span style="width:8px;height:8px;border-radius:50%;background:#ccc;margin-right:10px"></span><span style="flex:1;font-size:14px">京C·55555 帕萨特</span><span style="font-size:12px;color:#ccc;background:#f5f5f5;padding:2px 8px;border-radius:4px">停用</span></div>
+  </div>
+</div>`;
+}
+
+function goApproveDetail(){
+  screen.innerHTML=`<div class="back-nav" onclick="goHome()">← 审批详情</div>
+<div class="page-body">
+  <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:17px;font-weight:700">领导紧急出行</span>
+      <span class="tag tag-urgent">加急</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5"><span style="color:#999;font-size:13px">申请人</span><span style="font-size:13px">王五</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5"><span style="color:#999;font-size:13px">部门</span><span style="font-size:13px">北京分公司</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5"><span style="color:#999;font-size:13px">目的地</span><span style="font-size:13px">市政府</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5"><span style="color:#999;font-size:13px">预计出发</span><span style="font-size:13px">07-09 14:30</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5"><span style="color:#999;font-size:13px">乘车人数</span><span style="font-size:13px">2人</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0"><span style="color:#999;font-size:13px">是否需司机</span><span style="font-size:13px">需要</span></div>
+  </div>
+  <div style="display:flex;gap:12px">
+    <button class="btn btn-ghost" style="flex:1;height:44px;font-size:15px" onclick="alert('已驳回');goHome()">驳回申请</button>
+    <button class="btn btn-primary" style="flex:1;height:44px;font-size:15px" onclick="alert('审批已通过');goHome()">通过审批</button>
+  </div>
+</div>`;
+}
+
+function goHome(){screen.innerHTML=renderHome()}
+screen.innerHTML=renderHome();
+</script>
+</body>
+</html>

@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Layout from '@/components/Layout.vue'
 import LoginView from '@/views/LoginView.vue'
+import mobileRoutes from '@/mobile/router/index.js'
 
 const routes = [
   { path: '/login', name: 'Login', component: LoginView },
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('@/views/DashboardView.vue') },
       { path: 'vehicle/list', name: 'VehicleList', component: () => import('@/views/vehicle/VehicleListView.vue') },
@@ -26,7 +26,8 @@ const routes = [
       { path: 'system/roles', name: 'RoleManage', component: () => import('@/views/system/RoleManageView.vue') },
       { path: 'operations/vehicles', name: 'OperationsVehicles', component: () => import('@/views/operations/OperationsView.vue') }
     ]
-  }
+  },
+  ...mobileRoutes
 ]
 
 const router = createRouter({
@@ -34,12 +35,61 @@ const router = createRouter({
   routes
 })
 
+function isMobileDevice() {
+  const ua = navigator.userAgent || ''
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua)) return true
+
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.get('mobile') === '1') return true
+  if (urlParams.get('pc') === '1') return false
+
+  if (window.innerWidth <= 768 && 'ontouchstart' in window) return true
+
+  if (window.innerWidth <= 480) return true
+
+  return false
+}
+
+function checkForceMode() {
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.get('mobile') === '1') return 'mobile'
+  if (urlParams.get('pc') === '1') return 'pc'
+  return null
+}
+
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  if (to.path !== '/login' && !token) {
-    next('/login')
-  } else if (to.path === '/login' && token) {
-    next('/dashboard')
+  const isMobilePath = to.path.startsWith('/m/')
+  const forceMode = checkForceMode()
+  const mobile = forceMode === 'mobile' ? true : (forceMode === 'pc' ? false : isMobileDevice())
+
+  if (to.path === '/' || to.path === '/login') {
+    if (mobile && to.path !== '/m/login') {
+      next(token ? '/m/home' : '/m/login')
+      return
+    }
+    if (!mobile && to.path !== '/login') {
+      next(token ? '/dashboard' : '/login')
+      return
+    }
+  }
+
+  if (isMobilePath && to.path !== '/m/login' && !token) {
+    next('/m/login')
+  } else if (to.path === '/m/login' && token) {
+    next('/m/home')
+  } else if (!isMobilePath && to.path !== '/login' && !token) {
+    if (mobile) {
+      next('/m/login')
+    } else {
+      next('/login')
+    }
+  } else if (!isMobilePath && to.path === '/login' && token) {
+    if (mobile) {
+      next('/m/home')
+    } else {
+      next('/dashboard')
+    }
   } else {
     next()
   }
