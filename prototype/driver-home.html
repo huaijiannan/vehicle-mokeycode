@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>驾驶员首页原型 - 公务用车移动端</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; justify-content: center; padding: 30px 20px; gap: 40px; flex-wrap: wrap; }
+.analysis { width: 410px; background: #fff; border-radius: 16px; padding: 28px; box-shadow: 0 4px 16px rgba(0,0,0,.06); height: fit-content; position: sticky; top: 20px; max-height: 90vh; overflow-y: auto; }
+.analysis h2 { font-size: 20px; color: #1a1a1a; margin-bottom: 4px; }
+.analysis .subtitle { font-size: 12px; color: #999; margin-bottom: 20px; }
+.analysis h3 { font-size: 14px; color: #1a73e8; margin: 18px 0 10px; display: flex; align-items: center; gap: 6px; }
+.analysis h3::before { content: ''; width: 4px; height: 14px; background: #1a73e8; border-radius: 2px; }
+.analysis p { font-size: 13px; color: #555; line-height: 1.8; }
+.analysis .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.analysis .tag { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; background: #e8f0fe; color: #1a73e8; }
+.analysis .tag.orange { background: #fff7e6; color: #fa8c16; }
+.analysis .tag.green { background: #f6ffed; color: #52c41a; }
+.analysis .matrix { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; }
+.analysis .matrix th { background: #f5f7fa; padding: 6px 8px; text-align: left; color: #666; font-weight: 600; border-bottom: 1px solid #e8e8e8; }
+.analysis .matrix td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; color: #333; font-size: 11px; }
+.analysis .matrix td.strong { font-weight: 700; color: #1a73e8; }
+
+.phone-shell { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.phone-label { font-size: 13px; color: #999; font-weight: 600; letter-spacing: 1px; }
+.phone-frame { width: 390px; height: 780px; background: #fff; border-radius: 36px; box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 3px #222, 0 0 0 6px #444, 0 0 0 8px #333; position: relative; overflow: hidden; }
+.phone-notch { width: 130px; height: 30px; background: #222; border-radius: 0 0 20px 20px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 10; }
+.phone-content { height: 100%; display: flex; flex-direction: column; padding-top: 30px; }
+.status-bar { height: 36px; display: flex; justify-content: space-between; align-items: center; padding: 0 28px; font-size: 12px; font-weight: 600; color: #333; flex-shrink: 0; background: #fff; }
+.nav-row { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 6px; height: 44px; flex-shrink: 0; background: #fff; }
+.nav-row .greeting { font-size: 20px; font-weight: 800; color: #1a1a1a; }
+.nav-actions { display: flex; gap: 14px; align-items: center; }
+.nav-actions .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1a73e8, #4080ff); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+
+.page-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #f5f6f8; position: relative; }
+.page-body::-webkit-scrollbar { display: none; }
+.tab-page { display: none; padding: 12px 16px 80px; }
+.tab-page.active { display: block; }
+
+.bottom-tab { height: 60px; display: flex; border-top: 1px solid #eee; background: #fff; flex-shrink: 0; padding-bottom: 4px; position: absolute; bottom: 0; width: 100%; z-index: 15; }
+.bottom-tab .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+.bottom-tab .tab-item .icon { width: 22px; height: 22px; }
+.bottom-tab .tab-item .label { font-size: 10px; color: #bbc0c8; }
+.bottom-tab .tab-item.active .label { color: #1a73e8; font-weight: 600; }
+
+/* 通用组件 */
+.active-card { background: linear-gradient(135deg, #1a73e8 0%, #4080ff 100%); color: #fff; border-radius: 16px; padding: 20px; margin-bottom: 14px; position: relative; overflow: hidden; }
+.active-card::after { content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,.06); }
+.active-card .live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; opacity: .9; margin-bottom: 10px; background: rgba(255,255,255,.2); padding: 3px 10px; border-radius: 10px; }
+.active-card .pulse { width: 7px; height: 7px; border-radius: 50%; background: #52c41a; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(82,196,26,.6)}50%{opacity:.5;box-shadow:0 0 0 8px rgba(82,196,26,0)} }
+.active-card .route { font-size: 17px; font-weight: 800; margin-bottom: 6px; line-height: 1.4; }
+.active-card .vehicle { font-size: 13px; opacity: .9; margin-bottom: 4px; }
+.active-card .elapsed { font-size: 12px; opacity: .75; }
+.active-card .actions { display: flex; gap: 10px; margin-top: 16px; }
+.btn-outline { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.35); border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; flex: 1; text-align: center; }
+.btn-solid { background: #fff; color: #1a73e8; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; flex: 1; text-align: center; }
+
+.stats-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.stat-item { flex: 1; background: #fff; border-radius: 10px; padding: 12px 10px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.stat-item .n { font-size: 22px; font-weight: 800; }
+.stat-item .l { font-size: 10px; color: #999; margin-top: 2px; }
+
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.section-header .title { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.section-header .more { font-size: 12px; color: #1a73e8; cursor: pointer; }
+
+.panel { background: #fff; border-radius: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+
+/* 费用管理页 */
+.expense-summary { display: flex; gap: 1px; background: #f0f0f0; border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+.expense-summary .es-item { flex: 1; text-align: center; padding: 14px 8px; background: #fff; }
+.es-item .es-val { font-size: 20px; font-weight: 800; }
+.es-item .es-lbl { font-size: 10px; color: #999; margin-top: 2px; }
+.expense-tabs-row { display: flex; gap: 0; margin-bottom: 12px; background: #f5f5f5; border-radius: 8px; padding: 3px; }
+.etab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; color: #666; transition: .15s; }
+.etab.active { background: #fff; color: #1a73e8; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.expense-list-card { background: #fff; border-radius: 12px; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+.expense-item { display: flex; align-items: center; gap: 12px; padding: 14px; border-bottom: 1px solid #f5f5f5; }
+.expense-item:last-child { border: none; }
+.expense-item .e-icon-box { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+.expense-item .e-icon-box.fuel { background: #e6f7ff; color: #1890ff; }
+.expense-item .e-icon-box.toll { background: #f6ffed; color: #52c41a; }
+.expense-item .e-icon-box.park { background: #fff7e6; color: #fa8c16; }
+.expense-item .e-icon-box.other { background: #f9f0ff; color: #722ed1; }
+.expense-item .e-info { flex: 1; min-width: 0; }
+.expense-item .e-type { font-size: 14px; font-weight: 600; color: #333; }
+.expense-item .e-meta { font-size: 11px; color: #999; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.expense-item .e-amount { font-size: 16px; font-weight: 800; color: #333; white-space: nowrap; }
+.expense-fab { position: absolute; bottom: 80px; right: 20px; width: 48px; height: 48px; border-radius: 50%; background: #fa8c16; color: #fff; border: none; box-shadow: 0 4px 14px rgba(250,140,22,.4); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; font-size: 22px; }
+
+/* 车辆运营页 */
+.vehicle-header { background: linear-gradient(135deg, #263445 0%, #1d3a5f 100%); color: #fff; border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+.vehicle-header .v-plate { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.vehicle-header .v-model { font-size: 13px; opacity: .8; }
+.vehicle-header .v-mileage { font-size: 28px; font-weight: 800; margin-top: 10px; display: flex; align-items: baseline; gap: 4px; }
+.vehicle-header .v-mileage .unit { font-size: 13px; font-weight: 400; opacity: .7; }
+
+.ops-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #f0f0f0; border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+.ops-item { background: #fff; padding: 14px; }
+.ops-item .o-label { font-size: 11px; color: #999; margin-bottom: 4px; }
+.ops-item .o-value { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+.ops-item .o-value.warn { color: #fa8c16; }
+.ops-item .o-value.success { color: #52c41a; }
+.ops-item .o-sub { font-size: 10px; color: #bbb; margin-top: 2px; }
+
+.ops-card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.ops-card .oc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ops-card .oc-title { font-size: 14px; font-weight: 700; color: #333; }
+.ops-card .oc-status { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+.ops-card .oc-status.done { background: #f6ffed; color: #52c41a; }
+.ops-card .oc-status.pending { background: #fff7e6; color: #fa8c16; }
+.ops-card .oc-desc { font-size: 12px; color: #666; line-height: 1.6; }
+
+.history-timeline { padding-left: 16px; border-left: 2px solid #e8e8e8; margin-left: 8px; }
+.history-item { position: relative; padding: 4px 0 14px 14px; }
+.history-item::before { content: ''; position: absolute; left: -22px; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: #d9d9d9; border: 2px solid #fff; }
+.history-item.fuel::before { background: #1890ff; }
+.history-item.repair::before { background: #f5222d; }
+.history-item.maint::before { background: #fa8c16; }
+.history-item .h-date { font-size: 10px; color: #999; }
+.history-item .h-desc { font-size: 12px; color: #333; margin-top: 2px; }
+.history-item .h-cost { font-size: 12px; font-weight: 600; color: #333; margin-top: 1px; }
+
+/* Tab 1 - 任务卡片 */
+.task-card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.task-card.today { border-left: 4px solid #1a73e8; }
+.task-card.tomorrow { border-left: 4px solid #d9d9d9; }
+.task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.task-title { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.task-tag { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+.task-tag.today-tag { background: #e6f7ff; color: #1890ff; }
+.task-tag.tomorrow-tag { background: #fafafa; color: #999; }
+.task-detail { font-size: 12px; color: #666; line-height: 1.7; }
+.task-detail .hl { color: #1a73e8; font-weight: 600; }
+.task-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f5f5f5; }
+.task-footer .dispatcher { font-size: 11px; color: #bbb; }
+.start-btn { background: #1a73e8; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.wait-btn { background: #f5f5f5; color: #999; border: none; border-radius: 8px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: default; }
+
+/* sheet */
+.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 990; display: none; align-items: flex-end; justify-content: center; }
+.overlay.show { display: flex; }
+.sheet { width: 390px; max-height: 80vh; background: #fff; border-radius: 20px 20px 0 0; overflow-y: auto; padding: 8px 0 20px; animation: slideUp .25s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 6px auto 14px; }
+.sheet-title { font-size: 16px; font-weight: 700; color: #1a1a1a; padding: 0 20px 12px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
+.sheet-body { padding: 0 20px; }
+.sheet-body .form-label { font-size: 13px; font-weight: 600; color: #333; margin: 14px 0 8px; }
+.sheet-body .form-label:first-child { margin-top: 0; }
+.type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.type-item { text-align: center; padding: 12px 8px; border-radius: 10px; border: 1.5px solid #e8e8e8; cursor: pointer; transition: .15s; font-size: 11px; color: #666; }
+.type-item:hover { border-color: #1a73e8; }
+.type-item.active { border-color: #1a73e8; background: #e8f0fe; color: #1a73e8; font-weight: 700; }
+.type-item .t-icon { font-size: 22px; margin-bottom: 4px; display: block; }
+.amount-input { width: 100%; border: 1px solid #e8e8e8; border-radius: 10px; padding: 12px 14px; font-size: 20px; font-weight: 700; outline: none; color: #333; }
+.amount-input:focus { border-color: #1a73e8; }
+.photo-zone { display: flex; gap: 8px; }
+.photo-box { width: 72px; height: 72px; border: 1.5px dashed #d9d9d9; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: #999; font-size: 10px; gap: 2px; }
+.auto-tag { display: inline-flex; gap: 4px; align-items: center; background: #f6ffed; color: #52c41a; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.sheet-footer { display: flex; gap: 10px; padding: 16px 20px 4px; }
+.btn-cancel { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #e8e8e8; background: #fff; color: #666; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-confirm { flex: 1; padding: 12px; border-radius: 10px; border: none; background: #1a73e8; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+.repair-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<!-- 分析面板 -->
+<div class="analysis">
+  <h2>驾驶员 · 移动端分析</h2>
+  <div class="subtitle">三 Tab 结构下的模块内容分析</div>
+
+  <h3>底部导航设计</h3>
+  <table class="matrix">
+    <tr><th style="width:60px">Tab</th><th style="width:70px">图标</th><th>定位</th></tr>
+    <tr><td class="strong">我的任务</td><td>人物</td><td>任务驱动入口，出车/归库操作</td></tr>
+    <tr><td class="strong">费用管理</td><td>货币</td><td>所有费用记录与新增入口</td></tr>
+    <tr><td class="strong">车辆运营</td><td>车辆</td><td>当前车辆状态与运维操作</td></tr>
+  </table>
+
+  <h3>Tab 2: 费用管理 — 内容分析</h3>
+  <table class="matrix">
+    <tr><th>模块</th><th>驾驶员需要关注什么</th></tr>
+    <tr><td class="strong">费用统计摘要</td><td>本月加油/过路/停车/其他各多少？合计多少？</td></tr>
+    <tr><td class="strong">费用分类筛选</td><td>按类型筛选（全部/加油/过路/停车/其他）</td></tr>
+    <tr><td class="strong">费用明细列表</td><td>每笔费用的类型、金额、时间、地点、关联行程</td></tr>
+    <tr><td class="strong">快速录入入口</td><td>FAB 悬浮按钮一键触发录入面板</td></tr>
+    <tr><td class="strong">凭证照片</td><td>每笔费用的小票照片可点开查看</td></tr>
+  </table>
+
+  <h3>Tab 3: 车辆运营 — 内容分析</h3>
+  <table class="matrix">
+    <tr><th>模块</th><th>驾驶员需要关注什么</th></tr>
+    <tr><td class="strong">车辆基本信息</td><td>车牌号、车型、当前总里程（核心标识）</td></tr>
+    <tr><td class="strong">运营指标</td><td>下次保养里程/日期、保险到期日、年检到期日、油卡余额</td></tr>
+    <tr><td class="strong">保养记录</td><td>历史保养时间/里程/项目/费用，下次保养预警</td></tr>
+    <tr><td class="strong">维修记录</td><td>历史维修时间/原因/费用/维修厂</td></tr>
+    <tr><td class="strong">一键报修</td><td>底部固定按钮，拍照+描述即可提交</td></tr>
+    <tr><td class="strong">加油记录</td><td>近期加油时间/油站/油号/升数/金额</td></tr>
+  </table>
+
+  <h3>三 Tab 信息架构</h3>
+  <p>
+    <strong>Tab1 我的任务</strong> — 任务驱动，操作优先<br>
+    <strong>Tab2 费用管理</strong> — 记录查看，录入快捷<br>
+    <strong>Tab3 车辆运营</strong> — 状态监控，运维预警
+  </p>
+  <p style="margin-top:8px">三个 Tab 覆盖驾驶员日常全部工作场景，形成 <strong>"接任务→执行→记费用→管车辆"</strong> 的完整闭环。</p>
+</div>
+
+<!-- 手机原型 -->
+<div class="phone-shell">
+  <div class="phone-label">驾驶员 孙力 · 三 Tab 首页</div>
+  <div class="phone-frame" id="phoneRoot">
+    <div class="phone-notch"></div>
+    <div class="phone-content">
+      <div class="status-bar"><span class="time">11:45</span><span style="display:flex;gap:6px;align-items:center">5G&nbsp;🔋</span></div>
+      <div class="nav-row">
+        <div class="greeting" id="pageTitle">我的任务</div>
+        <div class="nav-actions"><div class="avatar">孙</div></div>
+      </div>
+
+      <div class="page-body">
+
+        <!-- ============ Tab 1: 我的任务 ============ -->
+        <div class="tab-page active" id="tab-tasks">
+          <div class="active-card">
+            <div class="live-dot"><span class="pulse"></span> 进行中 · 已行驶 2h15m</div>
+            <div class="route">总部 → 临港产业园</div>
+            <div class="vehicle">京A·88888 · 别克GL8 · 乘员 3人</div>
+            <div class="elapsed">出车 09:30 · 预计归库 13:30 · 行驶 86km</div>
+            <div class="actions">
+              <div class="btn-outline" onclick="switchTab('expense')">&#128176; 费用记入</div>
+              <div class="btn-solid" onclick="alert('拍照 OCR → 确认归库')">&#128247; 确认归库</div>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-item"><div class="n" style="color:#1a73e8">1</div><div class="l">待执行</div></div>
+            <div class="stat-item"><div class="n" style="color:#52c41a">12</div><div class="l">本月完成</div></div>
+            <div class="stat-item"><div class="n" style="color:#fa8c16">1,280</div><div class="l">本月里程km</div></div>
+          </div>
+
+          <div class="section-header"><div class="title">待执行任务</div><div class="more">全部 ›</div></div>
+
+          <div class="task-card today">
+            <div class="task-header"><div class="task-title">高铁站接站</div><div class="task-tag today-tag">今天 16:00</div></div>
+            <div class="task-detail">车辆：<span class="hl">京B·66666</span> · 帕萨特 · 总部→高铁站→总部 · 2人</div>
+            <div class="task-footer"><span class="dispatcher">调度员：赵前</span><button class="start-btn">确认出车</button></div>
+          </div>
+
+          <div class="section-header" style="margin-top:4px"><div class="title">明日任务</div></div>
+
+          <div class="task-card tomorrow">
+            <div class="task-header"><div class="task-title">设备运输</div><div class="task-tag tomorrow-tag">明天 08:00</div></div>
+            <div class="task-detail">车辆：<span class="hl">京A·88888</span> · 别克GL8 · 总部→数据中心 · 1人自驾</div>
+            <div class="task-footer"><span class="dispatcher">调度员：赵前</span><button class="wait-btn">待执行</button></div>
+          </div>
+
+          <div class="task-card tomorrow">
+            <div class="task-header"><div class="task-title">客户接待</div><div class="task-tag tomorrow-tag">明天 14:00</div></div>
+            <div class="task-detail">车辆：<span class="hl">京C·12345</span> · 奥迪A6 · 总部→机场→酒店 · 3人</div>
+            <div class="task-footer"><span class="dispatcher">调度员：赵前</span><button class="wait-btn">待执行</button></div>
+          </div>
+        </div>
+
+        <!-- ============ Tab 2: 费用管理 ============ -->
+        <div class="tab-page" id="tab-expense">
+          <!-- 本月费用摘要 -->
+          <div class="expense-summary">
+            <div class="es-item"><div class="es-val" style="color:#1890ff">2,100</div><div class="es-lbl">加油费</div></div>
+            <div class="es-item"><div class="es-val" style="color:#52c41a">850</div><div class="es-lbl">过路费</div></div>
+            <div class="es-item"><div class="es-val" style="color:#fa8c16">200</div><div class="es-lbl">停车费</div></div>
+            <div class="es-item"><div class="es-val" style="color:#722ed1">100</div><div class="es-lbl">其他</div></div>
+          </div>
+
+          <!-- 类型筛选 -->
+          <div class="expense-tabs-row" id="expenseFilter">
+            <div class="etab active" onclick="filterExpense('all',this)">全部</div>
+            <div class="etab" onclick="filterExpense('fuel',this)">加油费</div>
+            <div class="etab" onclick="filterExpense('toll',this)">过路费</div>
+            <div class="etab" onclick="filterExpense('park',this)">停车费</div>
+          </div>
+
+          <!-- 费用列表 -->
+          <div class="expense-list-card">
+            <div class="expense-item" data-type="fuel">
+              <div class="e-icon-box fuel">&#9981;</div>
+              <div class="e-info"><div class="e-type">加油费</div><div class="e-meta">07-09 10:45 · 中石化朝阳站 · 关联行程</div></div>
+              <div class="e-amount">¥320</div>
+            </div>
+            <div class="expense-item" data-type="toll">
+              <div class="e-icon-box toll">&#127949;</div>
+              <div class="e-info"><div class="e-type">过路费</div><div class="e-meta">07-08 09:15 · G2京沪高速入口 · 关联行程</div></div>
+              <div class="e-amount">¥85</div>
+            </div>
+            <div class="expense-item" data-type="park">
+              <div class="e-icon-box park">&#127359;</div>
+              <div class="e-info"><div class="e-type">停车费</div><div class="e-meta">07-09 10:10 · 临港停车场 · 关联行程</div></div>
+              <div class="e-amount">¥15</div>
+            </div>
+            <div class="expense-item" data-type="fuel">
+              <div class="e-icon-box fuel">&#9981;</div>
+              <div class="e-info"><div class="e-type">加油费</div><div class="e-meta">07-08 14:30 · 中石油海淀站 · 关联行程</div></div>
+              <div class="e-amount">¥450</div>
+            </div>
+            <div class="expense-item" data-type="toll">
+              <div class="e-icon-box toll">&#127949;</div>
+              <div class="e-info"><div class="e-type">过路费</div><div class="e-meta">07-07 08:20 · S32机场高速 · 关联行程</div></div>
+              <div class="e-amount">¥55</div>
+            </div>
+            <div class="expense-item" data-type="fuel">
+              <div class="e-icon-box fuel">&#9981;</div>
+              <div class="e-info"><div class="e-type">加油费</div><div class="e-meta">07-05 11:00 · 中石化丰台站 · 关联行程</div></div>
+              <div class="e-amount">¥380</div>
+            </div>
+            <div class="expense-item" data-type="other">
+              <div class="e-icon-box other">&#9881;</div>
+              <div class="e-info"><div class="e-type">洗车费</div><div class="e-meta">07-03 16:00 · 靓车坊洗车 · 关联行程</div></div>
+              <div class="e-amount">¥50</div>
+            </div>
+          </div>
+
+          <!-- FAB -->
+          <div class="expense-fab" onclick="openExpenseSheet()">+</div>
+        </div>
+
+        <!-- ============ Tab 3: 车辆运营 ============ -->
+        <div class="tab-page" id="tab-ops">
+          <!-- 车辆基本信息 -->
+          <div class="vehicle-header">
+            <div class="v-plate">京A·88888</div>
+            <div class="v-model">别克 GL8 · 7座 · 汽油 · 2023款</div>
+            <div class="v-mileage">45,280 <span class="unit">km</span></div>
+          </div>
+
+          <!-- 运营指标 -->
+          <div class="ops-grid">
+            <div class="ops-item">
+              <div class="o-label">下次保养里程</div>
+              <div class="o-value warn">50,000 km</div>
+              <div class="o-sub" style="color:#fa8c16">还差 4,720km</div>
+            </div>
+            <div class="ops-item">
+              <div class="o-label">下次保养日期</div>
+              <div class="o-value">2026-10-15</div>
+              <div class="o-sub">剩余 98 天</div>
+            </div>
+            <div class="ops-item">
+              <div class="o-label">保险到期</div>
+              <div class="o-value success">2026-12-15</div>
+              <div class="o-sub">剩余 159 天</div>
+            </div>
+            <div class="ops-item">
+              <div class="o-label">年检到期</div>
+              <div class="o-value success">2026-12-31</div>
+              <div class="o-sub">剩余 175 天</div>
+            </div>
+            <div class="ops-item">
+              <div class="o-label">油卡余额</div>
+              <div class="o-value">¥1,850</div>
+              <div class="o-sub">中石化 · 尾号0318</div>
+            </div>
+            <div class="ops-item">
+              <div class="o-label">本月油耗</div>
+              <div class="o-value">10.2 <span style="font-size:12px;font-weight:400;color:#999">L/100km</span></div>
+              <div class="o-sub">上月 10.8 · 略降</div>
+            </div>
+          </div>
+
+          <!-- 保养记录 -->
+          <div class="section-header"><div class="title">保养记录</div><div class="more">全部 ›</div></div>
+          <div class="ops-card">
+            <div class="oc-header">
+              <span class="oc-title">大保养</span>
+              <span class="oc-status done">已完成</span>
+            </div>
+            <div class="oc-desc">2026-04-15 · 里程 38,500km · 更换机油、三滤、刹车油、变速箱油</div>
+            <div style="font-size:13px;font-weight:700;color:#333;margin-top:4px">¥2,380 · 定点维修厂A</div>
+          </div>
+          <div class="ops-card">
+            <div class="oc-header">
+              <span class="oc-title">小保养</span>
+              <span class="oc-status done">已完成</span>
+            </div>
+            <div class="oc-desc">2025-12-20 · 里程 31,200km · 更换机油、机滤、空滤</div>
+            <div style="font-size:13px;font-weight:700;color:#333;margin-top:4px">¥680 · 定点维修厂A</div>
+          </div>
+
+          <!-- 维修记录 -->
+          <div class="section-header"><div class="title">维修记录</div><div class="more">全部 ›</div></div>
+          <div class="ops-card">
+            <div class="oc-header">
+              <span class="oc-title">更换前刹车片</span>
+              <span class="oc-status done">已完成</span>
+            </div>
+            <div class="oc-desc">2026-03-10 · 里程 36,200km · 刹车异响，检查后更换前轮刹车片</div>
+            <div style="font-size:13px;font-weight:700;color:#333;margin-top:4px">¥1,200 · 定点维修厂B</div>
+          </div>
+
+          <!-- 一键报修 -->
+          <button class="repair-btn" onclick="alert('一键报修：拍照故障 + 简要描述 → 自动关联京A·88888')">&#9888; 一键报修</button>
+        </div>
+
+      </div>
+
+      <!-- 底部导航 -->
+      <div class="bottom-tab">
+        <div class="tab-item active" onclick="switchTab('tasks')">
+          <svg class="icon" viewBox="0 0 24 24" fill="#1a73e8"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+          <span class="label">我的任务</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('expense')">
+          <svg class="icon" viewBox="0 0 24 24" fill="#bbc0c8"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          <span class="label">费用管理</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('ops')">
+          <svg class="icon" viewBox="0 0 24 24" fill="#bbc0c8"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+          <span class="label">车辆运营</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 费用录入弹出面板 -->
+<div class="overlay" id="expenseSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">费用录入</div>
+    <div class="sheet-body">
+      <div class="form-label">费用类型</div>
+      <div class="type-grid" id="expenseTypes">
+        <div class="type-item active" onclick="selectType(this,'fuel')"><span class="t-icon">&#9981;</span>加油费</div>
+        <div class="type-item" onclick="selectType(this,'toll')"><span class="t-icon">&#127949;</span>过路费</div>
+        <div class="type-item" onclick="selectType(this,'park')"><span class="t-icon">&#127359;</span>停车费</div>
+        <div class="type-item" onclick="selectType(this,'other')"><span class="t-icon">&#9881;</span>其他</div>
+      </div>
+      <div class="form-label">金额（元）</div>
+      <input class="amount-input" type="number" placeholder="0.00" id="amountInput" />
+      <div class="form-label">上传凭证</div>
+      <div class="photo-zone">
+        <div class="photo-box" onclick="this.style.borderColor='#52c41a';this.innerHTML='&#10004;已拍'"><span style="font-size:22px">&#128247;</span>拍照</div>
+        <div class="photo-box" onclick="this.style.borderColor='#52c41a';this.innerHTML='&#10004;已选'"><span style="font-size:22px">&#128206;</span>相册</div>
+      </div>
+      <div class="form-label">关联信息</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="auto-tag">&#128663; 京A·88888</span>
+        <span class="auto-tag">&#128205; 本次行程</span>
+        <span class="auto-tag">&#128197; 07-09 自动</span>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn-cancel" onclick="closeExpenseSheet()">取消</button>
+      <button class="btn-confirm" onclick="confirmExpense()">确认录入</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var currentTab = 'tasks';
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-page').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-'+tab).classList.add('active');
+
+  var titles = { tasks: '我的任务', expense: '费用管理', ops: '车辆运营' };
+  document.getElementById('pageTitle').textContent = titles[tab];
+
+  document.querySelectorAll('.bottom-tab .tab-item').forEach(function(item, idx){
+    item.classList.remove('active');
+    var icons = item.querySelectorAll('svg');
+    icons.forEach(function(icon){ icon.setAttribute('fill','#bbc0c8'); });
+  });
+  var tabs = document.querySelectorAll('.bottom-tab .tab-item');
+  var idx = tab === 'tasks' ? 0 : (tab === 'expense' ? 1 : 2);
+  tabs[idx].classList.add('active');
+  tabs[idx].querySelector('svg').setAttribute('fill','#1a73e8');
+}
+
+function filterExpense(type, el) {
+  document.querySelectorAll('#expenseFilter .etab').forEach(function(e){ e.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.expense-item').forEach(function(item){
+    if (type === 'all' || item.getAttribute('data-type') === type) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+function selectType(el, type) {
+  document.querySelectorAll('#expenseTypes .type-item').forEach(function(i){ i.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+function openExpenseSheet() {
+  document.getElementById('expenseSheet').classList.add('show');
+  setTimeout(function(){ document.getElementById('amountInput').focus(); }, 300);
+}
+function closeExpenseSheet() {
+  document.getElementById('expenseSheet').classList.remove('show');
+}
+function confirmExpense() {
+  var amt = document.getElementById('amountInput').value || '0';
+  if (parseFloat(amt) <= 0) { alert('请输入金额'); return; }
+  alert('费用录入成功：¥' + amt + '\n自动关联 京A·88888 · 当前行程');
+  closeExpenseSheet();
+  document.getElementById('amountInput').value = '';
+}
+</script>
+
+</body>
+</html>
